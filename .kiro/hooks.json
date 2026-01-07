@@ -1,0 +1,194 @@
+{
+  "hooks": [
+    {
+      "name": "Market Research Validator",
+      "description": "Validates market research for completeness",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/MarketResearch_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Validate this market research:\n\n**Core Research:**\n- [ ] TAM/SAM/SOM with dollar figures AND sources\n- [ ] 3+ competitors with real pricing\n- [ ] Specific pain points (not generic)\n- [ ] No placeholder text (TBD, TODO)\n\n**Brand Assets (for known companies):**\n- [ ] Logo URL captured (actual URL, not just noted)\n- [ ] Brand colors documented with hex values\n- [ ] Typography identified\n- [ ] Brand Assets section included in document\n\nReport issues to fix. If building for a known company, brand assets are REQUIRED."
+      }
+    },
+    {
+      "name": "PRFAQ Validator",
+      "description": "Validates PRFAQ quality",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/PRFAQ_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Validate this PRFAQ:\n\n- [ ] Compelling headline (not generic)\n- [ ] Specific customer problem with data\n- [ ] Concrete solution description\n- [ ] FAQ addresses skeptical questions\n- [ ] Market research incorporated\n\nReport issues to fix."
+      }
+    },
+    {
+      "name": "PRD Validator",
+      "description": "Validates PRD requirements",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/PRD_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Validate this PRD:\n\n- [ ] Requirements use EARS syntax (WHEN/THE/SHALL)\n- [ ] Each requirement is testable\n- [ ] User stories have acceptance criteria\n- [ ] AWS-native architecture\n- [ ] No vague language\n\nReport issues to fix."
+      }
+    },
+    {
+      "name": "Design System Validator",
+      "description": "Checks design system for AI slop and brand compliance",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/DesignSystem_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Check design system:\n\n**Anti-AI Slop:**\n- [ ] No Inter/Roboto/Arial fonts (unless matching customer brand)\n- [ ] No purple-blue gradients on white\n- [ ] Has CSS variables for colors/fonts/spacing\n- [ ] 60-30-10 color hierarchy\n- [ ] Custom animations defined\n\n**Customer Brand (for known companies):**\n- [ ] Customer logo URL defined or embedded\n- [ ] Brand colors used (with source comment)\n- [ ] Brand typography applied\n- [ ] Comment documenting brand source\n\nReport issues to fix. If building for a known company, their brand MUST be incorporated."
+      }
+    },
+    {
+      "name": "Screen Validator",
+      "description": "Validates prototype screens for full interactivity and branding",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/Screen_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Validate this screen for FULL INTERACTIVITY and BRANDING:\n\n**Structure:**\n- [ ] Links to DesignSystem CSS\n- [ ] Uses CSS variables (not hardcoded colors)\n\n**Navigation:**\n- [ ] All buttons/links have working hrefs\n- [ ] Back buttons return to previous screen\n\n**Interactions (CRITICAL):**\n- [ ] Chat interfaces mocked (typing indicator, simulated responses)\n- [ ] Forms have loading state, success/error feedback\n- [ ] Dropdowns open/close and update selection\n- [ ] Modals open/close correctly (X, backdrop, Escape)\n- [ ] Data tables sort/filter/paginate (if applicable)\n\n**Brand (for known companies):**\n- [ ] Customer logo visible where appropriate (header, login, footer)\n- [ ] Brand colors applied consistently\n- [ ] Looks like something the company would actually build\n\n**Content:**\n- [ ] Realistic data (no Lorem ipsum, 'Test User')\n- [ ] Responsive breakpoints work\n\nReport issues to fix. Prototype must be FULLY CLICKABLE and BRANDED."
+      }
+    },
+    {
+      "name": "Phase Transition: Market Research → PRFAQ",
+      "description": "Prompts to continue after Market Research",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/MarketResearch_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Market Research complete! Ask the user:\n\n'Ready for the next phase? Options:\n1. Review the market research\n2. Proceed to PRFAQ (create PRFAQ_[Product]_[Date].html)\n3. Make changes first'\n\nWait for their response."
+      }
+    },
+    {
+      "name": "Phase Transition: PRFAQ → PRD",
+      "description": "Prompts to continue after PRFAQ",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/PRFAQ_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "PRFAQ complete! Ask the user:\n\n'Ready for the next phase? Options:\n1. Review the PRFAQ\n2. Proceed to PRD (create PRD_[Product]_[Date].html)\n3. Make changes first'\n\nWait for their response."
+      }
+    },
+    {
+      "name": "Phase Transition: PRD → Prototype",
+      "description": "Prompts to continue after PRD",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/PRD_*.html"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "PRD complete! Ask the user:\n\n'Ready for the next phase? Options:\n1. Review the PRD\n2. Proceed to Prototype (create DesignSystem first, then Screen files)\n3. Make changes first'\n\nWait for their response."
+      }
+    },
+    {
+      "name": "Kiro Spec Validator",
+      "description": "Validates requirements.md EARS syntax",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/.kiro/specs/**/requirements.md"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Validate EARS syntax:\n\n- [ ] WHEN [event] THE SYSTEM SHALL [response]\n- [ ] Each requirement testable\n- [ ] Unique IDs (REQ-XXX)\n- [ ] No ambiguous language\n\nReport issues."
+      }
+    },
+    {
+      "name": "Tech Stack Validator",
+      "description": "Validates AWS-native architecture",
+      "enabled": true,
+      "trigger": {
+        "type": "onFileSave",
+        "pattern": "**/.kiro/specs/**/design.md"
+      },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Validate AWS-native architecture. Preferred services:\n\n- Compute: Lambda, ECS, EC2, App Runner\n- Database: DynamoDB, Aurora, RDS\n- AI: Amazon Bedrock, Bedrock AgentCore, Amazon Q\n- Storage: S3, EFS\n- API: API Gateway, AppSync\n- Auth: Cognito\n\nFlag non-AWS services."
+      }
+    },
+    {
+      "name": "Customer Interview Simulator",
+      "description": "Roleplay as personas to stress-test product",
+      "enabled": true,
+      "trigger": { "type": "manual" },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Roleplay as each PRD persona:\n\n1. Adopt their mindset and frustrations\n2. React honestly to the product pitch\n3. Ask skeptical questions they would ask\n4. Identify what would make them NOT use this\n5. What would make them evangelists?\n\nBe real, not nice."
+      }
+    },
+    {
+      "name": "Competitive Response Analyzer",
+      "description": "Predict competitor reactions",
+      "enabled": true,
+      "trigger": { "type": "manual" },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "For each competitor:\n1. How might they respond?\n2. What can they quickly copy?\n3. Likely pricing response?\n\nOur defensible advantages:\n- What's hard to replicate?\n- What moats can we build?\n\nSave to documents/CompetitiveAnalysis_[Product]_[Date].html"
+      }
+    },
+    {
+      "name": "Risk Analyzer",
+      "description": "Identify risks and mitigations",
+      "enabled": true,
+      "trigger": { "type": "manual" },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Analyze risks:\n\n1. Product risks (fit, usability, adoption)\n2. Business risks (competition, timing, resources)\n\nFor each: Likelihood, Impact, Mitigation\n\nSave to documents/RiskAnalysis_[Product]_[Date].html"
+      }
+    },
+    {
+      "name": "Feature Prioritizer (RICE)",
+      "description": "Prioritize features using RICE framework",
+      "enabled": true,
+      "trigger": { "type": "manual" },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Score each PRD feature using RICE:\n\n- Reach: How many users affected?\n- Impact: How much improvement? (3=massive, 2=high, 1=medium, 0.5=low)\n- Confidence: How sure are we? (100%, 80%, 50%)\n- Effort: Person-weeks to build\n\nRICE = (Reach × Impact × Confidence) / Effort\n\nRank features by score."
+      }
+    },
+    {
+      "name": "Accessibility Auditor",
+      "description": "Check WCAG compliance",
+      "enabled": true,
+      "trigger": { "type": "manual" },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Audit prototype for WCAG AA:\n\n- [ ] Color contrast (4.5:1 text, 3:1 UI)\n- [ ] Keyboard navigation works\n- [ ] Focus indicators visible\n- [ ] ARIA labels on interactive elements\n- [ ] Alt text on images\n- [ ] Form labels associated\n\nReport issues with fixes."
+      }
+    },
+    {
+      "name": "Interactivity & Link Checker",
+      "description": "Verify all prototype interactions and links work",
+      "enabled": true,
+      "trigger": { "type": "manual" },
+      "action": {
+        "type": "agentPrompt",
+        "prompt": "Check all Screen_*.html files for FULL INTERACTIVITY:\n\n**Navigation:**\n1. List every href in each file\n2. Verify target file exists\n3. Check for broken links\n4. Verify user flows completable end-to-end\n\n**Interactions:**\n5. Chat interfaces have mocked responses (typing indicator, simulated replies)\n6. Forms have JavaScript for validation, loading, success/error states\n7. Dropdowns have onclick/onchange handlers\n8. Modals have open/close functionality\n9. Data tables have sort/filter/paginate handlers (if applicable)\n\nReport broken links AND missing interactions. Prototype must be FULLY CLICKABLE."
+      }
+    }
+  ]
+}

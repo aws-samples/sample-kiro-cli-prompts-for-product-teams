@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit - Workout in Progress</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  TEENFIT WORKOUT EXECUTION SCREEN                                             ║
+    ║  Aesthetic Direction: NEON ARCADE                                             ║
+    ║  Design System Reference: DesignSystem_TeenFit.html               ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    SCREEN PURPOSE:
+    ===============
+    The active workout experience. User is MID-EXERCISE here.
+    This screen must:
+    1. FOCUS: Keep attention on the current exercise
+    2. GUIDE: Provide clear instructions and form tips
+    3. MOTIVATE: Encourage and celebrate effort
+    4. CONTROL: Easy pause/skip/next without breaking flow
+
+    DESIGN PHILOSOPHY:
+    ==================
+    - Clean, distraction-free layout
+    - High contrast for quick glances (user is moving!)
+    - Large timer/counter for at-a-distance readability
+    - Encouragement messages boost motivation
+    - Safety tips show we care about proper form
+
+    USER CONTEXT:
+    =============
+    User is ACTIVE - doing push-ups, etc. They'll glance at phone briefly.
+    Must be readable from 2-3 feet away. Timer is primary focus.
+
+    ANTI-PATTERNS AVOIDED:
+    ======================
+    ✗ Cluttered interface with too much information
+    ✗ Small text that requires close reading
+    ✗ Generic blue/gray color scheme (no energy)
+    ✗ Static, boring UI (doesn't match workout energy)
+    -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CSS CUSTOM PROPERTIES
+        ══════════════════════════════════════════════════════════════════════════
+        */
+        :root {
+            --font-display: 'Fredoka', cursive;
+            --font-body: 'Outfit', sans-serif;
+
+            --color-bg-deep: #0a1628;
+            --color-bg: #0f1d32;
+            --color-surface: #162544;
+            --color-surface-hover: #1e3259;
+
+            --color-lime: #c6f808;
+            --color-pink: #ff2d92;
+            --color-cyan: #00f0ff;
+            --color-orange: #ff6b35;
+            --color-yellow: #ffd43b;
+
+            --color-text: #ffffff;
+            --color-text-muted: #8b9dc3;
+
+            --glow-lime: 0 0 20px rgba(198, 248, 8, 0.5), 0 0 40px rgba(198, 248, 8, 0.3);
+            --glow-orange: 0 0 20px rgba(255, 107, 53, 0.5), 0 0 40px rgba(255, 107, 53, 0.3);
+            --glow-pink: 0 0 20px rgba(255, 45, 146, 0.5), 0 0 40px rgba(255, 45, 146, 0.3);
+
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 100px;
+
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /*
+        BODY LAYOUT:
+        ============
+        Full-height flexbox layout for workout screen.
+        Three sections: header, exercise content, controls.
+        */
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            min-height: 100vh;
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Subtle animated background - less intense than welcome screen */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 50% 20%, rgba(198, 248, 8, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(255, 107, 53, 0.04) 0%, transparent 50%);
+            animation: bgPulse 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        HEADER - WORKOUT PROGRESS
+        ══════════════════════════════════════════════════════════════════════════
+
+        Shows overall workout progress. User glances here to see:
+        - What workout they're doing
+        - How far through they are (2 of 5)
+        - Time remaining
+
+        PROGRESS BAR is crucial visual feedback.
+        Animated fill creates sense of momentum.
+        */
+        .header {
+            padding: var(--space-lg);
+            text-align: center;
+            background: rgba(22, 37, 68, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .workout-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-lime);
+            margin-bottom: var(--space-xs);
+        }
+
+        .progress-info {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            margin-bottom: var(--space-md);
+        }
+
+        /*
+        PROGRESS BAR:
+        -------------
+        Visual representation of workout completion.
+        Orange gradient = energy, urgency.
+        Shimmer animation = feels alive.
+        */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-orange), var(--color-yellow));
+            width: 40%;
+            border-radius: var(--radius-full);
+            position: relative;
+            transition: width 0.5s var(--ease-bounce);
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        EXERCISE CONTAINER - MAIN CONTENT
+        ══════════════════════════════════════════════════════════════════════════
+
+        Central area where user focuses during exercise.
+        Flex-grow fills available space between header and controls.
+        */
+        .exercise-container {
+            flex: 1;
+            padding: var(--space-xl) var(--space-lg);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 420px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /*
+        EXERCISE NAME:
+        --------------
+        The primary information. Must be readable from distance.
+        Large, bold, glowing - impossible to miss.
+        */
+        .exercise-name {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 8vw, 2.5rem);
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: var(--space-sm);
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .exercise-description {
+            font-size: 1rem;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+            margin-bottom: var(--space-xl);
+        }
+
+        /*
+        TIMER DISPLAY:
+        ==============
+        THE focal point during timed exercises.
+        HUGE numbers for at-a-distance reading.
+
+        Design choices:
+        - Orange color = urgency, energy
+        - Neon glow = arcade feel, high visibility
+        - Mono-inspired sizing = consistent digit width
+
+        User should be able to read this while doing push-ups.
+        */
+        .timer-display {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 15vw, 6rem);
+            font-weight: 700;
+            color: var(--color-orange);
+            text-shadow: var(--glow-orange);
+            margin-bottom: var(--space-lg);
+            letter-spacing: 0.05em;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /*
+        REP COUNTER:
+        ============
+        For exercises counted by reps (push-ups, squats).
+        Interactive +/- buttons for easy rep tracking.
+
+        Large touch targets (60px) for sweaty fingers.
+        Bounce animation on press = satisfying feedback.
+        */
+        .rep-counter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .rep-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--color-surface);
+            border: 2px solid var(--color-surface-hover);
+            color: var(--color-text);
+            font-size: 1.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-bounce);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rep-btn:hover {
+            background: var(--color-surface-hover);
+            transform: scale(1.1);
+            border-color: var(--color-lime);
+        }
+
+        .rep-btn:active {
+            transform: scale(0.95);
+        }
+
+        .rep-count {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--color-lime);
+            text-shadow: var(--glow-lime);
+            min-width: 100px;
+        }
+
+        /*
+        ENCOURAGEMENT MESSAGE:
+        ======================
+        Motivational text to keep user going.
+        Changes per exercise to stay fresh.
+
+        Pink background = excitement, positivity.
+        Emoji adds personality without being childish.
+        */
+        .encouragement {
+            background: linear-gradient(135deg, rgba(255, 45, 146, 0.2), rgba(198, 248, 8, 0.1));
+            border: 1px solid rgba(255, 45, 146, 0.3);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-pink);
+            animation: encouragementPop 0.5s var(--ease-bounce);
+        }
+
+        @keyframes encouragementPop {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /*
+        SAFETY TIP:
+        ===========
+        Form guidance to prevent injury.
+        Shows we care about safety, not just reps.
+
+        Parents appreciate this feature.
+        Subtle styling - informational, not alarming.
+        */
+        .safety-tip {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            color: var(--color-cyan);
+            line-height: 1.5;
+        }
+
+        .safety-tip strong {
+            color: var(--color-cyan);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CONTROL BUTTONS
+        ══════════════════════════════════════════════════════════════════════════
+
+        Fixed at bottom for easy thumb access.
+        Three actions: Pause, Next Exercise, Skip.
+
+        PRIMARY (Next) is visually prominent.
+        SECONDARY (Pause, Skip) are less prominent.
+        */
+        .controls {
+            display: flex;
+            gap: var(--space-sm);
+            padding: var(--space-lg);
+            background: rgba(22, 37, 68, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px var(--space-md);
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-bounce);
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--glow-lime);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-surface-hover);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-surface-hover);
+            transform: translateY(-2px);
+        }
+
+        /*
+        ACCESSIBILITY: REDUCED MOTION
+        =============================
+        */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!--
+    HEADER:
+    =======
+    Workout progress overview.
+    User can quickly see: workout name, progress (2 of 5), time left.
+    -->
+    <header class="header">
+        <div class="workout-title">Upper Body Strength</div>
+        <div class="progress-info">Exercise 2 of 5 • 10 minutes remaining</div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </header>
+
+    <!--
+    MAIN EXERCISE AREA:
+    ===================
+    This is where the user's attention should be during the workout.
+    Large, clear information designed for quick glances.
+    -->
+    <main class="exercise-container">
+        <!--
+        EXERCISE NAME:
+        Large, bold - the current focus.
+        -->
+        <h1 class="exercise-name">Push-ups</h1>
+
+        <!--
+        EXERCISE DESCRIPTION:
+        Brief form instructions. Read once, then ignored during reps.
+        -->
+        <p class="exercise-description">
+            Start in plank position, lower your body until chest nearly touches floor, then push back up. Keep your core tight and body straight.
+        </p>
+
+        <!--
+        TIMER:
+        THE focal point. Huge, glowing, readable from distance.
+        Orange = energy, urgency.
+        -->
+        <div class="timer-display">0:45</div>
+
+        <!--
+        REP COUNTER:
+        Interactive +/- buttons for tracking reps.
+        Large touch targets for sweaty hands.
+        -->
+        <div class="rep-counter">
+            <button class="rep-btn" aria-label="Decrease rep count">−</button>
+            <div class="rep-count">8</div>
+            <button class="rep-btn" aria-label="Increase rep count">+</button>
+        </div>
+
+        <!--
+        ENCOURAGEMENT:
+        Motivational message to keep energy up.
+        Changes dynamically per exercise.
+        -->
+        <div class="encouragement">
+            🔥 You're crushing it! Every push-up makes you stronger!
+        </div>
+
+        <!--
+        SAFETY TIP:
+        Form guidance to prevent injury.
+        Shows we care about doing it RIGHT, not just doing it.
+        -->
+        <div class="safety-tip">
+            💡 <strong>Form Tip:</strong> If regular push-ups are too hard, try knee push-ups or wall push-ups. Perfect form beats high reps every time!
+        </div>
+    </main>
+
+    <!--
+    CONTROL BUTTONS:
+    ================
+    Fixed at bottom for easy thumb access.
+    "Next Exercise" is primary action (lime green).
+    "Pause" and "Skip" are secondary.
+    -->
+    <footer class="controls">
+        <button class="btn btn-secondary">Pause</button>
+        <button class="btn btn-primary">Next Exercise</button>
+        <button class="btn btn-secondary">Skip</button>
+    </footer>
+</body>
+</html>

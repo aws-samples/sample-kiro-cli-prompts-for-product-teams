@@ -4,25 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Screen - AnyCompanyLearning Pro Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --font-primary: 'IBM Plex Sans', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+
+            --color-bg: #0d1117;
+            --color-surface: #161b22;
+            --color-surface-raised: #21262d;
+            --color-border: #30363d;
+
+            --color-text: #c9d1d9;
+            --color-text-muted: #8b949e;
+            --color-text-bright: #f0f6fc;
+
+            --color-accent: #58a6ff;
+            --color-success: #3fb950;
+            --color-warning: #d29922;
+            --color-danger: #f85149;
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration: 0.2s;
+            --radius: 6px;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            font-family: var(--font-primary);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
         }
-        
+
         /* Header */
         .header {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
             padding: 0 24px;
-            height: 60px;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -30,243 +57,310 @@
             top: 0;
             z-index: 100;
         }
-        
+
         .logo {
-            font-size: 20px;
-            font-weight: 600;
-            color: #2563eb;
-        }
-        
-        .nav-items {
-            display: flex;
-            gap: 32px;
-        }
-        
-        .nav-item {
-            color: #64748b;
-            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 14px;
             font-weight: 500;
-            transition: color 0.2s;
-        }
-        
-        .nav-item:hover, .nav-item.active {
-            color: #2563eb;
-        }
-        
-        .user-profile {
+            color: var(--color-text-bright);
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
+        .logo::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-success));
+            border-radius: 4px;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-item {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            transition: all var(--duration);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--color-text-bright);
+            background: var(--color-surface-raised);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .notification-badge {
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius);
+            background: var(--color-surface-raised);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 14px;
         }
-        
+
+        .notification-badge::after {
+            content: '3';
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--color-danger);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
         /* Main Layout */
         .main-container {
-            display: flex;
-            min-height: calc(100vh - 60px);
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 64px);
         }
-        
+
         /* Alert Sidebar */
         .alert-sidebar {
-            width: 300px;
-            background: white;
-            border-right: 1px solid #e2e8f0;
+            background: var(--color-surface);
+            border-right: 1px solid var(--color-border);
             padding: 24px;
+            position: relative;
         }
-        
+
         .alert-header {
-            font-size: 18px;
-            font-weight: 600;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
             margin-bottom: 16px;
-            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
+        .alert-header::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--color-danger);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         .alert-card {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-left: 3px solid var(--color-danger);
+            border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--duration) var(--ease-out);
         }
-        
+
         .alert-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(4px);
+            border-color: var(--color-danger);
+            background: rgba(248, 81, 73, 0.1);
         }
-        
+
         .alert-card.warning {
-            background: #fffbeb;
-            border-color: #fed7aa;
+            border-left-color: var(--color-warning);
         }
-        
+
+        .alert-card.warning:hover {
+            border-color: var(--color-warning);
+            background: rgba(210, 153, 34, 0.1);
+        }
+
         .alert-student {
             font-weight: 600;
-            color: #dc2626;
+            color: var(--color-text-bright);
             margin-bottom: 4px;
-        }
-        
-        .alert-message {
             font-size: 14px;
-            color: #6b7280;
         }
-        
+
+        .alert-message {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
         .alert-time {
-            font-size: 12px;
-            color: #9ca3af;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--color-text-muted);
             margin-top: 8px;
         }
-        
+
         /* Main Content */
         .main-content {
-            flex: 1;
-            padding: 24px;
+            padding: 32px;
         }
-        
+
         .dashboard-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
-        
+
         .dashboard-title {
             font-size: 24px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--color-text-bright);
         }
-        
+
         .filter-controls {
             display: flex;
             gap: 12px;
         }
-        
+
         .filter-select {
             padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            background: white;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: var(--font-primary);
             font-size: 14px;
+            color: var(--color-text);
+            cursor: pointer;
         }
-        
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
         /* Student Grid */
         .student-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 16px;
-            margin-bottom: 32px;
         }
-        
+
         .student-card {
-            background: white;
-            border-radius: 8px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
             padding: 20px;
-            border: 1px solid #e2e8f0;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--duration) var(--ease-out);
+            position: relative;
         }
-        
+
+        .student-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            border-radius: var(--radius) 0 0 var(--radius);
+            transition: background var(--duration);
+        }
+
         .student-card:hover {
+            border-color: var(--color-accent);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
-        
-        .student-card.at-risk {
-            border-left: 4px solid #ef4444;
-        }
-        
-        .student-card.needs-attention {
-            border-left: 4px solid #f59e0b;
-        }
-        
-        .student-card.on-track {
-            border-left: 4px solid #10b981;
-        }
-        
+
+        .student-card.at-risk::before { background: var(--color-danger); }
+        .student-card.needs-attention::before { background: var(--color-warning); }
+        .student-card.on-track::before { background: var(--color-success); }
+
         .student-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
-        
+
         .student-avatar {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background: #e2e8f0;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-success));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            color: #64748b;
+            font-size: 14px;
+            color: var(--color-bg);
         }
-        
+
         .student-name {
             font-weight: 600;
-            color: #1e293b;
+            color: var(--color-text-bright);
         }
-        
+
         .student-metrics {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 16px 0;
+            border-top: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 16px;
         }
-        
+
         .metric {
             text-align: center;
         }
-        
+
         .metric-value {
-            font-size: 18px;
+            font-family: var(--font-mono);
+            font-size: 20px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--color-text-bright);
         }
-        
+
         .metric-label {
-            font-size: 12px;
-            color: #6b7280;
+            font-size: 11px;
+            color: var(--color-text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
         }
-        
+
         .progress-bar {
             height: 4px;
-            background: #e2e8f0;
+            background: var(--color-border);
             border-radius: 2px;
             overflow: hidden;
         }
-        
+
         .progress-fill {
             height: 100%;
-            transition: width 0.3s ease;
+            transition: width 0.6s var(--ease-out);
         }
-        
-        .progress-fill.high {
-            background: #10b981;
-        }
-        
-        .progress-fill.medium {
-            background: #f59e0b;
-        }
-        
-        .progress-fill.low {
-            background: #ef4444;
-        }
-        
+
+        .progress-fill.high { background: var(--color-success); }
+        .progress-fill.medium { background: var(--color-warning); }
+        .progress-fill.low { background: var(--color-danger); }
+
         /* Floating Action Button */
         .fab {
             position: fixed;
@@ -274,115 +368,148 @@
             right: 24px;
             width: 56px;
             height: 56px;
-            background: #2563eb;
+            background: var(--color-accent);
             border-radius: 50%;
             border: none;
-            color: white;
+            color: var(--color-bg);
             font-size: 24px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+            transition: all var(--duration) var(--ease-out);
         }
-        
+
         .fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(88, 166, 255, 0.4);
         }
-        
-        /* Annotations */
-        .annotation {
-            position: absolute;
-            background: #1e293b;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            z-index: 1000;
-            max-width: 200px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-        }
-        
-        .annotation::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: #1e293b;
-        }
-        
-        .annotated:hover .annotation {
-            opacity: 1;
-        }
-        
+
         /* Specifications Panel */
-        .specs-panel {
-            position: fixed;
-            top: 60px;
-            right: -400px;
-            width: 400px;
-            height: calc(100vh - 60px);
-            background: white;
-            border-left: 1px solid #e2e8f0;
-            padding: 24px;
-            overflow-y: auto;
-            transition: right 0.3s ease;
-            z-index: 200;
-        }
-        
-        .specs-panel.open {
-            right: 0;
-        }
-        
         .specs-toggle {
             position: fixed;
             top: 80px;
             right: 16px;
-            background: #2563eb;
-            color: white;
+            background: var(--color-accent);
+            color: var(--color-bg);
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
             z-index: 300;
+            transition: all var(--duration);
         }
-        
+
+        .specs-toggle:hover {
+            background: #79b8ff;
+        }
+
+        .specs-panel {
+            position: fixed;
+            top: 64px;
+            right: -420px;
+            width: 420px;
+            height: calc(100vh - 64px);
+            background: var(--color-surface);
+            border-left: 1px solid var(--color-border);
+            padding: 32px;
+            overflow-y: auto;
+            transition: right 0.3s var(--ease-out);
+            z-index: 200;
+        }
+
+        .specs-panel.open {
+            right: 0;
+        }
+
         .spec-section {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid var(--color-border);
         }
-        
+
+        .spec-section:last-child {
+            border-bottom: none;
+        }
+
         .spec-title {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 8px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin-bottom: 12px;
         }
-        
+
         .spec-content {
             font-size: 14px;
-            color: #64748b;
-            line-height: 1.5;
+            color: var(--color-text);
+            line-height: 1.7;
         }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
+
+        .spec-content code {
+            font-family: var(--font-mono);
+            background: var(--color-surface-raised);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        /* Annotations */
+        .annotation {
+            position: absolute;
+            background: var(--color-accent);
+            color: var(--color-bg);
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 1000;
+            max-width: 220px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--duration), transform var(--duration);
+            transform: translateY(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            border: 6px solid transparent;
+            border-top-color: var(--color-accent);
+        }
+
+        .annotated:hover .annotation {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
             .main-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
-            
+
             .alert-sidebar {
-                width: 100%;
                 border-right: none;
-                border-bottom: 1px solid #e2e8f0;
+                border-bottom: 1px solid var(--color-border);
             }
-            
+        }
+
+        @media (max-width: 768px) {
+            .nav-items {
+                display: none;
+            }
+
             .student-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .specs-panel {
                 width: 100%;
                 right: -100%;
@@ -391,7 +518,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="logo">AnyCompanyLearning Pro</div>
         <nav class="nav-items">
@@ -401,30 +527,28 @@
             <a href="#" class="nav-item">Settings</a>
         </nav>
         <div class="user-profile">
-            <div class="notification-badge">3</div>
-            <div>Ms. Johnson</div>
+            <div class="notification-badge">🔔</div>
+            <span style="font-size: 14px;">Ms. Johnson</span>
         </div>
     </header>
 
-    <!-- Main Container -->
     <div class="main-container">
-        <!-- Alert Sidebar -->
         <aside class="alert-sidebar annotated">
             <h2 class="alert-header">Active Alerts</h2>
-            <div class="annotation">Critical alerts requiring immediate teacher attention. Click any alert to view student details.</div>
-            
+            <div class="annotation" style="top: 60px; left: 20px;">Critical alerts requiring immediate teacher attention. Click to view student details.</div>
+
             <div class="alert-card">
                 <div class="alert-student">Sarah Chen</div>
                 <div class="alert-message">Assignment completion rate dropped to 45%</div>
                 <div class="alert-time">2 minutes ago</div>
             </div>
-            
+
             <div class="alert-card warning">
                 <div class="alert-student">Marcus Williams</div>
                 <div class="alert-message">No activity for 3 days</div>
                 <div class="alert-time">1 hour ago</div>
             </div>
-            
+
             <div class="alert-card">
                 <div class="alert-student">Emma Rodriguez</div>
                 <div class="alert-message">Quiz scores below threshold</div>
@@ -432,11 +556,10 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <div class="dashboard-header">
-                <h1 class="dashboard-title">Class Overview - Period 3</h1>
-                <div class="filter-controls annotated">
+                <h1 class="dashboard-title">Class Overview — Period 3</h1>
+                <div class="filter-controls">
                     <select class="filter-select">
                         <option>All Subjects</option>
                         <option>Math</option>
@@ -448,21 +571,19 @@
                         <option>Last Week</option>
                         <option>This Month</option>
                     </select>
-                    <div class="annotation">Filter students by subject and time period to focus on specific areas of concern.</div>
                 </div>
             </div>
 
-            <!-- Student Grid -->
             <div class="student-grid">
                 <div class="student-card at-risk annotated">
-                    <div class="annotation">At-risk students shown with red indicator. Click to view detailed intervention options.</div>
+                    <div class="annotation" style="top: -50px; left: 10px;">At-risk students shown with red indicator. Click to view intervention options.</div>
                     <div class="student-header">
                         <div class="student-avatar">SC</div>
                         <div class="student-name">Sarah Chen</div>
                     </div>
                     <div class="student-metrics">
                         <div class="metric">
-                            <div class="metric-value">45%</div>
+                            <div class="metric-value" style="color: var(--color-danger)">45%</div>
                             <div class="metric-label">Completion</div>
                         </div>
                         <div class="metric">
@@ -470,7 +591,7 @@
                             <div class="metric-label">Avg Score</div>
                         </div>
                         <div class="metric">
-                            <div class="metric-value">3</div>
+                            <div class="metric-value" style="color: var(--color-danger)">3</div>
                             <div class="metric-label">Alerts</div>
                         </div>
                     </div>
@@ -486,7 +607,7 @@
                     </div>
                     <div class="student-metrics">
                         <div class="metric">
-                            <div class="metric-value">68%</div>
+                            <div class="metric-value" style="color: var(--color-warning)">68%</div>
                             <div class="metric-label">Completion</div>
                         </div>
                         <div class="metric">
@@ -510,7 +631,7 @@
                     </div>
                     <div class="student-metrics">
                         <div class="metric">
-                            <div class="metric-value">92%</div>
+                            <div class="metric-value" style="color: var(--color-success)">92%</div>
                             <div class="metric-label">Completion</div>
                         </div>
                         <div class="metric">
@@ -534,7 +655,7 @@
                     </div>
                     <div class="student-metrics">
                         <div class="metric">
-                            <div class="metric-value">85%</div>
+                            <div class="metric-value" style="color: var(--color-success)">85%</div>
                             <div class="metric-label">Completion</div>
                         </div>
                         <div class="metric">
@@ -554,79 +675,60 @@
         </main>
     </div>
 
-    <!-- Floating Action Button -->
-    <button class="fab annotated" title="Quick Actions">
-        +
-        <div class="annotation">Quick access to common actions: create intervention, send message, generate report.</div>
-    </button>
+    <button class="fab" title="Quick Actions">+</button>
 
-    <!-- Specifications Panel -->
-    <button class="specs-toggle" onclick="toggleSpecs()">📋 Specs</button>
+    <button class="specs-toggle" onclick="toggleSpecs()">SPECS</button>
     <div class="specs-panel" id="specsPanel">
         <div class="spec-section">
             <div class="spec-title">Screen Purpose</div>
-            <div class="spec-content">Provide teachers with immediate overview of student status and urgent alerts requiring attention.</div>
+            <div class="spec-content">Provide teachers with immediate overview of student status and urgent alerts requiring attention. Prioritizes at-risk students with visual hierarchy.</div>
         </div>
-        
+
         <div class="spec-section">
             <div class="spec-title">Key Interactions</div>
             <div class="spec-content">
-                • Click alert cards to view student details<br>
-                • Click student cards for drill-down view<br>
-                • Use filters to focus on specific subjects/timeframes<br>
-                • FAB provides quick access to common actions
+                • Click <code>alert-card</code> → Navigate to student details<br>
+                • Click <code>student-card</code> → Drill-down view<br>
+                • Filter dropdowns → Live filter student grid<br>
+                • FAB → Quick actions menu
             </div>
         </div>
-        
+
         <div class="spec-section">
             <div class="spec-title">Visual Hierarchy</div>
             <div class="spec-content">
-                • Red indicators for at-risk students<br>
-                • Amber for students needing attention<br>
-                • Green for on-track students<br>
-                • Alert sidebar draws immediate attention
+                • <span style="color: var(--color-danger)">Red</span> indicators for at-risk students<br>
+                • <span style="color: var(--color-warning)">Amber</span> for students needing attention<br>
+                • <span style="color: var(--color-success)">Green</span> for on-track students<br>
+                • Alert sidebar with pulsing indicator draws immediate attention
             </div>
         </div>
-        
+
         <div class="spec-section">
             <div class="spec-title">Responsive Behavior</div>
             <div class="spec-content">
-                • Mobile: Alert sidebar moves to top<br>
-                • Student grid becomes single column<br>
-                • Specs panel becomes full-width overlay
+                • <code>&lt;1024px</code>: Sidebar moves to top<br>
+                • <code>&lt;768px</code>: Single column grid, nav collapses<br>
+                • Specs panel becomes full-width overlay on mobile
             </div>
         </div>
-        
+
         <div class="spec-section">
             <div class="spec-title">Performance Requirements</div>
             <div class="spec-content">
-                • Real-time updates every 30 seconds<br>
-                • Page load time under 2 seconds<br>
-                • Smooth animations and transitions<br>
-                • Accessible keyboard navigation
+                • Real-time updates every 30 seconds via WebSocket<br>
+                • Page load time <code>&lt;2s</code><br>
+                • 60fps animations<br>
+                • WCAG 2.1 AA compliant
             </div>
         </div>
     </div>
 
     <script>
         function toggleSpecs() {
-            const panel = document.getElementById('specsPanel');
-            panel.classList.toggle('open');
+            document.getElementById('specsPanel').classList.toggle('open');
         }
-        
-        // Simulate real-time updates
-        setInterval(() => {
-            const alerts = document.querySelectorAll('.alert-time');
-            alerts.forEach(alert => {
-                const currentText = alert.textContent;
-                if (currentText.includes('minutes ago')) {
-                    const minutes = parseInt(currentText) + 1;
-                    alert.textContent = `${minutes} minutes ago`;
-                }
-            });
-        }, 60000);
-        
-        // Add click handlers for demonstration
+
         document.querySelectorAll('.student-card, .alert-card').forEach(card => {
             card.addEventListener('click', () => {
                 alert('This would navigate to the detailed view for this student.');

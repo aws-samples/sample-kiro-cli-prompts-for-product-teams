@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit - Welcome</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  TEENFIT WELCOME SCREEN (Onboarding / Landing)                               ║
+    ║  Aesthetic Direction: NEON ARCADE                                             ║
+    ║  Design System Reference: DesignSystem_TeenFit.html               ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    SCREEN PURPOSE:
+    ===============
+    This is the FIRST screen users see - the critical first impression.
+    Goals:
+    1. EXCITE: Make users feel this app is FOR THEM (teens, not adults)
+    2. COMMUNICATE VALUE: Why should they use TeenFit vs other apps?
+    3. CONVERT: Get them to tap "Get Started"
+
+    DESIGN PHILOSOPHY:
+    ==================
+    - Full-screen immersive experience (no nav, no clutter)
+    - Dramatic animated background creates "wow" factor
+    - Large, bold typography establishes brand personality
+    - Feature list uses icons for scanability
+    - Single, prominent CTA button
+
+    KEY INSIGHT: First impressions happen in milliseconds.
+    This screen must feel DIFFERENT from every other fitness app.
+    Generic = forgettable. Bold = memorable.
+
+    ANTI-PATTERNS AVOIDED:
+    ======================
+    ✗ Blue-purple gradient on white (generic, AI-generated feel)
+    ✗ Inter/Roboto fonts (overused, no personality)
+    ✗ Static flat background (boring, forgettable)
+    ✗ Small text and timid colors (doesn't command attention)
+    ✗ Multiple CTAs (confuses, reduces conversion)
+    -->
+
+    <!--
+    TYPOGRAPHY:
+    ===========
+    - Fredoka: The hero font - bubbly, friendly, teen-appropriate
+    - Outfit: Supporting text - clean, readable
+
+    Fredoka's rounded letterforms create INSTANT personality.
+    This is NOT a corporate fitness app, and the typography says so.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+        ══════════════════════════════════════════════════════════════════════════
+
+        Same tokens as other TeenFit screens for consistency.
+        The welcome screen uses MORE of the neon accents since it's
+        the first impression - we want maximum "wow" factor.
+        */
+        :root {
+            /* Typography */
+            --font-display: 'Fredoka', cursive;
+            --font-body: 'Outfit', sans-serif;
+
+            /* Dark backgrounds - the canvas for neon */
+            --color-bg-deep: #0a1628;
+            --color-bg: #0f1d32;
+            --color-surface: #162544;
+
+            /* Neon accent colors */
+            --color-lime: #c6f808;
+            --color-pink: #ff2d92;
+            --color-cyan: #00f0ff;
+            --color-orange: #ff6b35;
+
+            /* Text */
+            --color-text: #ffffff;
+            --color-text-muted: #8b9dc3;
+
+            /* Glow effects */
+            --glow-lime: 0 0 20px rgba(198, 248, 8, 0.5), 0 0 40px rgba(198, 248, 8, 0.3), 0 0 60px rgba(198, 248, 8, 0.2);
+            --glow-pink: 0 0 20px rgba(255, 45, 146, 0.5), 0 0 40px rgba(255, 45, 146, 0.3);
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.3);
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+
+            /* Border radius - extra round for playful feel */
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 100px;
+
+            /* Animation timing - bouncy for playfulness */
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /*
+        BODY - FULL-SCREEN IMMERSIVE:
+        =============================
+        Flexbox centering creates balanced composition.
+        overflow: hidden prevents scroll on this single-screen experience.
+        */
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg-deep);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /*
+        ANIMATED BACKGROUND:
+        ====================
+        Multiple floating gradient blobs create organic, living feel.
+        Each blob has different:
+        - Position (spread across screen)
+        - Color (lime, pink, cyan)
+        - Animation timing (creates non-repetitive pattern)
+        - Blur amount (depth effect)
+
+        This technique makes the screen feel ALIVE without being distracting.
+        Static backgrounds feel cheap and dated.
+        */
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Lime blob - top left, large, slow float */
+        .bg-blob-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--color-lime);
+            top: -100px;
+            left: -100px;
+            animation: float1 20s ease-in-out infinite;
+        }
+
+        /* Pink blob - bottom right, medium, medium speed */
+        .bg-blob-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--color-pink);
+            bottom: -50px;
+            right: -50px;
+            animation: float2 15s ease-in-out infinite;
+        }
+
+        /* Cyan blob - center-bottom, small, fast */
+        .bg-blob-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--color-cyan);
+            bottom: 20%;
+            left: 30%;
+            animation: float3 12s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, 30px) scale(1.1); }
+            66% { transform: translate(-30px, 50px) scale(0.95); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-40px, -40px) scale(1.15); }
+        }
+
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -20px); }
+            50% { transform: translate(-20px, -30px); }
+            75% { transform: translate(-30px, 20px); }
+        }
+
+        /*
+        MAIN CONTAINER:
+        ===============
+        z-index ensures content is above the animated blobs.
+        Max-width 400px optimizes for mobile (primary audience).
+        Padding provides breathing room on all sides.
+        */
+        .welcome-container {
+            text-align: center;
+            padding: var(--space-2xl);
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /*
+        LOGO/BRAND:
+        ===========
+        This is the hero moment. The brand name should:
+        - Be HUGE (demands attention)
+        - GLOW (neon arcade feel)
+        - Animate in (creates anticipation)
+
+        text-shadow creates the neon glow effect.
+        Multiple shadow layers with increasing blur = more realistic glow.
+        */
+        .logo {
+            font-family: var(--font-display);
+            font-size: clamp(3.5rem, 12vw, 5rem);
+            font-weight: 700;
+            color: var(--color-lime);
+            text-shadow: var(--glow-lime);
+            margin-bottom: var(--space-md);
+            letter-spacing: -0.03em;
+            animation: logoIn 1s var(--ease-bounce) both;
+        }
+
+        @keyframes logoIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+                filter: blur(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /*
+        TAGLINE:
+        ========
+        Communicates the core value proposition in one line.
+        "Built Just for Teenagers" is the key differentiator.
+
+        Slightly muted color to not compete with logo.
+        Animation delay staggers entrance after logo.
+        */
+        .tagline {
+            font-family: var(--font-body);
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-2xl);
+            line-height: 1.5;
+            animation: fadeUp 0.8s var(--ease-smooth) 0.3s both;
+        }
+
+        .tagline strong {
+            color: var(--color-cyan);
+            font-weight: 600;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /*
+        FEATURES LIST:
+        ==============
+        Each feature reinforces why TeenFit is different:
+        - Age-appropriate (not adult workouts)
+        - Positive motivation (not drill sergeant)
+        - Progress tracking (gamification)
+        - Safety focus (parents care about this)
+
+        Left-aligned with icon creates scannable format.
+        Users can skim features quickly without reading paragraphs.
+        */
+        .features {
+            margin-bottom: var(--space-2xl);
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(22, 37, 68, 0.6);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: featureIn 0.6s var(--ease-bounce) both;
+        }
+
+        /* Staggered animation - features cascade in sequence */
+        .feature:nth-child(1) { animation-delay: 0.5s; }
+        .feature:nth-child(2) { animation-delay: 0.6s; }
+        .feature:nth-child(3) { animation-delay: 0.7s; }
+        .feature:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes featureIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /*
+        FEATURE ICON:
+        -------------
+        Circular icon with gradient background.
+        The checkmark (✓) communicates "benefit" at a glance.
+        Gradient matches brand colors for cohesion.
+        */
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-lime), var(--color-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-bg-deep);
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+            color: var(--color-text);
+            line-height: 1.4;
+        }
+
+        /*
+        CTA BUTTON:
+        ===========
+        THE most important element on the page.
+        Everything else exists to support this button.
+
+        Design choices:
+        - LIME background (highest contrast, most attention)
+        - Full-width (impossible to miss, easy tap target)
+        - Large padding (comfortable touch target, 48px+ height)
+        - Glow on hover (rewards interaction)
+        - Bounce animation (playful, inviting)
+
+        "Get Started - It's Free!" removes friction:
+        - "Get Started" = action-oriented
+        - "It's Free!" = no commitment anxiety
+        */
+        .btn-cta {
+            display: block;
+            width: 100%;
+            padding: 18px var(--space-xl);
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+            text-decoration: none;
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-bounce);
+            animation: ctaIn 0.8s var(--ease-bounce) 1s both;
+        }
+
+        @keyframes ctaIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--glow-lime);
+        }
+
+        .btn-cta:active {
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        /*
+        SECONDARY TEXT:
+        ===============
+        "Already have an account? Log in" for returning users.
+        Subtle styling - don't compete with main CTA.
+        */
+        .secondary-action {
+            margin-top: var(--space-lg);
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            animation: fadeUp 0.6s var(--ease-smooth) 1.2s both;
+        }
+
+        .secondary-action a {
+            color: var(--color-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .secondary-action a:hover {
+            color: var(--color-lime);
+        }
+
+        /*
+        ACCESSIBILITY: REDUCED MOTION
+        =============================
+        Some users get motion sickness from animations.
+        This media query respects their system preference.
+        */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .bg-blob {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!--
+    ANIMATED BACKGROUND BLOBS:
+    ==========================
+    Three floating gradient shapes create organic, living atmosphere.
+    Positioned to create asymmetric, dynamic composition.
+    Blur + opacity keeps them subtle, not distracting.
+    -->
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+
+    <div class="welcome-container">
+        <!--
+        LOGO:
+        =====
+        Hero element. Glowing neon text establishes brand immediately.
+        Animation: Scale + blur in creates "powering up" effect.
+        -->
+        <h1 class="logo">TeenFit</h1>
+
+        <!--
+        TAGLINE:
+        ========
+        Single-line value proposition.
+        "Built Just for Teenagers" is highlighted - our key differentiator.
+        -->
+        <p class="tagline">The First Workout App <strong>Built Just for Teenagers</strong></p>
+
+        <!--
+        FEATURES LIST:
+        ==============
+        Four key benefits, each addressing a teen/parent concern:
+        1. Age-appropriate = safe for developing bodies
+        2. Positive motivation = mental health aware
+        3. Progress tracking = gamification, goal-setting
+        4. Safe exercises = reduces injury risk
+        -->
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span class="feature-text">Age-appropriate workouts designed for your body</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span class="feature-text">Positive motivation that builds confidence</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span class="feature-text">Track progress and celebrate every win</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span class="feature-text">Safe exercises with proper form guidance</span>
+            </div>
+        </div>
+
+        <!--
+        PRIMARY CTA:
+        ============
+        Main conversion action. Full-width, high contrast.
+        "It's Free!" removes signup friction.
+        -->
+        <a href="Screen_Dashboard_TeenFit.html" class="btn-cta">Get Started — It's Free!</a>
+
+        <!--
+        SECONDARY ACTION:
+        =================
+        For returning users. Subtle, doesn't compete with main CTA.
+        -->
+        <p class="secondary-action">Already have an account? <a href="#login">Log in</a></p>
+    </div>
+</body>
+</html>

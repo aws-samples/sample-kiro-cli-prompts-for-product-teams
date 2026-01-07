@@ -1,5 +1,23 @@
 # LLM Workflow Checklist: Independent Product Development Process
 
+> **NEW: Multi-Agent Architecture Available**
+>
+> This toolkit now supports a **multi-agent architecture** for modern AI CLI tools (Kiro-cli, Claude Code). The multi-agent approach provides:
+> - **Protected context windows** - Each agent receives only what it needs
+> - **Web-enabled market research** - Dedicated agent for competitive analysis
+> - **Better quality** - Specialized agents focus on their domain
+> - **Resumable workflows** - Session state enables pause/resume
+>
+> **To use multi-agent mode:** Load `prompts/Orchestrator.md` instead of this file.
+>
+> **This file (Legacy Mode)** remains available for single-agent tools or simpler workflows. It works the same as before but doesn't include web-based market research.
+>
+> See `README.md` for full architecture documentation.
+
+---
+
+## Legacy Mode Documentation
+
 This checklist provides step-by-step instructions for the independent product development workflow. The LLM works independently to create each document, with **optional** user approval between phases for maximum flexibility.
 
 ## Initial Discovery and Workflow Routing

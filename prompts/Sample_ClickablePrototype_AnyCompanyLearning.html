@@ -4,35 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnyCompanyLearning Pro - Interactive Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --font-primary: 'IBM Plex Sans', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+
+            --color-bg: #0d1117;
+            --color-surface: #161b22;
+            --color-surface-raised: #21262d;
+            --color-border: #30363d;
+
+            --color-text: #c9d1d9;
+            --color-text-muted: #8b949e;
+            --color-text-bright: #f0f6fc;
+
+            --color-accent: #58a6ff;
+            --color-success: #3fb950;
+            --color-warning: #d29922;
+            --color-danger: #f85149;
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration: 0.2s;
+
+            --radius: 6px;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            font-family: var(--font-primary);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
         }
-        
+
         /* Screen Management */
         .screen {
             display: none;
             min-height: 100vh;
         }
-        
+
         .screen.active {
             display: block;
+            animation: fadeIn 0.3s var(--ease-out);
         }
-        
-        /* Header */
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Header - Industrial style */
         .header {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
             padding: 0 24px;
-            height: 60px;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -40,409 +75,666 @@
             top: 0;
             z-index: 100;
         }
-        
+
         .logo {
-            font-size: 20px;
-            font-weight: 600;
-            color: #2563eb;
-            cursor: pointer;
-        }
-        
-        .nav-items {
-            display: flex;
-            gap: 32px;
-        }
-        
-        .nav-item {
-            color: #64748b;
-            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 14px;
             font-weight: 500;
-            transition: color 0.2s;
+            color: var(--color-text-bright);
             cursor: pointer;
-        }
-        
-        .nav-item:hover, .nav-item.active {
-            color: #2563eb;
-        }
-        
-        .user-profile {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
+        .logo::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-success));
+            border-radius: 4px;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-item {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            transition: all var(--duration) var(--ease-out);
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: var(--color-text);
+            background: var(--color-surface-raised);
+        }
+
+        .nav-item.active {
+            color: var(--color-text-bright);
+            background: var(--color-surface-raised);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .notification-badge {
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius);
+            background: var(--color-surface-raised);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
             cursor: pointer;
+            transition: background var(--duration);
         }
-        
-        /* Dashboard Styles */
-        .main-container {
-            display: flex;
-            min-height: calc(100vh - 60px);
+
+        .notification-badge:hover {
+            background: var(--color-border);
         }
-        
-        .alert-sidebar {
-            width: 300px;
-            background: white;
-            border-right: 1px solid #e2e8f0;
-            padding: 24px;
+
+        .notification-badge::before {
+            content: '🔔';
+            font-size: 14px;
         }
-        
-        .alert-header {
-            font-size: 18px;
+
+        .notification-badge::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--color-danger);
+            color: white;
+            font-size: 10px;
             font-weight: 600;
-            margin-bottom: 16px;
-            color: #1e293b;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
         }
-        
+
+        .user-name {
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        /* Dashboard Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Alert Sidebar */
+        .alert-sidebar {
+            background: var(--color-surface);
+            border-right: 1px solid var(--color-border);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .alert-header {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-header::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--color-danger);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         .alert-card {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-left: 3px solid var(--color-danger);
+            border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--duration) var(--ease-out);
         }
-        
+
         .alert-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(4px);
+            border-color: var(--color-danger);
+            background: rgba(248, 81, 73, 0.1);
         }
-        
+
         .alert-student {
             font-weight: 600;
-            color: #dc2626;
+            color: var(--color-text-bright);
             margin-bottom: 4px;
-        }
-        
-        .alert-message {
             font-size: 14px;
-            color: #6b7280;
         }
-        
+
+        .alert-message {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
+        .alert-time {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--color-text-muted);
+            margin-top: 8px;
+        }
+
+        /* Main Content */
         .main-content {
-            flex: 1;
-            padding: 24px;
+            padding: 32px;
+            background: var(--color-bg);
         }
-        
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
         .dashboard-title {
             font-size: 24px;
             font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 24px;
+            color: var(--color-text-bright);
         }
-        
+
+        .dashboard-subtitle {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-top: 4px;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-text-bright);
+            line-height: 1;
+        }
+
+        .stat-value.success { color: var(--color-success); }
+        .stat-value.warning { color: var(--color-warning); }
+        .stat-value.danger { color: var(--color-danger); }
+
+        .stat-change {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-top: 8px;
+        }
+
+        .stat-change.positive { color: var(--color-success); }
+        .stat-change.negative { color: var(--color-danger); }
+
+        /* Student Grid */
         .student-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 16px;
         }
-        
+
         .student-card {
-            background: white;
-            border-radius: 8px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
             padding: 20px;
-            border: 1px solid #e2e8f0;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--duration) var(--ease-out);
+            position: relative;
         }
-        
+
+        .student-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--color-border);
+            border-radius: var(--radius) 0 0 var(--radius);
+            transition: background var(--duration);
+        }
+
         .student-card:hover {
+            border-color: var(--color-accent);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
-        
-        .student-card.at-risk {
-            border-left: 4px solid #ef4444;
+
+        .student-card:hover::before {
+            background: var(--color-accent);
         }
-        
+
+        .student-card.at-risk::before {
+            background: var(--color-danger);
+        }
+
+        .student-card.at-risk:hover::before {
+            background: var(--color-danger);
+        }
+
         .student-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
-        
+
         .student-avatar {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background: #e2e8f0;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-success));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            color: #64748b;
+            font-size: 14px;
+            color: var(--color-bg);
         }
-        
+
         .student-name {
             font-weight: 600;
-            color: #1e293b;
+            color: var(--color-text-bright);
+            font-size: 15px;
         }
-        
-        .student-metrics {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .metric-value {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .metric-label {
+
+        .student-status {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--color-text-muted);
         }
-        
-        /* Student Detail Styles */
+
+        .student-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text-bright);
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        /* Student Detail Screen */
         .detail-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 32px;
         }
-        
+
         .breadcrumb {
+            font-size: 13px;
+            color: var(--color-text-muted);
             margin-bottom: 24px;
-            color: #64748b;
         }
-        
+
         .breadcrumb a {
-            color: #2563eb;
+            color: var(--color-accent);
             text-decoration: none;
         }
-        
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
         .student-detail-header {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: 32px;
             margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 32px;
         }
-        
+
         .student-photo {
             width: 80px;
             height: 80px;
-            border-radius: 50%;
-            background: #e2e8f0;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-success));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: 600;
-            color: #64748b;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-bg);
         }
-        
+
         .student-info h1 {
             font-size: 28px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--color-text-bright);
+            margin-bottom: 12px;
         }
-        
-        .student-status {
+
+        .student-status-row {
             display: flex;
-            gap: 16px;
+            gap: 32px;
         }
-        
+
         .status-item {
-            text-align: center;
+            text-align: left;
         }
-        
+
         .status-value {
-            font-size: 20px;
+            font-family: var(--font-mono);
+            font-size: 24px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--color-text-bright);
         }
-        
+
         .status-label {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--color-text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
         }
-        
+
         .detail-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 24px;
         }
-        
+
         .chart-container, .intervention-panel {
-            background: white;
-            border-radius: 8px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
             padding: 24px;
         }
-        
+
         .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 16px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            margin-bottom: 20px;
         }
-        
+
         .chart-placeholder {
             height: 300px;
-            background: #f1f5f9;
-            border-radius: 8px;
+            background: var(--color-surface-raised);
+            border: 1px dashed var(--color-border);
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #64748b;
-            font-style: italic;
+            color: var(--color-text-muted);
+            font-size: 14px;
         }
-        
+
+        /* Form Styles */
         .intervention-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
-        
+
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
         }
-        
+
         .form-label {
+            font-size: 13px;
             font-weight: 500;
-            color: #374151;
+            color: var(--color-text);
         }
-        
-        .form-input, .form-textarea {
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+
+        .form-input, .form-textarea, .form-select {
+            padding: 10px 12px;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: var(--font-primary);
             font-size: 14px;
+            color: var(--color-text);
+            transition: border-color var(--duration);
         }
-        
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
         .form-textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
         }
-        
+
+        /* Buttons */
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--radius);
+            font-family: var(--font-primary);
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--duration) var(--ease-out);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        
+
         .btn-primary {
-            background: #2563eb;
-            color: white;
+            background: var(--color-accent);
+            color: var(--color-bg);
         }
-        
+
         .btn-primary:hover {
-            background: #1d4ed8;
+            background: #79b8ff;
+            transform: translateY(-1px);
         }
-        
+
         .btn-secondary {
-            background: #f1f5f9;
-            color: #64748b;
+            background: var(--color-surface-raised);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
         }
-        
+
         .btn-secondary:hover {
-            background: #e2e8f0;
+            background: var(--color-border);
         }
-        
-        /* Modal Styles */
+
+        .btn-success {
+            background: var(--color-success);
+            color: var(--color-bg);
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
-        
+
         .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.2s var(--ease-out);
         }
-        
+
         .modal-content {
-            background: white;
-            border-radius: 8px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
             padding: 24px;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            animation: slideUp 0.3s var(--ease-out);
         }
-        
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
         }
-        
+
         .modal-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--color-text-bright);
         }
-        
+
         .close-btn {
             background: none;
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #64748b;
+            color: var(--color-text-muted);
+            transition: color var(--duration);
         }
-        
+
+        .close-btn:hover {
+            color: var(--color-text);
+        }
+
         /* Success Message */
         .success-message {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #166534;
+            background: rgba(63, 185, 80, 0.15);
+            border: 1px solid var(--color-success);
+            color: var(--color-success);
             padding: 12px 16px;
-            border-radius: 6px;
+            border-radius: var(--radius);
             margin-bottom: 16px;
             display: none;
+            font-size: 14px;
         }
-        
+
         .success-message.show {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideUp 0.3s var(--ease-out);
         }
-        
+
+        .success-message::before {
+            content: '✓';
+            font-weight: 700;
+        }
+
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .main-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
-            
+
             .alert-sidebar {
-                width: 100%;
                 border-right: none;
-                border-bottom: 1px solid #e2e8f0;
+                border-bottom: 1px solid var(--color-border);
             }
-            
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-items {
+                display: none;
+            }
+
             .student-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .detail-grid {
+
+            .stats-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -460,51 +752,85 @@
                 <span class="nav-item">Settings</span>
             </nav>
             <div class="user-profile">
-                <div class="notification-badge" onclick="showNotifications()">3</div>
-                <div>Ms. Johnson</div>
+                <div class="notification-badge" data-count="3" onclick="showNotifications()"></div>
+                <span class="user-name">Ms. Johnson</span>
             </div>
         </header>
 
         <div class="main-container">
             <aside class="alert-sidebar">
                 <h2 class="alert-header">Active Alerts</h2>
-                
+
                 <div class="alert-card" onclick="showStudentDetail('sarah-chen')">
                     <div class="alert-student">Sarah Chen</div>
                     <div class="alert-message">Assignment completion rate dropped to 45%</div>
+                    <div class="alert-time">2 hours ago</div>
                 </div>
-                
+
                 <div class="alert-card" onclick="showStudentDetail('marcus-williams')">
                     <div class="alert-student">Marcus Williams</div>
                     <div class="alert-message">No activity for 3 days</div>
+                    <div class="alert-time">1 day ago</div>
                 </div>
-                
+
                 <div class="alert-card" onclick="showStudentDetail('emma-rodriguez')">
                     <div class="alert-student">Emma Rodriguez</div>
                     <div class="alert-message">Quiz scores below threshold</div>
+                    <div class="alert-time">3 days ago</div>
                 </div>
             </aside>
 
             <main class="main-content">
-                <h1 class="dashboard-title">Class Overview - Period 3</h1>
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="dashboard-title">Class Overview</h1>
+                        <p class="dashboard-subtitle">Period 3 — Advanced Mathematics</p>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Students</div>
+                        <div class="stat-value">28</div>
+                        <div class="stat-change">All enrolled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">At Risk</div>
+                        <div class="stat-value danger">3</div>
+                        <div class="stat-change negative">↑ 1 from last week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Completion</div>
+                        <div class="stat-value success">78%</div>
+                        <div class="stat-change positive">↑ 5% from last week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Score</div>
+                        <div class="stat-value">82</div>
+                        <div class="stat-change">Stable</div>
+                    </div>
+                </div>
 
                 <div class="student-grid">
                     <div class="student-card at-risk" onclick="showStudentDetail('sarah-chen')">
                         <div class="student-header">
                             <div class="student-avatar">SC</div>
-                            <div class="student-name">Sarah Chen</div>
+                            <div>
+                                <div class="student-name">Sarah Chen</div>
+                                <div class="student-status">Needs intervention</div>
+                            </div>
                         </div>
                         <div class="student-metrics">
-                            <div>
-                                <div class="metric-value">45%</div>
+                            <div class="metric">
+                                <div class="metric-value" style="color: var(--color-danger)">45%</div>
                                 <div class="metric-label">Completion</div>
                             </div>
-                            <div>
+                            <div class="metric">
                                 <div class="metric-value">72</div>
                                 <div class="metric-label">Avg Score</div>
                             </div>
-                            <div>
-                                <div class="metric-value">3</div>
+                            <div class="metric">
+                                <div class="metric-value" style="color: var(--color-danger)">3</div>
                                 <div class="metric-label">Alerts</div>
                             </div>
                         </div>
@@ -513,18 +839,21 @@
                     <div class="student-card" onclick="showStudentDetail('marcus-williams')">
                         <div class="student-header">
                             <div class="student-avatar">MW</div>
-                            <div class="student-name">Marcus Williams</div>
+                            <div>
+                                <div class="student-name">Marcus Williams</div>
+                                <div class="student-status">Monitor closely</div>
+                            </div>
                         </div>
                         <div class="student-metrics">
-                            <div>
-                                <div class="metric-value">68%</div>
+                            <div class="metric">
+                                <div class="metric-value" style="color: var(--color-warning)">68%</div>
                                 <div class="metric-label">Completion</div>
                             </div>
-                            <div>
+                            <div class="metric">
                                 <div class="metric-value">81</div>
                                 <div class="metric-label">Avg Score</div>
                             </div>
-                            <div>
+                            <div class="metric">
                                 <div class="metric-value">1</div>
                                 <div class="metric-label">Alerts</div>
                             </div>
@@ -534,18 +863,45 @@
                     <div class="student-card" onclick="showStudentDetail('emma-rodriguez')">
                         <div class="student-header">
                             <div class="student-avatar">ER</div>
-                            <div class="student-name">Emma Rodriguez</div>
+                            <div>
+                                <div class="student-name">Emma Rodriguez</div>
+                                <div class="student-status">On track</div>
+                            </div>
                         </div>
                         <div class="student-metrics">
-                            <div>
-                                <div class="metric-value">92%</div>
+                            <div class="metric">
+                                <div class="metric-value" style="color: var(--color-success)">92%</div>
                                 <div class="metric-label">Completion</div>
                             </div>
-                            <div>
+                            <div class="metric">
                                 <div class="metric-value">88</div>
                                 <div class="metric-label">Avg Score</div>
                             </div>
+                            <div class="metric">
+                                <div class="metric-value">0</div>
+                                <div class="metric-label">Alerts</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="student-card" onclick="showStudentDetail('james-thompson')">
+                        <div class="student-header">
+                            <div class="student-avatar">JT</div>
                             <div>
+                                <div class="student-name">James Thompson</div>
+                                <div class="student-status">Excellent progress</div>
+                            </div>
+                        </div>
+                        <div class="student-metrics">
+                            <div class="metric">
+                                <div class="metric-value" style="color: var(--color-success)">98%</div>
+                                <div class="metric-label">Completion</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">95</div>
+                                <div class="metric-label">Avg Score</div>
+                            </div>
+                            <div class="metric">
                                 <div class="metric-value">0</div>
                                 <div class="metric-label">Alerts</div>
                             </div>
@@ -567,21 +923,21 @@
                 <span class="nav-item">Settings</span>
             </nav>
             <div class="user-profile">
-                <div class="notification-badge">3</div>
-                <div>Ms. Johnson</div>
+                <div class="notification-badge" data-count="3" onclick="showNotifications()"></div>
+                <span class="user-name">Ms. Johnson</span>
             </div>
         </header>
 
         <div class="detail-container">
             <div class="breadcrumb">
-                <a href="#" onclick="showScreen('dashboard')">Dashboard</a> > Student Detail
+                <a href="#" onclick="showScreen('dashboard')">Dashboard</a> / Student Detail
             </div>
 
             <div class="student-detail-header">
                 <div class="student-photo" id="student-photo">SC</div>
                 <div class="student-info">
                     <h1 id="student-name">Sarah Chen</h1>
-                    <div class="student-status">
+                    <div class="student-status-row">
                         <div class="status-item">
                             <div class="status-value" id="completion-rate">45%</div>
                             <div class="status-label">Completion Rate</div>
@@ -602,7 +958,7 @@
                 <div class="chart-container">
                     <h2 class="section-title">Performance Timeline</h2>
                     <div class="chart-placeholder">
-                        Interactive performance chart would be displayed here
+                        📊 Interactive performance chart would be displayed here
                     </div>
                 </div>
 
@@ -630,7 +986,7 @@
                             <label class="form-label">Target Date</label>
                             <input type="date" class="form-input" required>
                         </div>
-                        <div style="display: flex; gap: 12px;">
+                        <div style="display: flex; gap: 12px; margin-top: 8px;">
                             <button type="submit" class="btn btn-primary">Create Intervention</button>
                             <button type="button" class="btn btn-secondary" onclick="showScreen('dashboard')">Cancel</button>
                         </div>
@@ -647,192 +1003,84 @@
                 <h2 class="modal-title">Recent Notifications</h2>
                 <button class="close-btn" onclick="closeModal('notification-modal')">&times;</button>
             </div>
-            <div>
-                <p><strong>Sarah Chen:</strong> Assignment completion rate dropped to 45%</p>
-                <p><strong>Marcus Williams:</strong> No activity for 3 days</p>
-                <p><strong>Emma Rodriguez:</strong> Quiz scores below threshold</p>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="padding: 12px; background: var(--color-surface-raised); border-radius: var(--radius); border-left: 3px solid var(--color-danger);">
+                    <strong style="color: var(--color-text-bright);">Sarah Chen</strong>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">Assignment completion rate dropped to 45%</p>
+                </div>
+                <div style="padding: 12px; background: var(--color-surface-raised); border-radius: var(--radius); border-left: 3px solid var(--color-warning);">
+                    <strong style="color: var(--color-text-bright);">Marcus Williams</strong>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">No activity for 3 days</p>
+                </div>
+                <div style="padding: 12px; background: var(--color-surface-raised); border-radius: var(--radius); border-left: 3px solid var(--color-warning);">
+                    <strong style="color: var(--color-text-bright);">Emma Rodriguez</strong>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">Quiz scores below threshold</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Student data
         const students = {
-            'sarah-chen': {
-                name: 'Sarah Chen',
-                avatar: 'SC',
-                completion: '45%',
-                avgScore: '72',
-                alerts: '3'
-            },
-            'marcus-williams': {
-                name: 'Marcus Williams',
-                avatar: 'MW',
-                completion: '68%',
-                avgScore: '81',
-                alerts: '1'
-            },
-            'emma-rodriguez': {
-                name: 'Emma Rodriguez',
-                avatar: 'ER',
-                completion: '92%',
-                avgScore: '88',
-                alerts: '0'
-            }
+            'sarah-chen': { name: 'Sarah Chen', avatar: 'SC', completion: '45%', avgScore: '72', alerts: '3' },
+            'marcus-williams': { name: 'Marcus Williams', avatar: 'MW', completion: '68%', avgScore: '81', alerts: '1' },
+            'emma-rodriguez': { name: 'Emma Rodriguez', avatar: 'ER', completion: '92%', avgScore: '88', alerts: '0' },
+            'james-thompson': { name: 'James Thompson', avatar: 'JT', completion: '98%', avgScore: '95', alerts: '0' }
         };
 
-        // Screen management
         function showScreen(screenId) {
-            // Hide all screens
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            
-            // Show target screen
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            
-            // Update navigation
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Track analytics
             trackEvent('screen_view', { screen: screenId });
         }
 
-        // Show student detail
         function showStudentDetail(studentId) {
             const student = students[studentId];
             if (student) {
-                // Update student detail screen
                 document.getElementById('student-photo').textContent = student.avatar;
                 document.getElementById('student-name').textContent = student.name;
                 document.getElementById('completion-rate').textContent = student.completion;
                 document.getElementById('avg-score').textContent = student.avgScore;
                 document.getElementById('active-alerts').textContent = student.alerts;
-                
-                // Show student detail screen
                 showScreen('student-detail');
-                
-                // Track analytics
                 trackEvent('student_detail_view', { student: studentId });
             }
         }
 
-        // Show notifications
         function showNotifications() {
             document.getElementById('notification-modal').classList.add('active');
             trackEvent('notifications_opened');
         }
 
-        // Close modal
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Create intervention
         function createIntervention(event) {
             event.preventDefault();
-            
-            // Show success message
             const successMsg = document.getElementById('success-message');
             successMsg.classList.add('show');
-            
-            // Hide success message after 3 seconds
-            setTimeout(() => {
-                successMsg.classList.remove('show');
-            }, 3000);
-            
-            // Reset form
+            setTimeout(() => successMsg.classList.remove('show'), 3000);
             event.target.reset();
-            
-            // Track analytics
             trackEvent('intervention_created');
-            
-            // Simulate going back to dashboard after intervention
-            setTimeout(() => {
-                showScreen('dashboard');
-            }, 2000);
+            setTimeout(() => showScreen('dashboard'), 2000);
         }
 
-        // Analytics tracking (simulated)
         function trackEvent(eventName, properties = {}) {
-            console.log('Analytics Event:', eventName, properties);
-            
-            // In a real prototype, this would send data to analytics service
-            // For demo purposes, we'll store in localStorage
-            const events = JSON.parse(localStorage.getItem('prototype_analytics') || '[]');
-            events.push({
-                event: eventName,
-                properties: properties,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('prototype_analytics', JSON.stringify(events));
+            console.log('Analytics:', eventName, properties);
         }
 
-        // Simulate real-time updates
-        function simulateRealTimeUpdates() {
-            // Update notification badge occasionally
-            const badge = document.querySelector('.notification-badge');
-            let count = 3;
-            
-            setInterval(() => {
-                if (Math.random() > 0.8) { // 20% chance every 10 seconds
-                    count++;
-                    badge.textContent = count;
-                    trackEvent('new_alert_received');
-                }
-            }, 10000);
-        }
-
-        // Initialize prototype
-        document.addEventListener('DOMContentLoaded', function() {
-            // Track initial page load
-            trackEvent('prototype_loaded');
-            
-            // Start real-time simulation
-            simulateRealTimeUpdates();
-            
-            // Close modals when clicking outside
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal) {
-                        modal.classList.remove('active');
-                    }
-                });
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', e => {
+                if (e.target === modal) modal.classList.remove('active');
             });
         });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', e => {
             if (e.key === 'Escape') {
-                // Close any open modals
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
-            }
-            
-            if (e.key === 'h' && e.ctrlKey) {
-                // Ctrl+H to go home
-                e.preventDefault();
-                showScreen('dashboard');
+                document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
             }
         });
-
-        // Export analytics data (for user testing insights)
-        function exportAnalytics() {
-            const events = JSON.parse(localStorage.getItem('prototype_analytics') || '[]');
-            const dataStr = JSON.stringify(events, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'prototype_analytics.json';
-            link.click();
-        }
-
-        // Add export button to console for testing
-        console.log('To export analytics data, run: exportAnalytics()');
     </script>
 </body>
 </html>

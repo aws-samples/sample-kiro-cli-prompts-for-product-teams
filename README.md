@@ -1,173 +1,260 @@
 # Product Team's Tool Chest
 
-A comprehensive toolkit that transforms Amazon Q Developer into your personal product development partner. Go from idea to interactive prototype in hours, not weeks, with specialized support for AI/ML products.
+A comprehensive toolkit that transforms AI coding assistants into your personal product development partner. Go from idea to interactive prototype with specialized support for AI/ML products.
 
 ## Overview
 
-The Product Team's Tool Chest enhances Amazon Q Developer with professional product management capabilities through a sophisticated workflow:
+This toolkit provides **steering files for [Kiro](https://kiro.dev)** that guide an AI assistant through a complete product development workflow:
 
-**For AI/ML Products (4-Phase Workflow):**
-0. **AI Framing** - ML problem definition, data strategy, and performance metrics using comprehensive ML evaluation framework
-1. **PRFAQ Creation** - Amazon-style Press Release and FAQ using "Working Backwards" methodology
-2. **PRD Development** - Comprehensive Product Requirements Document with ML requirements and prototype testing plans
-3. **Interactive Prototype Creation** - Fully clickable HTML prototypes with working forms and navigation
+> **What is Kiro?** Kiro is an AI-powered IDE that uses "steering files" to guide AI behavior with project-specific instructions. Steering files are markdown documents in `.kiro/steering/` that provide context, workflows, and constraints. When you work in Kiro, these files automatically shape how the AI assistant responds - no manual prompting required.
 
-**For Standard Products (3-Phase Workflow):**
-1. **PRFAQ Creation** - Amazon-style Press Release and FAQ using "Working Backwards" methodology
-2. **PRD Development** - Comprehensive Product Requirements Document with prototype testing plans
-3. **Interactive Prototype Creation** - Fully clickable HTML prototypes with working forms and navigation
+```
+Discovery → Market Research → PRFAQ → PRD → Prototype
+```
 
-## What Makes This Special
+Each phase produces professional deliverables as styled HTML documents that can be viewed in a browser and shared with stakeholders.
 
-### For Product Managers
-- **No Technical Skills Required**: Simple setup, Amazon Q handles all the complexity
-- **AI/ML Expertise**: Built-in ML problem framing with comprehensive evaluation metrics
-- **Professional Quality**: Executive-ready documents and interactive prototypes
-- **Time Savings**: 1-2 hours instead of weeks of manual work
-- **Proven Methodologies**: Built-in Amazon frameworks and PM best practices
+## Quick Start (Kiro)
 
-### Enhanced Amazon Q Capabilities
-- **Product Management Expertise**: Transforms Q into a senior PM with built-in frameworks
-- **AI/ML Problem Framing**: Comprehensive ML evaluation framework with 40+ metrics
-- **Autonomous Operation**: Q works independently using professional templates
-- **Design System Generation**: Creates comprehensive design systems automatically
-- **Interactive Prototypes**: Builds fully functional clickable prototypes, not just mockups
+1. **Copy steering files** to your project:
+   ```bash
+   cp -r .kiro/steering/* your-project/.kiro/steering/
+   cp .kiro/hooks.json your-project/.kiro/
+   ```
 
-## Quick Start
+2. **Open your project in Kiro** and describe your product idea
 
-### Simple 5-Step Setup
+3. **The workflow runs automatically:**
+   - Market research with web search
+   - PRFAQ (Press Release / FAQ) using Working Backwards methodology
+   - PRD with detailed requirements
+   - Interactive HTML prototype with modular screens
 
-**Option A: Command Line (Recommended)**
-1. **Download Amazon Q Developer CLI** (free from aws.amazon.com/q/developer/)
-2. **Create a project folder** and navigate to it
-3. **Copy the prompts folder** from PMToolKit into your project directory
-4. **Launch Amazon Q** with `q chat`
-5. **Tell Amazon Q**: "Please look in the prompts folder in this directory and execute the LLM Workflow Checklist"
+All outputs are **standalone HTML files** that open directly in any browser - no build step or server required. Share them with stakeholders by simply sending the files.
 
-**Option B: VSCode Extension**
-1. **Download VSCode** (if you don't have it): https://code.visualstudio.com/download
-2. **Install Amazon Q extension** in VSCode (Extensions tab → Search "Amazon Q")
-3. **Create a project folder** and copy the prompts folder into it
-4. **Open the project folder in VSCode** (File → Open Folder)
-5. **Open Amazon Q chat** (click Amazon Q icon in sidebar)
-6. **Tell Amazon Q**: "Please look in the prompts folder in this directory and execute the LLM Workflow Checklist"
+## Workflow Phases
 
-That's it! Amazon Q will handle everything else automatically.
+### Phase 1: Market Research
+- Competitive landscape analysis (3-5 competitors)
+- Market sizing (TAM/SAM/SOM with sources)
+- Customer pain points research
+- Pricing intelligence
+- Customer brand research (logo, colors) if applicable
 
-### What Amazon Q Will Do
-- Find and load the LLM Workflow Checklist
-- **Detect AI/ML products** and route to appropriate workflow
-- Transform itself into a product development expert
-- Ask you to choose between Full Approval or Streamlined mode
-- **For AI/ML products:** Start with comprehensive ML problem framing
-- Guide you through the complete workflow (3 or 4 phases)
-- Create professional documents and interactive prototypes
-- Set up organized file structure automatically
+**Output:** `MarketResearch_[Product]_[Date].html`
+
+### Phase 1b: AI Framing (Optional)
+Only for AI/ML products. Defines:
+- ML problem type (classification, regression, etc.)
+- Input/output schemas
+- Success metrics and thresholds
+- Training data requirements
+
+### Phase 2: PRFAQ
+Amazon-style Working Backwards documentation:
+- Press Release (as if product already launched)
+- FAQ addressing customer and business questions
+- Incorporates market research findings
+
+**Output:** `PRFAQ_[Product]_[Date].html`
+
+### Phase 3: PRD (Requirements)
+Implementation-ready specification:
+- User personas with detailed profiles
+- Requirements in EARS syntax (When/The/Shall format)
+- User stories with acceptance criteria
+- Success metrics and business model
+- Technical constraints (AWS/Anthropic stack only)
+
+**Output:** `PRD_[Product]_[Date].html` + `.kiro/specs/[product]/requirements.md`
+
+### Phase 4: Prototype
+Interactive HTML prototype with:
+- **Modular file structure** (not monolithic)
+- Distinctive visual design (no generic "AI slop")
+- Working navigation between screens
+- Form validation and feedback
+- Responsive layouts (desktop, tablet, mobile)
+- Realistic data (no Lorem ipsum)
+
+**Output:**
+```
+documents/
+├── DesignSystem_[Product]_[Date].html    (shared CSS)
+├── ScreenIndex_[Product]_[Date].html     (navigation hub)
+├── Screen_Dashboard_[Product]_[Date].html
+├── Screen_[Name]_[Product]_[Date].html   (one per screen)
+└── ProjectDashboard_[Product]_[Date].html
+```
 
 ## File Structure
 
 ```
-PMToolKit/
-├── prompts/                       # The Product Team's Tool Chest
-│   ├── README.md                  # This file
-│   ├── LLM Workflow Checklist.md # Main toolkit (Amazon Q loads this)
-│   ├── PRFAQ Guide.md            # Amazon's Working Backwards methodology
-│   ├── PRD Creation Guide.md     # Professional PRD templates
-│   └── Prototype Creation Guide.md # Interactive prototype creation
-├── templates/                     # AI/ML Product Templates
-│   └── ai_framing_template.md    # ML problem framing with evaluation metrics
-└── documents/                     # Auto-generated by Amazon Q
-    ├── ProjectDashboard_[Product]_[Date].html
-    ├── DesignSystem_[Product]_[Date].html
-    ├── AIFraming_[Product]_[Date].md/.html (AI/ML products only)
-    ├── PRFAQ_[Product]_[Date].md/.html
-    ├── PRD_[Product]_[Date].md/.html
-    ├── Prototype_[Product]_[Date].md/.html
-    ├── Screen_[Name]_[Product]_[Date].html (multiple)
-    └── ClickablePrototype_[Product]_[Date].html
+CLAUDE.md                       (auto-loads in Claude Code)
+.cursorrules                    (auto-loads in Cursor)
+
+.kiro/
+├── steering/
+│   ├── product-workflow.md     (main orchestration - always loaded)
+│   ├── design-standards.md     (visual standards - always loaded)
+│   ├── market-research.md      (research guide - manual)
+│   ├── prfaq-guide.md          (PRFAQ guide - manual)
+│   ├── prd-guide.md            (PRD guide - manual)
+│   └── prototype-guide.md      (prototype guide - manual)
+└── hooks.json                  (agent hooks for automation)
+
+prompts/                        (Claude Code / Cursor workflow)
+├── Claude_Code_Workflow.md     (main workflow guide)
+├── Market Research Agent.md
+├── PRFAQ Guide.md
+├── PRD Creation Guide.md
+└── Prototype Creation Guide.md
+
+documents/                      (auto-generated outputs)
+├── MarketResearch_*.html
+├── PRFAQ_*.html
+├── PRD_*.html
+├── DesignSystem_*.html
+├── Screen_*.html
+└── ProjectDashboard_*.html
+
+samples/                        (example outputs for reference)
+├── DesignSystem_TeenFit.html
+├── PRFAQ_TeenFit.html
+├── PRD_TeenFit.html
+└── Screen_*.html
 ```
 
-## What You'll Get
+## Steering Files
 
-### Professional Documentation
-- **AI Framing** (AI/ML products): Comprehensive ML problem definition with 40+ evaluation metrics
-- **PRFAQ**: Executive-ready press release with comprehensive FAQ
-- **PRD**: Complete product requirements with realistic personas and technical specs
-- **Design System**: Professional color palettes, typography, and component libraries
+| File | Inclusion | Purpose |
+|------|-----------|---------|
+| `product-workflow.md` | always | Main workflow orchestration |
+| `design-standards.md` | always | Visual design standards |
+| `market-research.md` | manual | Web-based research guide |
+| `prfaq-guide.md` | manual | PRFAQ creation guide |
+| `prd-guide.md` | manual | PRD and Kiro spec guide |
+| `prototype-guide.md` | manual | Prototype creation guide |
 
-### Interactive Prototypes
-- **Clickable Navigation**: Working links between all screens
-- **Form Functionality**: Input validation, error messages, success states
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **User Flow Testing**: Complete workflows from start to finish
-- **Realistic Data**: Mock data that updates based on interactions
+## Agent Hooks
 
-### Project Management
-- **Central Dashboard**: Navigation hub with progress tracking
-- **Consistent Branding**: Unified design system across all deliverables
-- **Version Control**: Date-stamped files for easy organization
-- **Ready for Development**: Implementation-ready specifications
+Pre-configured hooks in `.kiro/hooks.json` provide 26 PM-focused agents:
 
-### Key Features
+**Automatic Validation (on file save):**
+- Market Research, PRFAQ, PRD, AI Framing validators
+- Design System Consistency (prevents AI slop)
+- Tech Stack Validator (prefers AWS-native services)
 
-### Automatic Everything
-- **Smart Product Detection**: Automatically identifies AI/ML products and routes to appropriate workflow
-- **Document Generation**: Professional templates applied automatically
-- **ML Problem Framing**: Comprehensive evaluation framework with 40+ metrics for AI/ML products
-- **File Organization**: Consistent naming and folder structure
-- **Design Systems**: Brand-consistent styling across all deliverables
-- **Quality Assurance**: Built-in validation and consistency checks
+**Core Workflow (manual):**
+- Run Market Research → Create PRFAQ → Create PRD → Create Prototype
 
-### Two Execution Modes
-- **Full Approval Mode**: Review and approve each phase (great for first-time users)
-- **Streamlined Mode**: Amazon Q works autonomously (perfect for busy PMs)
+**Research & Analysis:**
+- Customer Interview Simulator (roleplay as personas)
+- Competitive Response Analyzer
+- User Journey Mapper
+- Risk Analyzer
+- Competitor Feature Matrix
 
-### Context Integration
-- **Real Data Usage**: Incorporate your CSV files, team info, and company data
-- **Realistic Personas**: Based on actual team members and customer information
-- **Brand Integration**: Automatic incorporation of your brand guidelines
-- **Technical Constraints**: Q considers your platform requirements throughout
+**Strategy:**
+- Feature Prioritizer (RICE)
+- A/B Test Hypothesis Generator
 
-## Perfect For
+**Prototype & UX:**
+- Microcopy Writer
+- Onboarding Flow Designer
+- Accessibility Auditor (WCAG)
 
-### Product Managers Who Want To
-- **Move Faster**: Reduce documentation time from weeks to hours
-- **Build AI/ML Products**: Proper ML problem framing with comprehensive evaluation metrics
-- **Look Professional**: Present executive-quality deliverables to stakeholders
-- **Test Early**: Get user feedback with working prototypes before development
-- **Stay Consistent**: Use proven frameworks and maintain quality standards
-- **Focus on Strategy**: Spend time on product decisions, not document formatting
+**Team & Communication:**
+- Stakeholder Update Generator
+- Demo Script Writer
+- Meeting Notes to Requirements
 
-### Teams That Need
-- **AI/ML Product Development**: Structured approach to ML problem definition and evaluation
-- **Rapid Prototyping**: Quick validation of product concepts
-- **Professional Documentation**: Executive and developer-ready specifications
-- **Consistent Processes**: Standardized approach across all products
-- **Quality Assurance**: Built-in validation and best practices
+See `.kiro/hooks.json` for the full hook configuration.
+
+## Design Standards
+
+The toolkit enforces distinctive design to avoid generic "AI slop":
+
+**Anti-Patterns (never use):**
+- Generic fonts: Inter, Roboto, Arial
+- Purple-to-blue gradients on white
+- Uniform card grids
+- Bootstrap/Tailwind defaults
+- Excessive emojis (unless essential to product tone)
+
+**Required:**
+- Distinctive typography per aesthetic direction
+- 60-30-10 color rule (dominant/secondary/accent)
+- Bouncy animations for key moments
+- Visual texture (gradients, shadows, depth)
+- Modular file structure for prototypes
+
+## Validation
+
+Each phase includes validation checkpoints:
+- Completeness - All required sections present
+- Quality - Content is specific and sourced
+- Consistency - Aligns with previous phases
+- Format - Correct naming conventions
+
+The workflow will not proceed until validation passes.
+
+## AWS-Native Architecture
+
+As an AWS-provided toolkit, PRD technical designs prefer AWS services for enterprise-grade scalability, security, and compliance:
+
+- **Compute:** Lambda, ECS, EC2, App Runner
+- **Database:** DynamoDB, Aurora, RDS
+- **Generative AI:** Amazon Bedrock, Bedrock AgentCore, Amazon Q
+- **Storage:** S3, EFS
+- **API:** API Gateway, AppSync
+- **Auth:** Cognito
+
+Amazon Bedrock provides access to foundation models from Amazon (Nova) and third-party providers (Anthropic Claude, Meta Llama, Mistral, and more).
+
+## Claude Code / Cursor Mode
+
+For Claude Code or Cursor, copy the auto-loading config files to your project:
+
+```bash
+cp CLAUDE.md your-project/       # For Claude Code
+cp .cursorrules your-project/    # For Cursor
+cp -r prompts/ your-project/prompts/
+```
+
+The workflow loads automatically when you open your project. Just describe your product idea and the AI will guide you through the phases.
+
+See `prompts/Claude_Code_Workflow.md` for the complete workflow guide.
 
 ## Requirements
 
-- **Amazon Q Developer**: Free download from AWS
-- **Basic Product Concept**: Clear idea of what you want to build
-- **File System Access**: Amazon Q needs to create and save files
-- **Optional**: CSV files with real data for enhanced realism
+- **[Kiro](https://kiro.dev)** (recommended) - AI-powered IDE with native steering file support
+- **Or** any AI coding assistant with file system access (Claude Code, Cursor, etc.)
+- Web search capability for market research phase (built into most AI tools)
 
-## Troubleshooting
+## Output Format
 
-### Common Issues
-- **Q can't find prompts folder**: Make sure you're in the right directory
-- **Q doesn't understand**: Try "Load the LLM Workflow Checklist from prompts folder"
-- **Files not saving**: Check write permissions in your current directory
+All documents are generated as **self-contained HTML files**:
+- No external dependencies beyond Google Fonts CDN
+- Open directly in any browser (`open documents/PRD_MyProduct_2025-01-06.html`)
+- Print to PDF for offline sharing
+- Fully styled with professional formatting
 
-### Getting Help
-1. Review the LLM Workflow Checklist.md for detailed instructions
-2. Ensure Amazon Q has file system access
-3. Verify you're in a directory where you want documents created
-4. Try the workflow with a simple product concept first
+## Sample Files
 
----
+The `samples/` folder includes example outputs from a "TeenFit" project:
 
-*The Product Team's Tool Chest transforms Amazon Q Developer from a coding assistant into your personal product development team. You provide the vision and strategy—Q handles the execution, formatting, and technical details. For AI/ML products, Q ensures proper ML problem framing with comprehensive evaluation metrics before building your product foundation.*
+```
+samples/
+├── DesignSystem_TeenFit.html      (design tokens & components)
+├── PRFAQ_TeenFit.html             (press release & FAQ)
+├── PRD_TeenFit.html               (product requirements)
+├── Screen_Dashboard_TeenFit.html  (prototype screen)
+├── Screen_Welcome_TeenFit.html    (prototype screen)
+└── Screen_WorkoutExecution_TeenFit.html
+```
+
+Open any sample in your browser to see the output quality and design standards. The Design System sample includes extensive comments explaining the design philosophy.
 
 ## Security
 

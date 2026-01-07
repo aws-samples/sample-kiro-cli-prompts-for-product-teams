@@ -1,0 +1,89 @@
+# Product Team's Tool Chest
+
+This project transforms Claude into a product development partner, guiding you from idea to interactive prototype.
+
+## Automatic Workflow
+
+When the user describes a product idea or asks to start product development, follow the workflow in `prompts/Claude_Code_Workflow.md`.
+
+**Workflow phases:**
+1. **Market Research** - Use web search to find competitors, market sizing, customer pain points
+2. **AI Framing** (optional) - For AI/ML products only
+3. **PRFAQ** - Amazon-style Working Backwards documentation
+4. **PRD** - Detailed requirements with EARS syntax
+5. **Prototype** - Interactive HTML with modular screens
+
+**Key rules:**
+- All outputs are **HTML files** saved to `./documents/`
+- Use file naming: `[Type]_[Product]_[YYYY-MM-DD].html`
+- Follow design standards in `prompts/Claude_Code_Workflow.md` (avoid AI slop)
+- Tech stack: AWS-native (Amazon Bedrock for generative AI, AWS services for infrastructure)
+- **Prototype screens must link together** - every button/link navigates to the correct screen
+- **For known companies:** Fetch and use their actual logo, brand colors, and typography
+
+**Brand assets (REQUIRED for known companies):**
+When building for a recognizable company (Discovery Education, Amazon, Google, etc.):
+
+1. **SEARCH for their logo NOW** - do not skip this step:
+   - Search: "[Company Name] logo png", "[Company Name] press kit", "[Company Name] Wikipedia"
+   - Check: company press page, Wikipedia, LinkedIn, Brandfetch.com
+
+2. **VERIFY the logo URL works using curl:**
+   ```bash
+   curl -sI "[LOGO_URL]" | head -5
+   ```
+   - Check for `HTTP/2 200` or `HTTP/1.1 200 OK`
+   - **If it shows 404/403/error, TRY ANOTHER URL**
+   - Keep trying until you find a working URL (200 OK)
+   - Do NOT use a URL you haven't verified with curl
+
+3. **Extract brand colors** - visit their website, use dev tools to get exact hex values
+
+4. **Identify typography** - their fonts or closest Google Fonts match
+
+5. **Embed VERIFIED logo in outputs:**
+   - Market Research: `<img src="[VERIFIED-URL]">` in "Brand Assets" section
+   - Design System: Use their colors as CSS variables
+   - Prototypes: Show logo in header, login screens, footer
+
+**Logo verification loop:** Try URL → fetch fails? → try next URL → repeat until success
+
+## Prototype Structure
+
+**Create MODULAR files, not a single monolithic HTML:**
+- `DesignSystem_[Product]_[YYYY-MM-DD].html` - Shared CSS (create FIRST)
+- `Screen_[Name]_[Product]_[YYYY-MM-DD].html` - One file per screen
+- `ScreenIndex_[Product]_[YYYY-MM-DD].html` - Navigation hub (use template at `prompts/ScreenIndex_Template.html`)
+
+**ScreenIndex placeholders to replace:**
+`[PRODUCT_NAME]`, `[PRODUCT_SLUG]`, `[CUSTOMER_LOGO]`, `[BRAND_PRIMARY]`, `[BRAND_SECONDARY]`, `[BRAND_ACCENT]`, `[DATE]`, `[PROGRESS_PERCENT]`, `[SCREEN_COUNT]`, `[SCREEN_CARDS]`
+
+**Fully interactive prototypes (REQUIRED):**
+- All buttons/links navigate to correct screens
+- Chat interfaces: typing indicator + simulated responses after 1-2s delay
+- Forms: validation, loading states, success/error feedback
+- Dropdowns/selects: open, select, close
+- Modals: open on trigger, close on X/backdrop/Escape
+- Data tables: sort, filter, paginate
+
+**To start:**
+1. Ask the user about their product idea
+2. After gathering info, tell them: "I'll pause after each phase for your feedback. Say 'switch to streamlined' anytime if you'd prefer I work through everything continuously."
+
+**Workflow mode (default: Full Approval):**
+- Pause after each phase for feedback and approval before continuing
+- User can say "switch to streamlined" to work through phases continuously
+- User can switch back anytime with "switch to full approval"
+
+## Phase Guides
+
+Load these as needed during each phase:
+- `prompts/Market Research Agent.md`
+- `prompts/AI Framing Agent.md` (AI/ML products only)
+- `prompts/PRFAQ Guide.md`
+- `prompts/PRD Creation Guide.md`
+- `prompts/Prototype Creation Guide.md`
+
+## Sample Outputs
+
+Reference `samples/` folder for quality standards (TeenFit example project).

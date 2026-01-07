@@ -1,8 +1,16 @@
+# IDE
+**/.idea/**
 /shelf/
 /workspace.xml
-# Editor-based HTTP Client requests
 /httpRequests/
-# Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-**/.idea/**
+
+# macOS
+.DS_Store
+
+# Generated documents (user output)
+documents/*.html
+documents/*.json
+documents/*.md
+documents/handoffs/

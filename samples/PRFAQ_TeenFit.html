@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit PRFAQ - Press Release & FAQ</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  TEENFIT PRFAQ DOCUMENT                                                       ║
+    ║  Aesthetic Direction: NEON ARCADE                                             ║
+    ║  Design System Reference: DesignSystem_TeenFit.html               ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    DOCUMENT PURPOSE:
+    =================
+    PRFAQ (Press Release / FAQ) is Amazon's "Working Backwards" methodology.
+    It forces product thinking by writing the launch announcement FIRST,
+    before any development begins.
+
+    This document contains:
+    1. PRESS RELEASE: The announcement we'd send at launch
+    2. FAQ: Questions stakeholders/customers would ask
+
+    WHY NEON ARCADE AESTHETIC FOR DOCUMENTS:
+    ========================================
+    All TeenFit documents use the same visual identity to:
+    - Create consistency across the product development lifecycle
+    - Demonstrate the design direction to stakeholders
+    - Make documents feel like part of the product, not separate artifacts
+    -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-display: 'Fredoka', cursive;
+            --font-body: 'Outfit', sans-serif;
+
+            --color-bg-deep: #0a1628;
+            --color-bg: #0f1d32;
+            --color-surface: #162544;
+            --color-surface-hover: #1e3259;
+
+            --color-lime: #c6f808;
+            --color-pink: #ff2d92;
+            --color-cyan: #00f0ff;
+            --color-orange: #ff6b35;
+
+            --color-text: #ffffff;
+            --color-text-muted: #8b9dc3;
+
+            --glow-lime: 0 0 20px rgba(198, 248, 8, 0.5), 0 0 40px rgba(198, 248, 8, 0.3);
+
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 100px;
+
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Subtle animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 20% 30%, rgba(198, 248, 8, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 80% 70%, rgba(255, 45, 146, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        /*
+        HEADER:
+        =======
+        Gradient header matching app design.
+        */
+        .header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            padding: var(--space-2xl) var(--space-xl);
+            background: linear-gradient(135deg, var(--color-lime) 0%, var(--color-cyan) 100%);
+            border-radius: var(--radius-lg);
+            animation: slideDown 0.6s var(--ease-bounce);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-bg-deep);
+            margin-bottom: var(--space-sm);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--color-bg-deep);
+            opacity: 0.9;
+        }
+
+        /*
+        SECTION CARDS:
+        ==============
+        Glassmorphism cards for content sections.
+        */
+        .section {
+            background: rgba(22, 37, 68, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            animation: slideUp 0.6s var(--ease-bounce) both;
+        }
+
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-lime);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--color-surface-hover);
+        }
+
+        .section h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .section p {
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-md);
+        }
+
+        /*
+        PRESS DATE:
+        ===========
+        Styled date line for the press release.
+        */
+        .press-date {
+            font-weight: 600;
+            color: var(--color-cyan);
+            margin-bottom: var(--space-md);
+        }
+
+        /*
+        QUOTE BLOCK:
+        ============
+        Highlighted quote from stakeholder/team.
+        */
+        .quote {
+            background: var(--color-bg-deep);
+            border-left: 4px solid var(--color-pink);
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            font-style: italic;
+            color: var(--color-text);
+        }
+
+        .quote strong {
+            color: var(--color-pink);
+            font-style: normal;
+        }
+
+        /*
+        FAQ LIST:
+        =========
+        Numbered list of frequently asked questions.
+        Each item has visual distinction.
+        */
+        .faq-list {
+            list-style: none;
+            counter-reset: faq-counter;
+        }
+
+        .faq-list li {
+            counter-increment: faq-counter;
+            margin-bottom: var(--space-md);
+            padding: var(--space-lg);
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--color-cyan);
+            color: var(--color-text);
+            position: relative;
+        }
+
+        .faq-list li::before {
+            content: "Q" counter(faq-counter);
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--color-cyan);
+            margin-right: var(--space-sm);
+        }
+
+        /*
+        NAVIGATION:
+        ===========
+        Links back to dashboard and other documents.
+        */
+        .navigation {
+            text-align: center;
+            margin-top: var(--space-2xl);
+            animation: slideUp 0.6s var(--ease-bounce) 0.3s both;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-bounce);
+            margin: var(--space-xs);
+        }
+
+        .btn-primary {
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow-lime);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-surface-hover);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-surface-hover);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>TeenFit</h1>
+            <p>Press Release & Frequently Asked Questions</p>
+        </header>
+
+        <!--
+        PRESS RELEASE SECTION:
+        ======================
+        Written as if announcing the product at launch.
+        Forces clear articulation of value proposition.
+        -->
+        <section class="section">
+            <h2>📰 Press Release</h2>
+
+            <h3>TeenFit Launches Revolutionary Workout App Designed Specifically for Teenage Boys, Combining Professional Fitness Tracking with Age-Appropriate Motivation</h3>
+
+            <p class="press-date"><strong>San Francisco, CA</strong> — September 12, 2025</p>
+
+            <p>TeenFit today announced the launch of the first workout application specifically designed for teenage boys under 18, offering a Jefit-style fitness tracking experience tailored to teenage psychology and development needs. The app addresses the gap in the fitness market where most applications target adults, leaving teenagers without age-appropriate guidance and motivation systems.</p>
+
+            <p>Traditional fitness apps often intimidate teenagers with adult-focused content, intense competition, and unrealistic expectations. TeenFit solves this by providing age-appropriate exercises, positive reinforcement systems, and progress tracking that celebrates incremental improvements and builds confidence rather than demanding extreme results.</p>
+
+            <p>The app features personalized workout plans, clear exercise instructions, and a unique positive reinforcement system designed specifically for teenage motivation patterns. Unlike generic fitness applications, TeenFit focuses on building healthy habits and confidence through encouraging, developmentally appropriate fitness experiences.</p>
+
+            <div class="quote">
+                "We recognized that teenagers have fundamentally different fitness needs and motivation drivers than adults. Our app is built from the ground up to support teenage development, celebrate small wins, and create positive associations with fitness that will last a lifetime."
+                <br><br>
+                <strong>— TeenFit Product Team</strong>
+            </div>
+
+            <p>Teenagers can download TeenFit for free and begin their fitness journey immediately with basic workout tracking and progress monitoring. Premium features include advanced analytics, specialized workout programs, and enhanced motivation tools.</p>
+
+            <p>TeenFit is available now as a freemium mobile application, making professional-quality fitness guidance accessible to teenagers regardless of their economic background or access to traditional gym facilities.</p>
+        </section>
+
+        <!--
+        FAQ SECTION:
+        ============
+        Questions stakeholders and customers would ask.
+        Addresses concerns, differentiators, and business model.
+        -->
+        <section class="section">
+            <h2>❓ Frequently Asked Questions</h2>
+
+            <ol class="faq-list">
+                <li>How is TeenFit different from other fitness apps like Jefit or MyFitnessPal that teenagers could already use?</li>
+
+                <li>What specific features make TeenFit appropriate for teenage development and psychology?</li>
+
+                <li>How does the positive reinforcement system work, and why is it more effective for teenagers than traditional fitness motivation?</li>
+
+                <li>What safety measures are in place to ensure teenagers don't overexert themselves or develop unhealthy fitness habits?</li>
+
+                <li>How does the freemium model work, and what features are available in the free version versus premium?</li>
+
+                <li>Can parents or guardians monitor their teenager's progress and ensure they're using the app safely?</li>
+
+                <li>How does TeenFit handle the social aspects of teenage fitness, and does it include any community features?</li>
+            </ol>
+        </section>
+
+        <nav class="navigation">
+            <a href="ProjectDashboard_TeenFit.html" class="btn btn-primary">← Back to Dashboard</a>
+            <a href="PRD_TeenFit.html" class="btn btn-secondary">View PRD</a>
+            <a href="DesignSystem_TeenFit.html" class="btn btn-secondary">Design System</a>
+        </nav>
+    </div>
+</body>
+</html>

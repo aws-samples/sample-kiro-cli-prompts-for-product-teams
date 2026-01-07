@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit - Dashboard</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  TEENFIT DASHBOARD SCREEN                                                     ║
+    ║  Aesthetic Direction: NEON ARCADE                                             ║
+    ║  Design System Reference: DesignSystem_TeenFit.html               ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    SCREEN PURPOSE:
+    ===============
+    The Dashboard is the HOME screen - where users land after logging in.
+    It must accomplish THREE things:
+
+    1. MOTIVATE: Show progress to create a sense of achievement
+    2. DIRECT: Guide user to today's workout (primary action)
+    3. CELEBRATE: Highlight achievements to reinforce positive behavior
+
+    LAYOUT PHILOSOPHY:
+    ==================
+    - Mobile-first (380px base, scales up)
+    - Single column with full-width cards
+    - Bottom navigation for thumb-friendly access
+    - Header establishes emotional context ("Hey Alex! Ready to crush it?")
+
+    DESIGN DECISIONS EXPLAINED:
+    ===========================
+    - Dark background with neon accents creates "glow" effect
+    - Cards use glassmorphism (backdrop-blur) for depth
+    - Colored left borders provide quick visual categorization
+    - Progress bars animate on load for engagement
+    - Badges use locked/unlocked states to create goals
+
+    ANTI-PATTERNS AVOIDED:
+    ======================
+    ✗ Light background with blue cards (generic, forgettable)
+    ✗ Inter/Roboto fonts (overused, no personality)
+    ✗ Static progress indicators (boring, no feedback)
+    ✗ Flat design without depth (feels cheap)
+    -->
+
+    <!--
+    TYPOGRAPHY:
+    ===========
+    - Fredoka: Display font for headers, buttons, stats
+    - Outfit: Body text for descriptions, labels
+
+    WHY THESE FONTS:
+    - Fredoka's rounded letterforms feel playful, NOT childish
+    - Outfit is geometric and modern, highly readable
+    - Together they create approachable yet polished aesthetic
+    - Neither is overused (unlike Inter, Roboto, Poppins)
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+        ══════════════════════════════════════════════════════════════════════════
+
+        All values inherited from DesignSystem_TeenFit.html
+        Using CSS variables ensures consistency across all screens.
+        Changes to the design system automatically propagate here.
+
+        COLOR STRATEGY:
+        ---------------
+        60-30-10 Rule:
+        - 60% Dark backgrounds (--color-bg, --color-bg-deep)
+        - 30% Surface colors, text (--color-surface, --color-text)
+        - 10% Neon accents (--color-lime, --color-pink, --color-cyan)
+
+        The neon colors are the MEMORABLE part. Use sparingly for impact.
+        */
+        :root {
+            /* Typography */
+            --font-display: 'Fredoka', cursive;
+            --font-body: 'Outfit', sans-serif;
+
+            /* Background colors - dark mode creates depth for neon glow */
+            --color-bg-deep: #0a1628;
+            --color-bg: #0f1d32;
+            --color-surface: #162544;
+            --color-surface-hover: #1e3259;
+
+            /* Neon accent colors - the "arcade" feel */
+            --color-lime: #c6f808;     /* Primary action, success, energy */
+            --color-pink: #ff2d92;     /* Highlights, notifications, excitement */
+            --color-cyan: #00f0ff;     /* Secondary, information, cool */
+            --color-orange: #ff6b35;   /* Warning, streaks, fire */
+            --color-yellow: #ffd43b;   /* Progress, achievements, gold */
+
+            /* Text hierarchy */
+            --color-text: #ffffff;
+            --color-text-muted: #8b9dc3;
+            --color-text-dim: #5a6a8a;
+
+            /*
+            GLOW EFFECTS:
+            -------------
+            The signature "neon sign" look. Multiple box-shadows at different
+            blur radii create the diffuse glow effect.
+            */
+            --glow-lime: 0 0 20px rgba(198, 248, 8, 0.5), 0 0 40px rgba(198, 248, 8, 0.3);
+            --glow-pink: 0 0 20px rgba(255, 45, 146, 0.5), 0 0 40px rgba(255, 45, 146, 0.3);
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.3);
+
+            /* Spacing scale - 4px base for rhythm */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+
+            /*
+            BORDER RADIUS:
+            -------------
+            Large radii (20px+) are ESSENTIAL for the arcade feel.
+            Sharp corners = corporate. Round corners = friendly.
+            */
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 100px;
+
+            /*
+            ANIMATION TIMING:
+            -----------------
+            --ease-bounce uses cubic-bezier with overshoot (1.56 > 1)
+            This creates the playful "spring" effect on all transitions.
+            Standard ease-out (0,0,0.2,1) feels flat and corporate.
+            */
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /*
+        BODY STYLING:
+        =============
+        - padding-bottom: 100px creates space for fixed bottom nav
+        - Dark background is the canvas for neon elements
+        */
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+            overflow-x: hidden;
+        }
+
+        /*
+        ANIMATED BACKGROUND:
+        ====================
+        Subtle gradient blobs that pulse slowly create "life" in the UI.
+        Without this, dark interfaces feel dead and static.
+
+        TECHNIQUE: Multiple radial gradients with different positions
+        animated together. Opacity and scale changes make it breathe.
+        */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(198, 248, 8, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(255, 45, 146, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 50% 80%, rgba(0, 240, 255, 0.04) 0%, transparent 50%);
+            animation: bgPulse 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        HEADER COMPONENT
+        ══════════════════════════════════════════════════════════════════════════
+
+        PURPOSE: Establish emotional context and brand identity.
+
+        DESIGN RATIONALE:
+        - Gradient background (lime → cyan) creates visual impact
+        - Personalized greeting ("Hey Alex!") builds connection
+        - Emoji adds warmth without being childish
+        - Decorative background emoji creates depth/playfulness
+
+        WHY NOT a simple solid header:
+        - Gradients feel more dynamic and premium
+        - The transition from green to blue suggests progress/growth
+        */
+        .header {
+            background: linear-gradient(135deg, var(--color-lime) 0%, var(--color-cyan) 100%);
+            color: var(--color-bg-deep);
+            padding: var(--space-xl) var(--space-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative background emoji - adds playful depth */
+        .header::before {
+            content: '💪';
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.15;
+            top: -20px;
+            right: -20px;
+            transform: rotate(15deg);
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            letter-spacing: -0.02em;
+        }
+
+        .greeting {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CONTAINER
+        ══════════════════════════════════════════════════════════════════════════
+
+        Max-width 420px optimizes for mobile-first design.
+        Most teen users are on phones, not desktop.
+        */
+        .container {
+            padding: var(--space-lg) var(--space-md);
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CARD COMPONENT (BASE)
+        ══════════════════════════════════════════════════════════════════════════
+
+        GLASSMORPHISM TECHNIQUE:
+        - Semi-transparent background (rgba)
+        - backdrop-filter: blur() creates frosted glass effect
+        - Subtle border adds definition
+        - This creates DEPTH without heavy shadows
+
+        WHY GLASSMORPHISM:
+        - Shows the animated background through cards
+        - Creates layered, dimensional feel
+        - More sophisticated than flat solid cards
+        - Works beautifully with dark mode + neon accents
+
+        COLORED LEFT BORDER:
+        Each card type gets a distinct color border for quick scanning.
+        Users can identify card types instantly without reading.
+        */
+        .card {
+            background: rgba(22, 37, 68, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s var(--ease-bounce);
+        }
+
+        /*
+        HOVER EFFECT:
+        -------------
+        Cards lift on hover - creates tactile, responsive feel.
+        The translateY + scale combo feels "bouncy" and satisfying.
+        */
+        .card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /*
+        STAGGERED ENTRANCE ANIMATION:
+        -----------------------------
+        Cards animate in sequence (0.1s, 0.15s, 0.2s delay).
+        This creates a "cascading" effect that guides the eye down the page.
+        Much more engaging than everything appearing at once.
+        */
+        .card {
+            animation: cardIn 0.6s var(--ease-bounce) both;
+        }
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.15s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Decorative background icon in card corner */
+        .card-icon {
+            position: absolute;
+            top: var(--space-md);
+            right: var(--space-md);
+            font-size: 2.5rem;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .card h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .card p {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        WORKOUT CARD (Today's Workout)
+        ══════════════════════════════════════════════════════════════════════════
+
+        PRIMARY CARD - the main call-to-action.
+        Uses LIME accent to draw attention (most saturated color).
+
+        HIERARCHY: This card should be the first thing users notice.
+        */
+        .workout-card {
+            border-left: 5px solid var(--color-lime);
+        }
+
+        .workout-card h3 {
+            color: var(--color-lime);
+        }
+
+        .workout-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin: var(--space-sm) 0;
+        }
+
+        /*
+        WORKOUT META TAGS:
+        ------------------
+        Pills showing duration, location, difficulty.
+        Scannable at a glance without reading full description.
+        */
+        .workout-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin: var(--space-md) 0;
+        }
+
+        .workout-meta span {
+            background: var(--color-bg-deep);
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-text-muted);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        PROGRESS CARD (Weekly Progress)
+        ══════════════════════════════════════════════════════════════════════════
+
+        Uses YELLOW/GOLD accent - associated with achievement, progress.
+        Shows both visual progress bar AND numeric stats.
+
+        WHY BOTH:
+        - Progress bar = quick emotional read ("I'm doing well")
+        - Numbers = specific data for goal-oriented users
+        */
+        .progress-card {
+            border-left: 5px solid var(--color-yellow);
+        }
+
+        .progress-card h3 {
+            color: var(--color-yellow);
+        }
+
+        /*
+        PROGRESS BAR:
+        -------------
+        Animated gradient fill creates sense of momentum.
+        Animation plays on load - immediately shows progress is "alive".
+        */
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin: var(--space-md) 0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-lime), var(--color-cyan));
+            width: 65%;
+            border-radius: var(--radius-full);
+            animation: progressGrow 1.2s var(--ease-bounce);
+            position: relative;
+        }
+
+        /* Shimmer effect on progress bar - feels alive */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes progressGrow {
+            from { width: 0; }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--color-lime);
+            text-shadow: 0 0 10px rgba(198, 248, 8, 0.3);
+        }
+
+        /*
+        STATS GRID:
+        -----------
+        2-column layout for quick comparison.
+        Large numbers with small labels = scannable hierarchy.
+        */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .stat {
+            text-align: center;
+            padding: var(--space-md);
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--color-lime);
+            text-shadow: 0 0 15px rgba(198, 248, 8, 0.3);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-top: var(--space-xs);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        ACHIEVEMENT CARD
+        ══════════════════════════════════════════════════════════════════════════
+
+        Uses PINK accent - exciting, celebratory.
+
+        GAMIFICATION: Badges create goals and sense of progression.
+        Locked badges show what's possible, motivating continued use.
+        */
+        .achievement-card {
+            border-left: 5px solid var(--color-pink);
+        }
+
+        .achievement-card h3 {
+            color: var(--color-pink);
+        }
+
+        /*
+        GRADIENT TEXT:
+        --------------
+        The "First Week Complete!" uses gradient text for emphasis.
+        This technique makes key messages POP without being obnoxious.
+        */
+        .achievement-highlight {
+            background: linear-gradient(135deg, var(--color-pink), var(--color-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        /*
+        BADGE GRID:
+        -----------
+        Flexbox with consistent sizing for uniform appearance.
+        Badges are interactive (hover effect) to feel collectible.
+        */
+        .achievement-grid {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s var(--ease-bounce);
+            cursor: pointer;
+        }
+
+        /* Hover: Scale + rotate for playful feel */
+        .badge:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Earned badges: glowing, prominent */
+        .badge-earned {
+            background: linear-gradient(135deg, var(--color-lime), var(--color-cyan));
+            box-shadow: 0 4px 15px rgba(198, 248, 8, 0.3);
+        }
+
+        /* Locked badges: dimmed, mysterious */
+        .badge-locked {
+            background: var(--color-surface);
+            opacity: 0.4;
+            filter: grayscale(100%);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        BUTTON COMPONENTS
+        ══════════════════════════════════════════════════════════════════════════
+
+        Two button styles:
+        1. PRIMARY: Main action (Start Workout) - lime with glow
+        2. SECONDARY: Alternate action (Browse) - outline style
+
+        BUTTON DESIGN PRINCIPLES:
+        - Large touch targets (48px+ height) for mobile
+        - Full border-radius for friendly appearance
+        - Bounce animation on hover for satisfying feedback
+        */
+        .btn-group {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px var(--space-lg);
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-bounce);
+        }
+
+        .btn-primary {
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: var(--glow-lime);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text);
+            border: 2px solid var(--color-surface-hover);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-lime);
+            color: var(--color-lime);
+            transform: translateY(-3px);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        BOTTOM NAVIGATION
+        ══════════════════════════════════════════════════════════════════════════
+
+        FIXED BOTTOM NAV for thumb-friendly mobile navigation.
+
+        WHY BOTTOM NAV:
+        - Teens use phones one-handed
+        - Thumb naturally rests at bottom of screen
+        - Top nav requires stretching, feels awkward
+
+        ACTIVE STATE:
+        - Lime color + background highlight
+        - Clear indication of current location
+        */
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(22, 37, 68, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: var(--space-sm) var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-xs);
+            text-decoration: none;
+            color: var(--color-text-muted);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            transition: all 0.3s var(--ease-bounce);
+            min-width: 60px;
+        }
+
+        .nav-item:hover {
+            color: var(--color-lime);
+        }
+
+        .nav-item.active {
+            color: var(--color-lime);
+            background: rgba(198, 248, 8, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        ACCESSIBILITY: REDUCED MOTION
+        ══════════════════════════════════════════════════════════════════════════
+
+        Respects user preference for reduced motion.
+        Essential for users with vestibular disorders.
+        */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!--
+    HEADER:
+    =======
+    Personalized greeting creates emotional connection.
+    Using the user's name ("Alex") makes it feel personal.
+    The emoji adds warmth without being childish.
+    -->
+    <header class="header">
+        <h1>TeenFit</h1>
+        <div class="greeting">Hey Alex! Ready to crush it? 💪</div>
+    </header>
+
+    <div class="container">
+        <!--
+        TODAY'S WORKOUT CARD:
+        =====================
+        PRIMARY ACTION - this is what we want users to do.
+        Positioned first for maximum visibility.
+        Lime accent draws the eye immediately.
+        -->
+        <div class="card workout-card">
+            <span class="card-icon">🏋️</span>
+            <h3>🎯 Today's Workout</h3>
+            <div class="workout-title">Upper Body Strength</div>
+            <p>Build confidence with push-ups, planks, and arm exercises</p>
+            <div class="workout-meta">
+                <span>⏱️ 25 min</span>
+                <span>🏠 Home</span>
+                <span>⭐ Beginner</span>
+            </div>
+            <div class="btn-group">
+                <a href="Screen_WorkoutExecution_TeenFit.html" class="btn btn-primary">Start Workout</a>
+                <a href="#browse" class="btn btn-secondary">Browse</a>
+            </div>
+        </div>
+
+        <!--
+        WEEKLY PROGRESS CARD:
+        =====================
+        Shows user their progress toward weekly goal.
+        Progress bar provides instant visual feedback.
+        Stats reinforce specific achievements.
+        -->
+        <div class="card progress-card">
+            <span class="card-icon">📈</span>
+            <h3>📊 Weekly Progress</h3>
+            <p>You're doing amazing! 3 workouts completed</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <p><span class="progress-label">65%</span> toward your weekly goal</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Total Workouts</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+            </div>
+        </div>
+
+        <!--
+        ACHIEVEMENTS CARD:
+        ==================
+        Gamification element to drive engagement.
+        Shows earned badges (motivation) and locked badges (goals).
+        Gradient text on "First Week Complete!" creates celebration.
+        -->
+        <div class="card achievement-card">
+            <span class="card-icon">🏆</span>
+            <h3>🏆 Achievements</h3>
+            <p>🎉 <span class="achievement-highlight">First Week Complete!</span></p>
+            <p>You've built a solid foundation. Keep going!</p>
+            <div class="achievement-grid">
+                <div class="badge badge-earned" title="First Workout">🏃</div>
+                <div class="badge badge-earned" title="Consistency King">💪</div>
+                <div class="badge badge-earned" title="Getting Started">⭐</div>
+                <div class="badge badge-locked" title="On Fire (Locked)">🔥</div>
+                <div class="badge badge-locked" title="Goal Crusher (Locked)">🎯</div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+    BOTTOM NAVIGATION:
+    ==================
+    Fixed at bottom for thumb-friendly access.
+    Active state clearly shows current page.
+    Icons + labels for clarity.
+    -->
+    <nav class="navigation">
+        <a href="Screen_Dashboard_TeenFit.html" class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            Home
+        </a>
+        <a href="#workouts" class="nav-item">
+            <span class="nav-icon">💪</span>
+            Workouts
+        </a>
+        <a href="#progress" class="nav-item">
+            <span class="nav-icon">📊</span>
+            Progress
+        </a>
+        <a href="#profile" class="nav-item">
+            <span class="nav-icon">👤</span>
+            Profile
+        </a>
+    </nav>
+</body>
+</html>

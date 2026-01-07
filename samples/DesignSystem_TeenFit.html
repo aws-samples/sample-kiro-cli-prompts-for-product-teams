@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit Design System</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  TEENFIT DESIGN SYSTEM                                                        ║
+    ║  Aesthetic Direction: NEON ARCADE                                             ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    DESIGN PHILOSOPHY:
+    ==================
+    This design system uses a "Neon Arcade" aesthetic - combining dark mode backgrounds
+    with vibrant, glowing neon accents. This direction was chosen because:
+
+    1. AUDIENCE FIT: Teenagers are drawn to gaming/arcade aesthetics. Dark mode with
+       neon feels modern, edgy, and distinctly NOT like a "parent-approved" health app.
+
+    2. DIFFERENTIATION: Most fitness apps use either:
+       - Clinical whites/blues (feels medical, boring)
+       - Generic purple-blue gradients (AI slop, overused)
+       - Bright whites with accent colors (basic, forgettable)
+
+       Dark + neon stands out immediately and feels premium.
+
+    3. ENERGY: Neon colors on dark backgrounds create visual "pop" that conveys
+       energy and excitement - perfect for motivating workouts.
+
+    WHAT MAKES THIS MEMORABLE:
+    ==========================
+    - Glowing text effects (text-shadow with color matching)
+    - Liquid blob shapes that animate in the background
+    - Elastic, bouncy animations using custom cubic-bezier curves
+    - Bold, oversized typography that demands attention
+
+    ANTI-PATTERNS AVOIDED:
+    ======================
+    ✗ Inter, Roboto, Arial fonts (generic, overused)
+    ✗ Purple-to-blue gradients on white (AI slop cliché)
+    ✗ Flat solid color backgrounds (boring, no depth)
+    ✗ Uniform card grids (predictable, forgettable)
+    ✗ Bootstrap/Tailwind defaults without customization
+    -->
+
+    <!--
+    TYPOGRAPHY DECISION:
+    ====================
+    - Fredoka: A bubbly, rounded display font. Perfect for teen audience because
+      it's playful without being childish. The rounded terminals feel friendly
+      and approachable while still being readable.
+
+    - Outfit: A modern geometric sans-serif for body text. Clean and highly
+      readable on screens, pairs well with Fredoka's roundness without competing.
+
+    WHY NOT common alternatives:
+    - Inter: Overused, no personality, screams "default choice"
+    - Roboto: Associated with Android/Material, feels corporate
+    - Poppins: Overused in modern UI, becoming generic
+    - Space Grotesk: Was trendy, now becoming AI-slop identifier
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+        ══════════════════════════════════════════════════════════════════════════
+
+        Using CSS variables for consistency. Every color, spacing, and timing
+        value should be defined here so the entire system can be tweaked from
+        one location.
+
+        COLOR STRATEGY:
+        - Dark backgrounds create depth and make neon colors "glow"
+        - Primary lime (#c6f808) = energy, action, success
+        - Accent pink (#ff2d92) = highlights, notifications, excitement
+        - Cyan (#00f0ff) = secondary actions, information
+        - Colors are intentionally SATURATED - muted colors feel tired
+        */
+        :root {
+            /* Typography */
+            --font-display: 'Fredoka', cursive;
+            --font-body: 'Outfit', sans-serif;
+
+            /*
+            COLOR PALETTE - NEON ARCADE
+            ============================
+            The 60-30-10 rule applied:
+            - 60% Dark navy backgrounds (dominant)
+            - 30% Surface colors and text (secondary)
+            - 10% Neon accents (the memorable pop)
+            */
+            --color-bg-deep: #0a1628;      /* Deepest background - nearly black but with blue undertone */
+            --color-bg: #0f1d32;           /* Main background */
+            --color-surface: #162544;       /* Cards, elevated elements */
+            --color-surface-hover: #1e3259; /* Hover states */
+
+            /* Neon accent colors - these create the "glow" effect */
+            --color-lime: #c6f808;          /* Primary - energetic, youthful */
+            --color-pink: #ff2d92;          /* Accent - exciting, attention-grabbing */
+            --color-cyan: #00f0ff;          /* Secondary - cool, digital */
+            --color-orange: #ff6b35;        /* Warning/energy states */
+
+            /* Text colors - high contrast for accessibility */
+            --color-text: #ffffff;
+            --color-text-muted: #8b9dc3;
+            --color-text-dim: #5a6a8a;
+
+            /*
+            GLOW EFFECTS
+            ============
+            These create the neon "lit up" appearance. Each color gets its own
+            glow variable for consistent application across components.
+            */
+            --glow-lime: 0 0 20px rgba(198, 248, 8, 0.5), 0 0 40px rgba(198, 248, 8, 0.3);
+            --glow-pink: 0 0 20px rgba(255, 45, 146, 0.5), 0 0 40px rgba(255, 45, 146, 0.3);
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.3);
+
+            /*
+            SPACING SCALE
+            =============
+            Using a consistent scale (4px base) creates visual rhythm.
+            Generous spacing feels premium; cramped layouts feel cheap.
+            */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+
+            /*
+            BORDER RADIUS
+            =============
+            Large radii (20px+) feel playful and friendly.
+            This is KEY to the "arcade" aesthetic - sharp corners feel corporate.
+            */
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 40px;
+            --radius-full: 100px;
+
+            /*
+            ANIMATION TIMING
+            ================
+            The bounce easing (cubic-bezier with overshoot) is ESSENTIAL to
+            the playful feel. Standard ease-out feels corporate and boring.
+
+            --ease-bounce: Goes past target then settles (playful, energetic)
+            --ease-smooth: Smooth deceleration (elegant reveals)
+            --ease-elastic: Extreme overshoot (celebrations, achievements)
+            */
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+            --duration-fast: 200ms;
+            --duration-normal: 300ms;
+            --duration-slow: 500ms;
+        }
+
+        /* Reset with intention */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        ANIMATED BACKGROUND
+        ══════════════════════════════════════════════════════════════════════════
+
+        WHY: Static backgrounds feel flat and lifeless. Subtle animation adds
+        depth and keeps the interface feeling "alive" without being distracting.
+
+        TECHNIQUE: Multiple gradient layers with different animation speeds
+        create a liquid, organic feel that contrasts nicely with the geometric
+        UI elements.
+        */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(198, 248, 8, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(255, 45, 146, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 50% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 50%);
+            animation: bgPulse 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        HEADER - THE FIRST IMPRESSION
+        ══════════════════════════════════════════════════════════════════════════
+
+        The header establishes the entire visual language. Users form opinions
+        in milliseconds, so this needs to immediately communicate:
+        - Premium quality (not a cheap app)
+        - Energy and excitement
+        - Teen-appropriate (not corporate)
+
+        GLOW EFFECT ON TEXT: Creates the signature "neon sign" look.
+        Using text-shadow with the same color creates diffuse glow.
+        */
+        .header {
+            text-align: center;
+            padding: var(--space-3xl) var(--space-xl);
+            margin-bottom: var(--space-2xl);
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            color: var(--color-lime);
+            text-shadow: var(--glow-lime);
+            margin-bottom: var(--space-md);
+            letter-spacing: -0.02em;
+
+            /* Staggered animation on load - the h1 appears first */
+            animation: glowIn 0.8s var(--ease-bounce) both;
+        }
+
+        .header p {
+            font-size: 1.5rem;
+            color: var(--color-text-muted);
+            font-weight: 300;
+            animation: fadeUp 0.6s var(--ease-smooth) 0.2s both;
+        }
+
+        @keyframes glowIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        SECTION CARDS
+        ══════════════════════════════════════════════════════════════════════════
+
+        Cards use "glassmorphism" - semi-transparent backgrounds with blur.
+        This creates depth and allows the animated background to show through,
+        making the UI feel layered and dimensional.
+
+        HOVER STATES: Essential for interactivity feedback. The lift + glow
+        effect makes elements feel physically responsive.
+        */
+        .section {
+            background: rgba(22, 37, 68, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+
+            /* Staggered entrance animation */
+            animation: cardIn 0.6s var(--ease-bounce) both;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.15s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.25s; }
+        .section:nth-child(5) { animation-delay: 0.3s; }
+        .section:nth-child(6) { animation-delay: 0.35s; }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        /*
+        Colored underline accent - draws eye to section titles
+        Color varies by section to add visual interest
+        */
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-lime), transparent);
+            margin-left: var(--space-md);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        COLOR SWATCHES
+        ══════════════════════════════════════════════════════════════════════════
+
+        Interactive color swatches that demonstrate the palette.
+        Hover effect shows the glow that each color produces.
+        */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .color-swatch {
+            padding: var(--space-xl) var(--space-lg);
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 600;
+            transition: all var(--duration-normal) var(--ease-bounce);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hover: lift + glow effect */
+        .color-swatch:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .color-swatch .color-name {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        .color-swatch .color-hex {
+            font-family: monospace;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Individual swatch colors with appropriate text contrast */
+        .swatch-lime {
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+        }
+        .swatch-lime:hover { box-shadow: var(--glow-lime); }
+
+        .swatch-pink {
+            background: var(--color-pink);
+            color: white;
+        }
+        .swatch-pink:hover { box-shadow: var(--glow-pink); }
+
+        .swatch-cyan {
+            background: var(--color-cyan);
+            color: var(--color-bg-deep);
+        }
+        .swatch-cyan:hover { box-shadow: var(--glow-cyan); }
+
+        .swatch-orange {
+            background: var(--color-orange);
+            color: white;
+        }
+        .swatch-orange:hover { box-shadow: 0 0 20px rgba(255, 107, 53, 0.5); }
+
+        .swatch-surface {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        TYPOGRAPHY SPECIMENS
+        ══════════════════════════════════════════════════════════════════════════
+        */
+        .type-specimen {
+            padding: var(--space-lg);
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .type-specimen h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-lime);
+            margin-bottom: var(--space-sm);
+        }
+
+        .type-specimen h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .type-specimen h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+        }
+
+        .type-specimen p {
+            font-family: var(--font-body);
+            color: var(--color-text-muted);
+            line-height: 1.7;
+        }
+
+        .font-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .font-card {
+            padding: var(--space-lg);
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--color-lime);
+        }
+
+        .font-card h4 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: var(--space-xs);
+            color: var(--color-lime);
+        }
+
+        .font-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        BUTTONS
+        ══════════════════════════════════════════════════════════════════════════
+
+        Buttons are the primary interaction points. They need to:
+        1. Be obviously clickable (affordance)
+        2. Provide satisfying feedback (hover/active states)
+        3. Communicate hierarchy (primary vs secondary)
+
+        The glow on hover creates a "powering up" effect that feels rewarding.
+        */
+        .button-grid {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-bounce);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Primary button - the main action, most visually prominent */
+        .btn-primary {
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: var(--glow-lime);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Secondary button - less prominent, for secondary actions */
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text);
+            border: 2px solid var(--color-surface-hover);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-lime);
+            color: var(--color-lime);
+            transform: translateY(-3px);
+        }
+
+        /* Accent button - for special/highlighted actions */
+        .btn-accent {
+            background: var(--color-pink);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: var(--glow-pink);
+        }
+
+        /* Ghost button - minimal, for tertiary actions */
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-text-muted);
+            border: 1px solid transparent;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-text);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        ANIMATION DEMOS
+        ══════════════════════════════════════════════════════════════════════════
+
+        Showcasing the bouncy, playful animations that define this design system.
+        Each animation has a distinct personality suited to different contexts.
+        */
+        .animation-demo {
+            display: flex;
+            gap: var(--space-xl);
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: var(--space-xl) 0;
+        }
+
+        .anim-box {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform var(--duration-normal) var(--ease-bounce);
+        }
+
+        .anim-box:hover {
+            transform: scale(1.1);
+        }
+
+        /* Bounce - playful, attention-grabbing */
+        .anim-bounce {
+            background: var(--color-lime);
+            animation: bounce 2s var(--ease-elastic) infinite;
+        }
+
+        /* Pulse - breathing, alive feeling */
+        .anim-pulse {
+            background: var(--color-pink);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Wiggle - playful, fun micro-interaction */
+        .anim-wiggle {
+            background: var(--color-cyan);
+            animation: wiggle 0.5s var(--ease-bounce) infinite;
+        }
+
+        /* Float - gentle, ambient motion */
+        .anim-float {
+            background: var(--color-orange);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.08); opacity: 0.9; }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        COMPONENT CARDS
+        ══════════════════════════════════════════════════════════════════════════
+        */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .component-card {
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all var(--duration-normal) var(--ease-bounce);
+        }
+
+        .component-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--color-lime);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .component-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+            display: block;
+        }
+
+        .component-name {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .component-desc {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        DESIGN PRINCIPLES
+        ══════════════════════════════════════════════════════════════════════════
+        */
+        .principles-list {
+            list-style: none;
+        }
+
+        .principles-list li {
+            padding: var(--space-lg) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: var(--space-lg);
+            align-items: flex-start;
+        }
+
+        .principles-list li:last-child {
+            border-bottom: none;
+        }
+
+        .principle-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .principle-content h4 {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            color: var(--color-lime);
+        }
+
+        .principle-content p {
+            color: var(--color-text-muted);
+            line-height: 1.7;
+        }
+
+        /*
+        ══════════════════════════════════════════════════════════════════════════
+        RESPONSIVE DESIGN
+        ══════════════════════════════════════════════════════════════════════════
+
+        Mobile-first considerations:
+        - Stack layouts vertically on small screens
+        - Maintain touch-friendly tap targets (44px minimum)
+        - Reduce animation complexity on mobile (performance)
+        */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .button-grid {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .animation-demo {
+                gap: var(--space-md);
+            }
+
+            .anim-box {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+
+            .principles-list li {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .principle-icon {
+                margin: 0 auto;
+            }
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!--
+        HEADER
+        ======
+        Establishes brand identity immediately. The glowing title
+        is the signature element that users will remember.
+        -->
+        <header class="header">
+            <h1>TeenFit</h1>
+            <p>Design System — Neon Arcade</p>
+        </header>
+
+        <main>
+            <!--
+            COLOR PALETTE SECTION
+            =====================
+            Interactive swatches let stakeholders experience
+            the colors with their glow effects.
+            -->
+            <section class="section">
+                <h2 class="section-title">🎨 Color Palette</h2>
+                <div class="color-grid">
+                    <div class="color-swatch swatch-lime">
+                        <div class="color-name">Electric Lime</div>
+                        <div class="color-hex">#c6f808</div>
+                    </div>
+                    <div class="color-swatch swatch-pink">
+                        <div class="color-name">Hot Pink</div>
+                        <div class="color-hex">#ff2d92</div>
+                    </div>
+                    <div class="color-swatch swatch-cyan">
+                        <div class="color-name">Cyan</div>
+                        <div class="color-hex">#00f0ff</div>
+                    </div>
+                    <div class="color-swatch swatch-orange">
+                        <div class="color-name">Energy Orange</div>
+                        <div class="color-hex">#ff6b35</div>
+                    </div>
+                    <div class="color-swatch swatch-surface">
+                        <div class="color-name">Surface</div>
+                        <div class="color-hex">#162544</div>
+                    </div>
+                </div>
+            </section>
+
+            <!--
+            TYPOGRAPHY SECTION
+            ==================
+            Shows the type hierarchy and font pairing in action.
+            -->
+            <section class="section">
+                <h2 class="section-title">✏️ Typography</h2>
+                <div class="type-specimen">
+                    <h1>Fredoka Display</h1>
+                    <h2>Section Headlines</h2>
+                    <h3>Subsection Titles</h3>
+                    <p>Body text uses Outfit - a modern, geometric sans-serif that's highly readable on screens. The clean lines pair perfectly with Fredoka's playful roundness. This combination creates a friendly yet professional feel that resonates with teenage users without being childish.</p>
+                </div>
+                <div class="font-info">
+                    <div class="font-card">
+                        <h4>Display Font</h4>
+                        <p><strong>Fredoka</strong> — Bubbly, rounded letterforms with personality. Perfect for headlines, buttons, and anywhere you need friendly impact.</p>
+                    </div>
+                    <div class="font-card">
+                        <h4>Body Font</h4>
+                        <p><strong>Outfit</strong> — Clean geometric sans-serif. Excellent readability at all sizes with a modern, tech-forward feeling.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!--
+            BUTTONS SECTION
+            ===============
+            Demonstrates the button hierarchy and hover effects.
+            -->
+            <section class="section">
+                <h2 class="section-title">🔘 Buttons</h2>
+                <div class="button-grid">
+                    <button class="btn btn-primary">Start Workout</button>
+                    <button class="btn btn-accent">Get Premium</button>
+                    <button class="btn btn-secondary">View History</button>
+                    <button class="btn btn-ghost">Skip for Now</button>
+                </div>
+            </section>
+
+            <!--
+            ANIMATIONS SECTION
+            ==================
+            Interactive demos of the motion principles.
+            -->
+            <section class="section">
+                <h2 class="section-title">✨ Animations</h2>
+                <p style="color: var(--color-text-muted); margin-bottom: var(--space-lg);">
+                    Playful, bouncy animations create energy and delight. Each has a specific use case:
+                </p>
+                <div class="animation-demo">
+                    <div class="anim-box anim-bounce" title="Bounce - for achievements">🏆</div>
+                    <div class="anim-box anim-pulse" title="Pulse - for active elements">💪</div>
+                    <div class="anim-box anim-wiggle" title="Wiggle - for attention">🔔</div>
+                    <div class="anim-box anim-float" title="Float - for ambient">🎯</div>
+                </div>
+            </section>
+
+            <!--
+            COMPONENTS SECTION
+            ==================
+            Overview of the component library.
+            -->
+            <section class="section">
+                <h2 class="section-title">🧩 Components</h2>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <span class="component-icon">📊</span>
+                        <div class="component-name">Progress Cards</div>
+                        <div class="component-desc">Animated circular and linear progress with glow effects</div>
+                    </div>
+                    <div class="component-card">
+                        <span class="component-icon">🏆</span>
+                        <div class="component-name">Achievement Badges</div>
+                        <div class="component-desc">Unlockable badges with celebration animations</div>
+                    </div>
+                    <div class="component-card">
+                        <span class="component-icon">💪</span>
+                        <div class="component-name">Workout Cards</div>
+                        <div class="component-desc">Swipeable exercise cards with video thumbnails</div>
+                    </div>
+                    <div class="component-card">
+                        <span class="component-icon">🔔</span>
+                        <div class="component-name">Notifications</div>
+                        <div class="component-desc">Toast messages with neon glow accents</div>
+                    </div>
+                </div>
+            </section>
+
+            <!--
+            PRINCIPLES SECTION
+            ==================
+            Documents the design philosophy for consistency.
+            -->
+            <section class="section">
+                <h2 class="section-title">📐 Design Principles</h2>
+                <ul class="principles-list">
+                    <li>
+                        <div class="principle-icon">⚡</div>
+                        <div class="principle-content">
+                            <h4>Energy Over Everything</h4>
+                            <p>Every element should feel alive. Static, flat interfaces are the enemy. Use animation, glow, and movement to create an energetic atmosphere that motivates.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="principle-icon">🎮</div>
+                        <div class="principle-content">
+                            <h4>Arcade, Not Corporate</h4>
+                            <p>Sharp corners and muted colors feel like enterprise software. Round everything, saturate colors, and add playful touches. We're building a game, not a spreadsheet.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="principle-icon">✨</div>
+                        <div class="principle-content">
+                            <h4>Reward Constantly</h4>
+                            <p>Every interaction should feel rewarding. Buttons should bounce, achievements should explode, progress should glow. Make users feel like they're winning.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="principle-icon">📱</div>
+                        <div class="principle-content">
+                            <h4>Thumb-First Design</h4>
+                            <p>Teens use phones one-handed. Large touch targets, bottom navigation, and gesture-friendly interactions. If it can't be tapped easily with a thumb, redesign it.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="principle-icon">♿</div>
+                        <div class="principle-content">
+                            <h4>Accessible Neon</h4>
+                            <p>Dark mode with bright accents naturally creates good contrast. Maintain WCAG AA standards and respect reduced-motion preferences.</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit Prototype Specification</title>
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --secondary-green: #10b981;
+            --secondary-orange: #f59e0b;
+            --secondary-purple: #8b5cf6;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --radius-lg: 0.75rem;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--gray-50);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            padding: var(--space-xl);
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+            color: white;
+            border-radius: var(--radius-lg);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+        }
+        
+        .section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .section h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: var(--space-lg);
+            border-bottom: 3px solid var(--secondary-green);
+            padding-bottom: var(--space-md);
+        }
+        
+        .section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: var(--space-md);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--secondary-green);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+        }
+        
+        .navigation {
+            text-align: center;
+            margin-top: var(--space-2xl);
+        }
+        
+        ul, ol {
+            margin-left: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+        
+        li {
+            margin-bottom: var(--space-md);
+        }
+        
+        p {
+            margin-bottom: var(--space-md);
+        }
+        
+        .highlight {
+            background: var(--gray-100);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--secondary-orange);
+            margin: var(--space-lg) 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TeenFit</h1>
+            <p>Interactive Prototype Specification</p>
+        </div>
+        
+        <div class="section">
+            <h2>Prototype Overview</h2>
+            <p>This interactive prototype demonstrates TeenFit's core user experience, from onboarding through workout execution. The prototype showcases age-appropriate design, positive reinforcement systems, and safety-first approach that differentiates TeenFit from adult fitness applications.</p>
+            
+            <div class="highlight">
+                <strong>Key Differentiators Demonstrated:</strong>
+                <ul>
+                    <li>Age-appropriate onboarding that considers teenage development</li>
+                    <li>Positive reinforcement messaging that builds confidence</li>
+                    <li>Safety-first exercise guidance with form tips</li>
+                    <li>Progress celebration that emphasizes effort over extreme results</li>
+                    <li>Privacy controls and optional parental oversight</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>User Journey Flow</h2>
+            
+            <h3>Primary User Journey: New User to First Workout</h3>
+            <ol>
+                <li><strong>Welcome Screen:</strong> Value proposition and feature highlights</li>
+                <li><strong>Age Verification:</strong> Ensures appropriate content delivery</li>
+                <li><strong>Fitness Assessment:</strong> Determines starting difficulty level</li>
+                <li><strong>Goal Setting:</strong> Personalizes experience and recommendations</li>
+                <li><strong>Dashboard:</strong> Central hub with personalized recommendations</li>
+                <li><strong>Workout Selection:</strong> Browse age-appropriate exercises</li>
+                <li><strong>Workout Execution:</strong> Guided exercise with encouragement</li>
+                <li><strong>Progress Celebration:</strong> Achievement unlock and motivation</li>
+            </ol>
+            
+            <h3>Navigation Structure</h3>
+            <ul>
+                <li><strong>Dashboard:</strong> Home screen with recommendations and progress</li>
+                <li><strong>Workouts:</strong> Exercise library and program browser</li>
+                <li><strong>Progress:</strong> Detailed analytics and achievement gallery</li>
+                <li><strong>Profile:</strong> Settings, goals, and privacy controls</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Screen Coverage</h2>
+            
+            <h3>Implemented Screens</h3>
+            <ul>
+                <li><strong>Welcome Screen:</strong> App introduction with key value propositions</li>
+                <li><strong>Onboarding Flow:</strong> Age verification, fitness level, and goal setting</li>
+                <li><strong>Main Dashboard:</strong> Personalized home screen with Alex Thompson persona</li>
+                <li><strong>Navigation System:</strong> Bottom navigation with four main sections</li>
+            </ul>
+            
+            <h3>Interactive Elements</h3>
+            <ul>
+                <li><strong>Screen Navigation:</strong> Working transitions between all screens</li>
+                <li><strong>Option Selection:</strong> Interactive onboarding choices</li>
+                <li><strong>Progress Visualization:</strong> Dynamic progress bars and statistics</li>
+                <li><strong>Achievement System:</strong> Badge collection and milestone celebration</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Design System Implementation</h2>
+            
+            <h3>Color Usage</h3>
+            <ul>
+                <li><strong>Primary Blue (#2563eb):</strong> Navigation, headers, primary actions</li>
+                <li><strong>Success Green (#10b981):</strong> Progress indicators, achievements, positive feedback</li>
+                <li><strong>Energy Orange (#f59e0b):</strong> Motivational elements, call-to-action highlights</li>
+                <li><strong>Motivation Purple (#8b5cf6):</strong> Achievement badges, premium features</li>
+            </ul>
+            
+            <h3>Typography and Layout</h3>
+            <ul>
+                <li><strong>Font Family:</strong> Inter for all text elements</li>
+                <li><strong>Responsive Design:</strong> Mobile-first approach with 400px max-width container</li>
+                <li><strong>Component Consistency:</strong> Unified button styles, card layouts, and spacing</li>
+                <li><strong>Accessibility:</strong> High contrast ratios and touch-friendly interface elements</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Persona Integration</h2>
+            
+            <h3>Alex Thompson (16-year-old) Representation</h3>
+            <ul>
+                <li><strong>Personalized Greeting:</strong> "Hey Alex! Ready to crush today's workout?"</li>
+                <li><strong>Confidence Building:</strong> "You're doing amazing!" messaging</li>
+                <li><strong>Appropriate Difficulty:</strong> Beginner-level recommendations</li>
+                <li><strong>Progress Celebration:</strong> "First Week Complete!" achievement</li>
+                <li><strong>Realistic Goals:</strong> 3 workouts per week target</li>
+            </ul>
+            
+            <h3>Age-Appropriate Content</h3>
+            <ul>
+                <li><strong>Exercise Selection:</strong> Home-friendly, equipment-optional workouts</li>
+                <li><strong>Time Commitment:</strong> 25-minute sessions suitable for teenage schedules</li>
+                <li><strong>Safety Emphasis:</strong> Form tips and injury prevention guidance</li>
+                <li><strong>Positive Reinforcement:</strong> Effort-based achievements over performance metrics</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Technical Implementation</h2>
+            
+            <h3>Interactive Features</h3>
+            <ul>
+                <li><strong>Screen Management:</strong> JavaScript-powered navigation system</li>
+                <li><strong>State Management:</strong> Option selection and progress tracking</li>
+                <li><strong>Responsive Design:</strong> Mobile-optimized layout and interactions</li>
+                <li><strong>Local Storage:</strong> Simulated progress persistence</li>
+            </ul>
+            
+            <h3>Performance Considerations</h3>
+            <ul>
+                <li><strong>Single Page Application:</strong> Fast navigation without page reloads</li>
+                <li><strong>Optimized Assets:</strong> Efficient CSS and minimal JavaScript</li>
+                <li><strong>Touch Optimization:</strong> Large touch targets and smooth interactions</li>
+                <li><strong>Accessibility:</strong> Semantic HTML and keyboard navigation support</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Testing and Validation</h2>
+            
+            <h3>User Testing Goals</h3>
+            <ul>
+                <li><strong>Onboarding Completion:</strong> 90% of users complete setup flow</li>
+                <li><strong>Navigation Intuition:</strong> Users find key features within 3 taps</li>
+                <li><strong>Age Appropriateness:</strong> 95% of users find content suitable</li>
+                <li><strong>Safety Understanding:</strong> 100% acknowledge safety guidelines</li>
+                <li><strong>Motivation Effectiveness:</strong> 80% find encouragement system motivating</li>
+            </ul>
+            
+            <h3>Success Metrics</h3>
+            <ul>
+                <li><strong>Task Completion:</strong> Users can navigate full onboarding to dashboard</li>
+                <li><strong>Content Comprehension:</strong> Users understand progress tracking system</li>
+                <li><strong>Differentiation Recognition:</strong> Users identify differences from adult fitness apps</li>
+                <li><strong>Continued Usage Intent:</strong> 80% express interest in using full app</li>
+            </ul>
+        </div>
+        
+        <div class="navigation">
+            <a href="ProjectDashboard_TeenFit.html" class="btn btn-primary">← Back to Project Dashboard</a>
+            <a href="ClickablePrototype_TeenFit.html" class="btn btn-success">View Interactive Prototype</a>
+            <a href="PRD_TeenFit.html" class="btn btn-secondary">View PRD</a>
+        </div>
+    </div>
+</body>
+</html>

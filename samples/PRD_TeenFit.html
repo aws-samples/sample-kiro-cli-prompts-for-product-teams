@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit PRD - Product Requirements Document</title>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  TEENFIT PRODUCT REQUIREMENTS DOCUMENT (PRD)                                  ║
+    ║  Aesthetic Direction: NEON ARCADE                                             ║
+    ║  Design System Reference: DesignSystem_TeenFit.html               ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    DOCUMENT PURPOSE:
+    =================
+    The PRD translates the PRFAQ vision into detailed requirements:
+    - Background and problem statement
+    - User personas and journey
+    - Functional requirements (user stories)
+    - Success metrics
+    - Business model and pricing
+    - Development timeline
+
+    This is the engineering handoff document - specific enough to build from.
+
+    WHY STYLE PRD WITH PRODUCT AESTHETIC:
+    =====================================
+    Keeping all documents visually consistent with the product:
+    - Reinforces the brand identity throughout development
+    - Helps stakeholders "feel" the product while reading specs
+    - Demonstrates design commitment from day one
+    -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-display: 'Fredoka', cursive;
+            --font-body: 'Outfit', sans-serif;
+
+            --color-bg-deep: #0a1628;
+            --color-bg: #0f1d32;
+            --color-surface: #162544;
+            --color-surface-hover: #1e3259;
+
+            --color-lime: #c6f808;
+            --color-pink: #ff2d92;
+            --color-cyan: #00f0ff;
+            --color-orange: #ff6b35;
+            --color-yellow: #ffd43b;
+
+            --color-text: #ffffff;
+            --color-text-muted: #8b9dc3;
+
+            --glow-lime: 0 0 20px rgba(198, 248, 8, 0.5), 0 0 40px rgba(198, 248, 8, 0.3);
+
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 100px;
+
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 20% 30%, rgba(198, 248, 8, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 80% 70%, rgba(0, 240, 255, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            padding: var(--space-2xl) var(--space-xl);
+            background: linear-gradient(135deg, var(--color-lime) 0%, var(--color-cyan) 100%);
+            border-radius: var(--radius-lg);
+            animation: slideDown 0.6s var(--ease-bounce);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-bg-deep);
+            margin-bottom: var(--space-sm);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--color-bg-deep);
+            opacity: 0.9;
+        }
+
+        /*
+        META INFO:
+        ==========
+        Project metadata card at top.
+        */
+        .meta-info {
+            background: rgba(22, 37, 68, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 4px solid var(--color-lime);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            animation: slideUp 0.5s var(--ease-bounce) both;
+        }
+
+        .meta-info p {
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-sm);
+        }
+
+        .meta-info ul {
+            margin-left: var(--space-lg);
+            margin-top: var(--space-sm);
+            color: var(--color-text-muted);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /*
+        SECTION CARDS:
+        ==============
+        */
+        .section {
+            background: rgba(22, 37, 68, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            animation: slideUp 0.6s var(--ease-bounce) both;
+        }
+
+        .section h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-lime);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--color-surface-hover);
+        }
+
+        .section h3 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--color-cyan);
+            margin-bottom: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .section p {
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-md);
+        }
+
+        /*
+        PERSONA CARDS:
+        ==============
+        User persona profiles.
+        */
+        .persona-card {
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+            border-left: 4px solid var(--color-orange);
+        }
+
+        .persona-name {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-orange);
+            margin-bottom: var(--space-sm);
+        }
+
+        .persona-card p {
+            color: var(--color-text-muted);
+        }
+
+        /*
+        REQUIREMENTS LIST:
+        ==================
+        User stories with visual styling.
+        */
+        .requirements-list {
+            list-style: none;
+            margin: var(--space-md) 0;
+        }
+
+        .requirements-list li {
+            background: var(--color-bg-deep);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--color-cyan);
+            color: var(--color-text-muted);
+        }
+
+        /*
+        TIMELINE PHASES:
+        ================
+        Development phases.
+        */
+        .timeline-phase {
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin: var(--space-md) 0;
+            border-left: 4px solid var(--color-pink);
+        }
+
+        .phase-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--color-pink);
+            margin-bottom: var(--space-sm);
+        }
+
+        .timeline-phase ul {
+            margin-left: var(--space-lg);
+            color: var(--color-text-muted);
+        }
+
+        .timeline-phase p {
+            margin-top: var(--space-sm);
+        }
+
+        /*
+        METRICS GRID:
+        =============
+        Success metrics in grid layout.
+        */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-md);
+            margin: var(--space-lg) 0;
+        }
+
+        .metric-card {
+            background: var(--color-bg-deep);
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border-top: 3px solid var(--color-lime);
+        }
+
+        .metric-card h3 {
+            color: var(--color-lime);
+            margin-top: 0;
+        }
+
+        .metric-card ul {
+            margin-left: var(--space-lg);
+            color: var(--color-text-muted);
+        }
+
+        /*
+        PRICING TIERS:
+        ==============
+        Business model tiers.
+        */
+        .pricing-tier {
+            background: var(--color-bg-deep);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin: var(--space-md) 0;
+            border: 2px solid var(--color-surface-hover);
+        }
+
+        .tier-name {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-cyan);
+            margin-bottom: var(--space-sm);
+        }
+
+        .pricing-tier ul {
+            margin-left: var(--space-lg);
+            color: var(--color-text-muted);
+        }
+
+        /*
+        LISTS:
+        ======
+        */
+        ul, ol {
+            margin-left: var(--space-lg);
+            margin-bottom: var(--space-md);
+            color: var(--color-text-muted);
+        }
+
+        li {
+            margin-bottom: var(--space-xs);
+        }
+
+        /*
+        NAVIGATION:
+        ===========
+        */
+        .navigation {
+            text-align: center;
+            margin-top: var(--space-2xl);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-full);
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-bounce);
+            margin: var(--space-xs);
+        }
+
+        .btn-primary {
+            background: var(--color-lime);
+            color: var(--color-bg-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow-lime);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-surface-hover);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-surface-hover);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>TeenFit</h1>
+            <p>Product Requirements Document</p>
+        </header>
+
+        <div class="meta-info">
+            <p><strong>Date:</strong> September 12, 2025</p>
+            <p><strong>Product Resources:</strong></p>
+            <ul>
+                <li>Product Manager: [To be assigned]</li>
+                <li>Engineering Manager: [To be assigned]</li>
+                <li>UX Designer: [To be assigned]</li>
+            </ul>
+        </div>
+
+        <section class="section">
+            <h2>📋 Background and Problem/Opportunity</h2>
+            <p>The fitness app market is saturated with solutions designed for adults, leaving teenage boys under 18 without age-appropriate fitness guidance and motivation systems. Current fitness applications like Jefit, MyFitnessPal, and Nike Training Club focus on adult fitness goals, competitive metrics, and intense workout regimens that can intimidate or discourage teenage users who are just beginning their fitness journey.</p>
+
+            <p>Teenagers face unique challenges in developing healthy fitness habits: they're navigating body development changes, peer pressure, and motivation patterns that differ significantly from adults. Most existing fitness apps emphasize competition, extreme results, and adult-focused content that doesn't resonate with teenage psychology.</p>
+
+            <p>The opportunity lies in creating the first workout application specifically designed for teenage boys, incorporating age-appropriate exercises, positive reinforcement systems, and progress tracking that celebrates incremental improvements. By focusing on confidence-building and habit formation rather than intense competition, TeenFit can establish healthy fitness foundations that will benefit users throughout their lives.</p>
+        </section>
+
+        <section class="section">
+            <h2>💡 Product/Solution</h2>
+            <p>TeenFit is a mobile workout application that provides a Jefit-style fitness tracking experience specifically tailored for teenage boys under 18. The app combines professional workout planning and progress tracking with positive reinforcement systems designed around teenage psychology and motivation patterns.</p>
+
+            <p>The core solution addresses teenage-specific needs through age-appropriate exercise recommendations, encouraging feedback systems, and progress celebrations that build confidence rather than create pressure. Unlike adult fitness apps that focus on maximum performance and competition, TeenFit emphasizes personal growth, habit formation, and positive associations with fitness.</p>
+
+            <p>Key differentiators include workout plans designed for developing bodies, motivation systems that celebrate small wins, educational content about proper form and safety, and a user interface that matches teenage digital expectations while maintaining professional fitness guidance quality.</p>
+        </section>
+
+        <section class="section">
+            <h2>👤 Target Audience/Personas</h2>
+
+            <div class="persona-card">
+                <div class="persona-name">Primary Persona: Alex Thompson</div>
+                <p>Alex is a 16-year-old high school sophomore who wants to get stronger and more confident but feels intimidated by the gym and adult fitness content. He's active on social media, responds well to positive encouragement, and prefers learning through interactive experiences rather than reading lengthy instructions. Alex has tried a few adult fitness apps but found them overwhelming and discouraging. He wants to build muscle and improve his athletic performance for school sports but needs guidance that doesn't make him feel inadequate about his current fitness level.</p>
+            </div>
+
+            <div class="persona-card">
+                <div class="persona-name">Secondary Persona: Marcus Rodriguez</div>
+                <p>Marcus is a 14-year-old freshman who is new to structured fitness but motivated to develop healthy habits. He's tech-savvy, enjoys gamification elements, and responds well to clear progress indicators. Marcus doesn't have gym access but has basic equipment at home and wants workouts he can do independently. He's particularly interested in bodyweight exercises and wants to understand proper form to avoid injury.</p>
+            </div>
+
+            <div class="persona-card">
+                <div class="persona-name">Tertiary Persona: Jordan Kim</div>
+                <p>Jordan is a 17-year-old senior who has some fitness experience but wants more structured guidance as he prepares for college. He's goal-oriented, appreciates detailed tracking, and wants to establish consistent workout routines. Jordan is interested in both strength training and general fitness, values efficiency in his workouts, and wants to maintain his fitness progress during busy academic periods.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>📝 Product Requirements</h2>
+
+            <h3>Core Functionality Requirements</h3>
+            <ul class="requirements-list">
+                <li>As a teenage user, I want age-appropriate workout plans that consider my developmental stage, so I can exercise safely and effectively without risking injury or overexertion.</li>
+                <li>As a teenage user, I want clear exercise demonstrations with proper form guidance, so I can learn correct techniques and build confidence in my abilities.</li>
+                <li>As a teenage user, I want progress tracking that celebrates small improvements, so I stay motivated and develop positive associations with fitness.</li>
+                <li>As a teenage user, I want positive reinforcement notifications and achievements, so I feel encouraged to continue my fitness journey even when progress feels slow.</li>
+                <li>As a teenage user, I want workout plans that can be done at home or in basic gym settings, so I can exercise regardless of my access to professional facilities.</li>
+            </ul>
+
+            <h3>Progress Tracking Requirements</h3>
+            <ul class="requirements-list">
+                <li>As a teenage user, I want to log my workouts with simple, intuitive interfaces, so I can focus on exercising rather than complex data entry.</li>
+                <li>As a teenage user, I want visual progress indicators that show my improvement over time, so I can see tangible evidence of my development and stay motivated.</li>
+                <li>As a teenage user, I want achievement badges and milestones that recognize my consistency and effort, so I feel proud of my commitment to fitness.</li>
+                <li>As a teenage user, I want the ability to set personal goals that are realistic and achievable, so I can experience success and build confidence.</li>
+            </ul>
+
+            <h3>Safety and Education Requirements</h3>
+            <ul class="requirements-list">
+                <li>As a teenage user, I want educational content about proper nutrition and recovery, so I can develop comprehensive healthy habits beyond just exercise.</li>
+                <li>As a teenage user, I want safety reminders and form tips integrated into workouts, so I can exercise confidently without fear of injury.</li>
+                <li>As a parent/guardian, I want the ability to monitor my teenager's app usage and progress (with their permission), so I can support their fitness journey appropriately.</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>📅 MVP Timeline and Milestones</h2>
+
+            <div class="timeline-phase">
+                <div class="phase-title">Phase 1: Core App Development (Weeks 1-8)</div>
+                <ul>
+                    <li>User registration and onboarding flow</li>
+                    <li>Basic workout library with 50+ teenage-appropriate exercises</li>
+                    <li>Simple progress tracking and logging functionality</li>
+                    <li>Achievement system with initial badge collection</li>
+                    <li>Basic positive reinforcement notification system</li>
+                </ul>
+            </div>
+
+            <div class="timeline-phase">
+                <div class="phase-title">Phase 2: Enhanced Features (Weeks 9-16)</div>
+                <ul>
+                    <li>Personalized workout plan generation based on user goals and experience level</li>
+                    <li>Advanced progress analytics and trend visualization</li>
+                    <li>Educational content library (form videos, nutrition basics, recovery tips)</li>
+                    <li>Social features (optional friend connections, encouragement system)</li>
+                    <li>Parent/guardian dashboard (with user permission)</li>
+                </ul>
+            </div>
+
+            <div class="timeline-phase">
+                <div class="phase-title">Phase 3: Premium Features and Polish (Weeks 17-24)</div>
+                <ul>
+                    <li>Premium workout programs and specialized training plans</li>
+                    <li>Advanced analytics and detailed progress reports</li>
+                    <li>Integration with basic fitness wearables</li>
+                    <li>Enhanced gamification elements</li>
+                    <li>Beta testing with target user groups</li>
+                </ul>
+            </div>
+
+            <div class="timeline-phase">
+                <div class="phase-title">Phase 4: Launch Preparation (Weeks 25-28)</div>
+                <ul>
+                    <li>App store optimization and marketing materials</li>
+                    <li>User onboarding optimization based on beta feedback</li>
+                    <li>Performance optimization and bug fixes</li>
+                    <li>Launch strategy execution</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>📊 Key Product Indicators of Success</h2>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Engagement Metrics</h3>
+                    <ul>
+                        <li>75% of users complete onboarding within first session</li>
+                        <li>60% weekly active user retention after first month</li>
+                        <li>Average of 3+ workouts logged per week per active user</li>
+                        <li>80% of users engage with positive reinforcement notifications</li>
+                    </ul>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Progress and Learning</h3>
+                    <ul>
+                        <li>70% of users complete at least one full workout program</li>
+                        <li>85% of users report increased confidence in fitness abilities</li>
+                        <li>90% of users demonstrate proper exercise form improvement</li>
+                        <li>65% of users set and achieve at least one personal fitness goal</li>
+                    </ul>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Business Metrics</h3>
+                    <ul>
+                        <li>15% conversion rate from free to premium within 3 months</li>
+                        <li>4.5+ star average rating in app stores</li>
+                        <li>25% month-over-month user growth during first year</li>
+                        <li>80% customer satisfaction score in user feedback surveys</li>
+                    </ul>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Safety and Education</h3>
+                    <ul>
+                        <li>Zero reported injuries attributed to app-recommended exercises</li>
+                        <li>90% of users complete safety and form education modules</li>
+                        <li>75% of users report improved understanding of fitness fundamentals</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>💰 Business Model and Pricing</h2>
+
+            <div class="pricing-tier">
+                <div class="tier-name">Free Tier</div>
+                <ul>
+                    <li>Basic workout library (30+ exercises)</li>
+                    <li>Simple progress tracking</li>
+                    <li>Achievement badges and basic gamification</li>
+                    <li>Educational content (form videos, safety tips)</li>
+                    <li>Community features (encouragement system)</li>
+                </ul>
+            </div>
+
+            <div class="pricing-tier">
+                <div class="tier-name">Premium Tier ($4.99/month or $39.99/year)</div>
+                <ul>
+                    <li>Full exercise library (100+ exercises)</li>
+                    <li>Personalized workout plan generation</li>
+                    <li>Advanced progress analytics and insights</li>
+                    <li>Premium educational content (nutrition guides, advanced training)</li>
+                    <li>Priority customer support</li>
+                    <li>Ad-free experience</li>
+                    <li>Export progress data</li>
+                </ul>
+            </div>
+
+            <div class="pricing-tier">
+                <div class="tier-name">Family Plan ($7.99/month or $59.99/year)</div>
+                <ul>
+                    <li>Up to 4 teenage accounts</li>
+                    <li>Parent/guardian dashboard access</li>
+                    <li>Family challenges and shared goals</li>
+                    <li>Bulk educational resources for families</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>❓ Outstanding Questions</h2>
+            <ol>
+                <li>What specific integrations with school PE programs or youth sports teams should be prioritized?</li>
+                <li>How should the app handle users who transition from teenage to adult fitness needs?</li>
+                <li>What level of parental oversight is appropriate while maintaining user privacy and autonomy?</li>
+                <li>Should the app include nutrition tracking features or focus solely on exercise?</li>
+                <li>How can we ensure the app remains engaging without promoting unhealthy competition or body image issues?</li>
+                <li>What partnerships with fitness equipment manufacturers or supplement companies align with our teenage focus?</li>
+                <li>How should the app address users with different physical abilities or limitations?</li>
+            </ol>
+        </section>
+
+        <nav class="navigation">
+            <a href="ProjectDashboard_TeenFit.html" class="btn btn-primary">← Back to Dashboard</a>
+            <a href="PRFAQ_TeenFit.html" class="btn btn-secondary">View PRFAQ</a>
+            <a href="DesignSystem_TeenFit.html" class="btn btn-secondary">Design System</a>
+        </nav>
+    </div>
+</body>
+</html>

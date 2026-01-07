@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenFit - Interactive Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        /* Welcome Screen */
+        .welcome {
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .tagline {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .features {
+            margin-bottom: 2rem;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: #f59e0b;
+            border-radius: 50%;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            background: white;
+            color: #2563eb;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Dashboard */
+        .header {
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .greeting {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        
+        .content {
+            padding: 1.5rem;
+            padding-bottom: 100px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        .card h3 {
+            color: #2563eb;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .workout-card {
+            border-left: 4px solid #10b981;
+        }
+        
+        .progress-card {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .achievement-card {
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 65%;
+            transition: width 0.3s ease;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+        
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+        
+        .badge-earned {
+            background: #10b981;
+        }
+        
+        .badge-locked {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgb(0 0 0 / 0.1);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .nav-item {
+            text-align: center;
+            padding: 0.5rem;
+            color: #4b5563;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        
+        .nav-item.active {
+            color: #2563eb;
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div class="screen active" id="welcome">
+            <div class="welcome">
+                <div class="logo">TeenFit</div>
+                <div class="tagline">The First Workout App Built Just for Teenagers</div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        Age-appropriate workouts designed for your body
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        Positive motivation that builds confidence
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        Track progress and celebrate every win
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        Safe exercises with proper form guidance
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="showScreen('dashboard')">Get Started - It's Free!</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div class="screen" id="dashboard">
+            <div class="header">
+                <h1>TeenFit</h1>
+                <div class="greeting">Hey Alex! Ready to crush today's workout? 💪</div>
+            </div>
+            
+            <div class="content">
+                <div class="card workout-card">
+                    <h3>Today's Recommended Workout</h3>
+                    <p><strong>Upper Body Strength</strong></p>
+                    <p>Perfect for building confidence with push-ups, planks, and arm exercises</p>
+                    <p>⏱️ 25 minutes • 🏠 Home friendly • 💪 Beginner</p>
+                    <div style="margin-top: 1.5rem;">
+                        <button class="btn-primary" onclick="alert('Workout would start here!')">Start Workout</button>
+                        <button class="btn-secondary" onclick="alert('Browse workouts feature!')">Browse Others</button>
+                    </div>
+                </div>
+                
+                <div class="card progress-card">
+                    <h3>Your Progress This Week</h3>
+                    <p>You're doing amazing! 3 workouts completed</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: #4b5563;">65% toward your weekly goal</p>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Total Workouts</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card achievement-card">
+                    <h3>Recent Achievements</h3>
+                    <p>🎉 <strong>First Week Complete!</strong> You've built a solid foundation</p>
+                    <p style="margin-top: 0.5rem;">Keep it up to unlock more badges:</p>
+                    
+                    <div class="achievement-grid">
+                        <div class="badge badge-earned">🏃</div>
+                        <div class="badge badge-earned">💪</div>
+                        <div class="badge badge-earned">⭐</div>
+                        <div class="badge badge-locked">🔥</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <div class="nav-item active" onclick="showScreen('dashboard')">
+                    <div class="nav-icon">🏠</div>
+                    Dashboard
+                </div>
+                <div class="nav-item" onclick="showScreen('workouts')">
+                    <div class="nav-icon">💪</div>
+                    Workouts
+                </div>
+                <div class="nav-item" onclick="showScreen('progress')">
+                    <div class="nav-icon">📊</div>
+                    Progress
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    Profile
+                </div>
+            </div>
+        </div>
+
+        <!-- Workouts Screen -->
+        <div class="screen" id="workouts">
+            <div class="header">
+                <h1>Workouts</h1>
+                <div class="greeting">Find the perfect workout for you</div>
+            </div>
+            
+            <div class="content">
+                <div class="card">
+                    <h3>Recommended for You</h3>
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 3px solid #10b981;">
+                            <strong>Upper Body Strength</strong>
+                            <p style="font-size: 0.875rem; color: #4b5563;">25 min • Beginner • No equipment</p>
+                            <button class="btn-primary" style="margin-top: 0.5rem;" onclick="alert('Starting Upper Body workout!')">Start</button>
+                        </div>
+                        <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 3px solid #f59e0b;">
+                            <strong>Core & Abs</strong>
+                            <p style="font-size: 0.875rem; color: #4b5563;">15 min • Beginner • No equipment</p>
+                            <button class="btn-primary" style="margin-top: 0.5rem;" onclick="alert('Starting Core workout!')">Start</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Browse by Category</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: #f9fafb; border-radius: 0.5rem; cursor: pointer;" onclick="alert('Strength workouts!')">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💪</div>
+                            <strong>Strength</strong>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f9fafb; border-radius: 0.5rem; cursor: pointer;" onclick="alert('Cardio workouts!')">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏃</div>
+                            <strong>Cardio</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <div class="nav-item" onclick="showScreen('dashboard')">
+                    <div class="nav-icon">🏠</div>
+                    Dashboard
+                </div>
+                <div class="nav-item active" onclick="showScreen('workouts')">
+                    <div class="nav-icon">💪</div>
+                    Workouts
+                </div>
+                <div class="nav-item" onclick="showScreen('progress')">
+                    <div class="nav-icon">📊</div>
+                    Progress
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    Profile
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Screen -->
+        <div class="screen" id="progress">
+            <div class="header">
+                <h1>Your Progress</h1>
+                <div class="greeting">Look how far you've come! 🎉</div>
+            </div>
+            
+            <div class="content">
+                <div class="card">
+                    <h3>This Week's Stats</h3>
+                    <div class="stats" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="stat">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Workouts</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">75</div>
+                            <div class="stat-label">Minutes</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Achievement Gallery</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div style="text-align: center;">
+                            <div class="badge badge-earned" style="margin: 0 auto 0.5rem;">🏃</div>
+                            <p style="font-size: 0.75rem; font-weight: 600;">First Workout</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="badge badge-earned" style="margin: 0 auto 0.5rem;">💪</div>
+                            <p style="font-size: 0.75rem; font-weight: 600;">Strength Builder</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="badge badge-locked" style="margin: 0 auto 0.5rem;">🔥</div>
+                            <p style="font-size: 0.75rem; color: #4b5563;">Streak Master</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <div class="nav-item" onclick="showScreen('dashboard')">
+                    <div class="nav-icon">🏠</div>
+                    Dashboard
+                </div>
+                <div class="nav-item" onclick="showScreen('workouts')">
+                    <div class="nav-icon">💪</div>
+                    Workouts
+                </div>
+                <div class="nav-item active" onclick="showScreen('progress')">
+                    <div class="nav-icon">📊</div>
+                    Progress
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    Profile
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div class="screen" id="profile">
+            <div class="header">
+                <h1>Profile</h1>
+                <div class="greeting">Manage your fitness journey</div>
+            </div>
+            
+            <div class="content">
+                <div class="card">
+                    <h3>Alex Thompson</h3>
+                    <p style="color: #4b5563; margin-bottom: 1rem;">Age: 16 • Fitness Level: Beginner</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="stat">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Total Workouts</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">2</div>
+                            <div class="stat-label">Weeks Active</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Settings</h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem; cursor: pointer;" onclick="alert('Privacy settings!')">
+                            <span>🔒 Privacy</span>
+                            <span style="color: #4b5563;">→</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #fef3c7; border-radius: 0.5rem; cursor: pointer;" onclick="alert('Premium features!')">
+                            <span>⭐ Upgrade to Premium</span>
+                            <span style="color: #4b5563;">→</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <div class="nav-item" onclick="showScreen('dashboard')">
+                    <div class="nav-icon">🏠</div>
+                    Dashboard
+                </div>
+                <div class="nav-item" onclick="showScreen('workouts')">
+                    <div class="nav-icon">💪</div>
+                    Workouts
+                </div>
+                <div class="nav-item" onclick="showScreen('progress')">
+                    <div class="nav-icon">📊</div>
+                    Progress
+                </div>
+                <div class="nav-item active" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    Profile
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            // Hide all screens
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
+            
+            // Show target screen
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
+            
+            // Update navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            const navMap = {
+                'dashboard': 0,
+                'workouts': 1,
+                'progress': 2,
+                'profile': 3
+            };
+            
+            if (navMap[screenId] !== undefined) {
+                navItems[navMap[screenId]].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
