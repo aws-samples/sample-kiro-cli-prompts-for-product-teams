@@ -107,48 +107,53 @@ The validation agent checks:
 
 **Step 3: Get Customer Brand Assets (REQUIRED for known companies)** - If building for a specific company:
 
-**Logo (MANDATORY - do this FIRST):**
-
 **⚠️ IMPORTANT: Do NOT use web_fetch to download images/logos. Use curl instead.**
 
-1. Search: "[Company Name] logo png", "[Company Name] press kit", "[Company Name] media assets"
-2. Check these sources in order:
-   - Company's official press/media/newsroom page (e.g., `company.com/press`, `company.com/media`)
-   - Wikipedia (often has official logos with source URLs)
-   - Company's official social media (Twitter/X, LinkedIn banner images)
-   - Brandfetch.com or similar brand asset databases
-3. **Get the actual image URL** - get the direct URL to the image file
-4. **VERIFY the URL works using curl:**
-   ```bash
-   curl -sI "[LOGO_URL]" | head -5
-   ```
-   - Check for `HTTP/2 200` or `HTTP/1.1 200 OK`
-   - If response shows 404, 403, or error → TRY ANOTHER URL
-5. **If the URL fails, TRY ANOTHER** - go back to step 2 and try the next source
-6. **Repeat until you have a working logo URL** - do not proceed without a verified, working logo
-7. **Save to research doc** with the verified URL in a "Brand Assets" section
+**⚠️ CUSTOMER vs. COMPETITOR WARNING:** By this point your search results contain multiple companies — the CUSTOMER and their competitors. The logo MUST be for the CUSTOMER company (the company this product is being built FOR), not any competitor.
 
-**Logo verification loop:**
+**Logo (MANDATORY - do this FIRST):**
+
+Search in this order — stop when you have a candidate:
+1. **Web image search:** `"[CUSTOMER Company Name]" logo` — look for results from the customer's domain, Wikipedia, or Brandfetch
+2. **Clearbit API:** `curl -sI "https://logo.clearbit.com/[customer-domain]"`
+3. **Schema.org on their site:** `curl -s "[CUSTOMER_WEBSITE]" | grep -oi '"logo"[^,}]*'`
+4. **HTML scrape — alt text first, filename last:**
+   `curl -s "[CUSTOMER_WEBSITE]" | grep -oi '<img[^>]*>'`
+   Pick images where **alt text contains the customer company name**. Images with "logo" in the filename but no customer name in alt text are likely partner/sponsor logos — SKIP THEM.
+5. **Social media:** LinkedIn or Twitter/X profile picture
+6. **Favicon as last resort:** `[CUSTOMER_WEBSITE]/favicon.ico`
+
+> **HARD RULE: HTTP 200 is NOT verification. You MUST pass the Logo Gate below.**
+
+**Logo Gate (ALL 5 checks MUST pass before using any logo):**
 ```
-WHILE logo not verified:
-  1. Find a logo URL from search results
-  2. Run: curl -sI "[URL]" | head -5
-  3. IF response shows 200 OK → logo verified, continue
-  4. IF response shows 404/403/error → try next URL from results
-  5. IF all URLs exhausted → search with different query and repeat
+┌─────────────────────────────────────────────────────────────┐
+│                    LOGO GATE CHECKLIST                       │
+│                                                             │
+│  □ 1. curl -sI "[URL]" returns HTTP 200                    │
+│  □ 2. File size is 2KB–50KB (not a photo)                  │
+│  □ 3. Downloaded and LOOKED AT the image:                   │
+│       curl -sL -o /tmp/logo_check.png "[URL]"              │
+│       Then visually inspect the downloaded file             │
+│  □ 4. The image shows the CUSTOMER's brand/name             │
+│       (not a partner, sponsor, or different company)        │
+│  □ 5. Stated out loud: "This logo belongs to [Customer]     │
+│       because [reason]"                                     │
+│                                                             │
+│  ALL FIVE must pass. HTTP 200 alone is NOT enough.          │
+│  If check 4 fails → REJECT and try next candidate.         │
+│  If no candidates pass → ask the user for a logo URL.      │
+│  A text placeholder is ALWAYS better than the wrong logo.   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**Example logo searches:**
-- "Discovery Education logo png"
-- "Discovery Education press kit"
-- "Discovery Education brand assets"
-- "site:discoveryeducation.com logo"
-- "[Company] Wikipedia" (check the infobox image)
+**Common traps:**
+- A file called `ee-logo-White.png` on the customer's site may be a PARTNER logo in a carousel — check alt text and container
+- `curl` only sees server-rendered HTML. Many sites load logos via JavaScript — if no confident match in HTML, use external sources (Clearbit, web image search)
+- The market research phase has competitor logos in context — do NOT accidentally use one
 
-**Brand Colors:** Visit their website, use browser dev tools (inspect element) to extract exact hex values
+**Brand Colors:** Visit their website, extract exact hex values
 **Typography:** Identify their font families from their website's CSS
-
-**CRITICAL:** You MUST use `curl -sI` to verify the logo URL returns 200 OK before proceeding. If a URL returns 404 or error, try another URL. Do not proceed to PRFAQ without a verified, working logo URL.
 
 **⚠️ NEVER use web_fetch to download binary files (images, logos, PDFs). web_fetch is for HTML pages only. Always use curl for image verification.**
 
@@ -266,20 +271,32 @@ Apply design standards from `#steering/design-standards.md`.
 
 **IMPORTANT: Create MODULAR files, not a single monolithic HTML.**
 
+**Build sequence:**
+1. **Shared CSS file first** — `[product-slug].css` with design tokens and components (`.css` extension REQUIRED — browsers reject `.html` via `<link rel="stylesheet">` due to MIME type mismatch)
+2. **Design System reference page** — `DesignSystem_[ProductName]_[YYYY-MM-DD].html` (visual documentation only, links to `.css`)
+3. **Screen manifest** — exact filenames + sidebar nav template BEFORE building any screens
+4. **Brand assets** — Logo Gate (all 5 checks), brand colors, fonts — resolved ONCE, passed to all screen builders
+5. **Individual screen files** — each links to shared `.css`, uses manifest filenames, pastes sidebar nav verbatim
+6. **ScreenIndex** — navigation hub (use template at `.kiro/steering/templates/ScreenIndex_Template.html`)
+7. **Post-build validation** — verify CSS loads, all links resolve against manifest, file sizes within budget, logo is correct
+
 Save to `./documents/`:
-- `DesignSystem_[ProductName]_[YYYY-MM-DD].html` (shared CSS - create FIRST)
-- `ScreenIndex_[ProductName]_[YYYY-MM-DD].html` (navigation hub - use template at `.kiro/steering/templates/ScreenIndex_Template.html`)
+- `[product-slug].css` (shared CSS — create FIRST, `.css` extension required)
+- `DesignSystem_[ProductName]_[YYYY-MM-DD].html` (visual reference page)
+- `ScreenIndex_[ProductName]_[YYYY-MM-DD].html` (navigation hub)
 - `Screen_[ScreenName]_[ProductName]_[YYYY-MM-DD].html` (one per screen)
 
 #### Validation: Prototype
 Before marking complete, verify:
 
 **Structure (CRITICAL):**
-- [ ] DesignSystem file exists with shared CSS variables and components
+- [ ] Shared `.css` file exists (NOT `.html` for stylesheets)
+- [ ] Every screen links to shared CSS via `<link rel="stylesheet" href="[product-slug].css">`
+- [ ] Screen manifest created with exact filenames before building screens
 - [ ] ScreenIndex file exists with links to all screens
 - [ ] Individual Screen_*.html files exist (NOT one monolithic file)
-- [ ] Each screen links to shared DesignSystem
 - [ ] Navigation between screens uses relative links that work
+- [ ] Sidebar nav is consistent across all screens (only `active` class differs)
 
 **Functionality (FULLY INTERACTIVE):**
 - [ ] All PRD screens implemented (cross-reference requirements)
@@ -300,17 +317,28 @@ Before marking complete, verify:
 
 **Brand/Product Fidelity (REQUIRED for known companies):**
 - [ ] If modifying existing product: existing UI faithfully recreated
+- [ ] **Logo Gate passed** (all 5 checks: HTTP 200, file size 2-50KB, visual inspection, customer brand confirmed, reason stated)
 - [ ] **Customer logo embedded in prototype** (header, login screen, footer as appropriate)
-- [ ] **Customer brand colors used** in Design System CSS variables
+- [ ] **Same logo URL on every screen** (extract and compare)
+- [ ] **Logo alt text contains customer company name** (not a competitor)
+- [ ] **Customer brand colors used** in shared CSS variables
 - [ ] **Customer typography applied** (or closest available Google Font match)
 - [ ] Design System file includes comment documenting brand source
+
+**Post-Build Validation (REQUIRED — see `#steering/prototype-guide.md` Step 8.5):**
+- [ ] CSS loads correctly on all screens (no unstyled HTML)
+- [ ] All cross-screen links resolve against manifest
+- [ ] Sidebar nav consistent across all screens
+- [ ] File sizes within budget (CSS < 20KB, Screen < 25KB)
+- [ ] Logo re-verified via Logo Gate on final embedded URL
+- [ ] Smoke test: click through at least one complete flow
 
 **After each screen file is created:**
 ```bash
 open ./documents/Screen_[Name]_[ProductName]_[YYYY-MM-DD].html
 ```
 
-**FAIL if:** Monolithic single-file prototype, dead-end navigation, non-functional interactions (broken chat, static forms, non-working dropdowns/modals), generic aesthetics, or placeholder content. Fix and re-validate.
+**FAIL if:** Monolithic single-file prototype, dead-end navigation, non-functional interactions (broken chat, static forms, non-working dropdowns/modals), generic aesthetics, placeholder content, wrong company's logo, or post-build validation not passed. Fix and re-validate.
 
 > **Full Approval Mode:** STOP here. Present completed prototype summary and ask: "All phases complete! Would you like to review the prototype, make changes, or run any analysis hooks (Customer Interview, Risk Analysis, etc.)?" Wait for user response.
 
@@ -327,7 +355,8 @@ Examples:
 - `MarketResearch_[ProductName]_[YYYY-MM-DD].html`
 - `PRFAQ_[ProductName]_[YYYY-MM-DD].html`
 - `PRD_[ProductName]_[YYYY-MM-DD].html`
-- `DesignSystem_[ProductName]_[YYYY-MM-DD].html`
+- `[product-slug].css` (shared CSS — no date suffix, stable filename)
+- `DesignSystem_[ProductName]_[YYYY-MM-DD].html` (visual reference page)
 - `ScreenIndex_[ProductName]_[YYYY-MM-DD].html`
 - `Screen_[Name]_[ProductName]_[YYYY-MM-DD].html`
 - `ProjectDashboard_[ProductName]_[YYYY-MM-DD].html`
@@ -405,7 +434,7 @@ Before completing any phase:
 | Market Research | Sources cited, 3+ competitors, fetched pages | Search snippets only, generic pain points |
 | PRFAQ | Compelling headline, specific solution, skeptical FAQs | Generic headline, softball questions |
 | PRD | EARS format, AWS/Anthropic only, acceptance criteria | Vague requirements, wrong tech stack |
-| Prototype | Modular files, **fully interactive** (chat mocked, forms work, dropdowns/modals functional), working nav, distinctive design, realistic data | Monolithic file, dead ends, static interactions, generic aesthetics |
+| Prototype | Modular files with shared `.css`, screen manifest, **fully interactive** (chat mocked, forms work, dropdowns/modals functional), working nav, Logo Gate passed, post-build validation passed, distinctive design, realistic data | Monolithic file, `.html` used as stylesheet, dead ends, static interactions, wrong company logo, generic aesthetics |
 
 **Remember:** Validation is not optional. Every phase must pass validation before proceeding. If you find yourself wanting to skip validation to save time, that's a sign the work needs improvement.
 

@@ -101,15 +101,34 @@ If building for a specific company:
 
 ```
 documents/
-├── DesignSystem_[Product]_[Date].html    (shared CSS - create FIRST)
+├── [product-slug].css                     (shared CSS — create FIRST, .css required)
+├── DesignSystem_[Product]_[Date].html    (visual reference page)
 ├── ScreenIndex_[Product]_[Date].html     (navigation hub)
 ├── Screen_Dashboard_[Product]_[Date].html
 ├── Screen_[Name]_[Product]_[Date].html   (one per screen)
 └── ProjectDashboard_[Product]_[Date].html
 ```
 
+**CSS Architecture:**
+- The shared CSS file MUST use `.css` extension — browsers reject `.html` files loaded via `<link rel="stylesheet">` due to MIME type mismatch
+- Use a short, stable filename without date suffix: `[product-slug].css`
+- Screen files link to it via: `<link rel="stylesheet" href="[product-slug].css">`
+- `DesignSystem_*.html` is a visual reference page (documentation), NOT the stylesheet
+
+## File Size Budget
+
+| File Type | Target | Max | Notes |
+|-----------|--------|-----|-------|
+| Shared CSS (`.css`) | < 15KB | 20KB | Design tokens, components, layout |
+| Screen HTML | < 15KB | 25KB | With external CSS, no inlined design system |
+| Screen-specific JS | inline, < 3KB | 5KB | Or use shared `[product-slug].js` |
+| Clickable Prototype | < 200KB | 300KB | Single-file, all CSS/JS inline (exempt from external CSS rule) |
+
+**If a screen exceeds 25KB:** Move screen-specific CSS (> 50 lines) into the shared `.css` file, extract complex JS into a shared `[product-slug].js`, or simplify mock data.
+
 ## Quality Checklist
 
+- [ ] Shared `.css` file created first (not `.html` for stylesheets)
 - [ ] Distinctive fonts (NOT generic)
 - [ ] Color hierarchy (dominant + accent)
 - [ ] Animations present
@@ -117,3 +136,5 @@ documents/
 - [ ] Layout has spatial interest
 - [ ] Mobile responsive
 - [ ] WCAG AA contrast compliance
+- [ ] File sizes within budget (see table above)
+- [ ] Post-build validation passed (see `#steering/prototype-guide.md`)

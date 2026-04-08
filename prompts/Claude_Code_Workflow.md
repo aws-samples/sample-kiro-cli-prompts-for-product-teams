@@ -202,13 +202,15 @@ After gathering initial information, tell the user:
 **Load:** `prompts/Prototype Creation Guide.md`
 
 **Create from PRD (modular structure required):**
-1. **Design System first** - shared CSS tokens and components
-2. User flow mapping
-3. Information architecture
-4. **Individual screen HTML files** (NOT one monolithic file)
-5. Clickable prototype with navigation
-6. Form validation and interactions
-7. Project Dashboard (navigation hub)
+1. **Shared CSS file first** - `[product-slug].css` with design tokens and components (`.css` extension required)
+2. **Design System reference page** - `DesignSystem_*.html` for visual documentation
+3. **Screen manifest** - exact filenames + sidebar nav template before building screens
+4. User flow mapping and information architecture
+5. **Individual screen HTML files** (NOT one monolithic file, each links to shared `.css`)
+6. Clickable prototype with navigation
+7. Form validation and interactions
+8. **Post-build validation** - verify CSS loads, all links resolve, file sizes within budget
+9. Project Dashboard (navigation hub)
 
 > **Critical: Connect All Screens Together**
 >
@@ -223,15 +225,17 @@ After gathering initial information, tell the user:
 > **Test every link** before marking the prototype complete.
 
 **Save:**
-- `documents/DesignSystem_[Product]_[YYYY-MM-DD].html` (create FIRST)
+- `documents/[product-slug].css` (shared CSS — create FIRST)
+- `documents/DesignSystem_[Product]_[YYYY-MM-DD].html` (visual reference page)
 - `documents/ScreenIndex_[Product]_[YYYY-MM-DD].html` (navigation hub)
 - `documents/Screen_[Name]_[Product]_[YYYY-MM-DD].html` (one per screen)
 - `documents/ClickablePrototype_[Product]_[YYYY-MM-DD].html`
 - `documents/ProjectDashboard_[Product]_[YYYY-MM-DD].html`
 
 **Checkpoint:**
-- [ ] Design system created FIRST with shared CSS
-- [ ] Modular structure (separate files per screen)
+- [ ] Shared `.css` file created FIRST (NOT `.html` for stylesheets)
+- [ ] Screen manifest created with exact filenames before building screens
+- [ ] Modular structure (separate files per screen, each links to shared `.css`)
 - [ ] All PRD screens implemented
 - [ ] **All buttons and links navigate to correct screens**
 - [ ] **User flows completable end-to-end**
@@ -239,6 +243,7 @@ After gathering initial information, tell the user:
 - [ ] Responsive on mobile/tablet/desktop
 - [ ] Realistic data (no Lorem ipsum)
 - [ ] Follows design standards (no AI slop)
+- [ ] Post-build validation passed (see Prototype Creation Guide)
 - [ ] Files saved successfully
 
 ---
@@ -267,12 +272,13 @@ After gathering initial information, tell the user:
 
 ```
 documents/
+├── [product-slug].css                        (shared CSS — create FIRST)
 ├── ProjectDashboard_[Product]_[Date].html    (navigation hub)
 ├── MarketResearch_[Product]_[Date].html      (Phase 1)
 ├── AIFraming_[Product]_[Date].html           (Phase 1b - AI/ML only)
 ├── PRFAQ_[Product]_[Date].html               (Phase 2)
 ├── PRD_[Product]_[Date].html                 (Phase 3)
-├── DesignSystem_[Product]_[Date].html        (shared CSS)
+├── DesignSystem_[Product]_[Date].html        (visual reference page)
 ├── ScreenIndex_[Product]_[Date].html         (screen navigation)
 ├── Screen_Dashboard_[Product]_[Date].html
 ├── Screen_[Name]_[Product]_[Date].html       (one per screen)
@@ -299,7 +305,8 @@ documents/
 
 ### Prototype Specific:
 - [ ] **Modular structure** (NOT single monolithic file)
-- [ ] Design system created FIRST
+- [ ] Shared `.css` file created FIRST (`.css` extension, not `.html`)
+- [ ] Screen manifest established before screen builds
 - [ ] Every PRD screen included
 - [ ] All workflows completable end-to-end
 - [ ] Mobile responsive on all screens
@@ -307,6 +314,7 @@ documents/
 - [ ] Navigation between all screens works
 - [ ] Data consistent across screens
 - [ ] **No AI slop** (see Design Standards)
+- [ ] **Post-build validation passed** (see `Prototype Creation Guide.md`)
 
 ---
 
@@ -411,11 +419,13 @@ When the user provides additional context (CSV files, company docs, team info):
 - Tech stack compliance
 
 ### Prototype Validation:
+- Shared `.css` file created first (not `.html` for stylesheets)
 - Modular file structure (not monolithic)
-- Design system created first
+- Screen manifest with exact filenames created before screen builds
 - All screens from PRD implemented
-- Navigation works between all screens
+- Navigation works between all screens (verified by post-build link audit)
 - No AI slop aesthetics
+- Post-build validation passed (see `Prototype Creation Guide.md`)
 
 ---
 

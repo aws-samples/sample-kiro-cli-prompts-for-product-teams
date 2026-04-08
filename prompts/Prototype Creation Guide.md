@@ -117,35 +117,45 @@ You must produce:
     "known_limitations": ["string"]
   },
   "artifacts": {
+    "shared_css": "documents/[product-slug].css",
     "specification_md": "documents/Prototype_[ProductSlug]_[Date].md",
     "specification_html": "documents/Prototype_[ProductSlug]_[Date].html",
     "clickable_prototype": "documents/ClickablePrototype_[ProductSlug]_[Date].html",
     "individual_screens": ["documents/Screen_[Name]_[ProductSlug]_[Date].html"],
-    "design_system": "documents/DesignSystem_[ProductSlug]_[Date].html"
+    "design_system_reference": "documents/DesignSystem_[ProductSlug]_[Date].html"
   }
 }
 ```
 
 ## Execution Process
 
-### Step 1: Load Design System
+### Step 1: Create Shared CSS File
+
+**Create `[product-slug].css` FIRST** — this is the shared stylesheet for all screen files.
 
 1. Check if `design_context.existing_design_system_path` exists
-2. If exists, load and apply its styles as a foundation
-3. If not, proceed to Step 1.1 to determine design approach
+2. If exists, extract its CSS into a new `[product-slug].css` file
+3. If not, proceed to Step 1.1 to determine design approach, then create the `.css` file
 
-**Design System Elements to Define:**
-- Color palette (primary, secondary, semantic colors)
-- Typography scale (font families, sizes, weights)
-- Component library (buttons, forms, cards, navigation)
-- Spacing system (margin/padding scale)
-- Responsive breakpoints
-- Motion/animation tokens
-- Visual texture and depth elements
+**The `.css` file contains:**
+- CSS variables (colors, typography, spacing, animation tokens)
+- Component styles (buttons, forms, cards, navigation, sidebar)
+- Layout classes (grid, flex utilities, responsive breakpoints)
+- Motion/animation keyframes
+- Visual texture and depth styles
+
+**Critical CSS rules:**
+- The shared CSS file MUST use `.css` extension (NOT `.html`). Browsers reject `.html` files loaded via `<link rel="stylesheet">` due to MIME type mismatch — this breaks styling on both `file://` and web servers.
+- Use a short, stable filename without date suffix: `[product-slug].css` (e.g., `smartsearch.css`)
+- Screen files link to it via: `<link rel="stylesheet" href="[product-slug].css">`
+
+**Separately, create `DesignSystem_[Product]_[Date].html`** — this is a visual reference page that documents colors, components, and typography for human review. It links to the `.css` file for its own styling.
 
 ### Step 1.1: Research Customer Brand (If Applicable)
 
 **CRITICAL**: If this prototype is being built for a **real company or customer**, research their existing brand before creating any design direction.
+
+**⚠️ CUSTOMER vs. COMPETITOR WARNING:** By this point, your context contains brand information for multiple companies — the customer AND 3-5 competitors from the market research phase. You MUST use the CUSTOMER's brand, not a competitor's. The customer is the company named in `design_context.customer_company` or `prd_context`. If uncertain, ask the user before proceeding.
 
 #### When to Research
 - Company name is mentioned in `prd_context` or `design_context`
@@ -155,12 +165,92 @@ You must produce:
 
 #### Web Research Protocol
 
-**Search for brand assets:**
-1. `"[Company Name]" brand guidelines`
-2. `"[Company Name]" design system`
-3. `"[Company Name]" style guide`
-4. Visit the company's main website to observe:
-   - Logo usage and placement
+**Search for the CUSTOMER's brand assets (not competitors):**
+1. `"[Customer Company Name]" brand guidelines`
+2. `"[Customer Company Name]" design system`
+3. `"[Customer Company Name]" style guide`
+
+#### Logo Discovery Protocol
+
+> **HARD RULE: You MUST visually confirm the logo before using it. HTTP 200 is NOT verification. Download the image, look at it, and confirm it shows the customer's brand. If you cannot confidently confirm it, ask the user. A text placeholder is always better than the wrong logo.**
+
+##### The Search (try in order, stop when you have a candidate)
+
+1. **Web image search:** `"[Customer Company Name]" logo` — look for results from the customer's own domain, Wikipedia, or Brandfetch
+2. **Schema.org on their site:**
+   ```bash
+   curl -s "[CUSTOMER_WEBSITE]" | grep -oi '"logo"[^,}]*'
+   ```
+3. **Clearbit API:** `curl -sI "https://logo.clearbit.com/[customer-domain]"`
+4. **HTML scrape — alt text first, filename last:**
+   ```bash
+   curl -s "[CUSTOMER_WEBSITE]" | grep -oi '<img[^>]*>'
+   ```
+   Pick images where **alt text contains the customer company name**. Ignore images where the filename contains "logo" but the alt text doesn't mention the customer — those are partner/sponsor logos.
+5. **Social media:** LinkedIn or Twitter/X profile picture
+6. **Favicon as last resort:** `[CUSTOMER_WEBSITE]/favicon.ico`
+
+##### The Gate (MANDATORY — do not skip)
+
+Before using ANY logo URL, you MUST pass ALL of these checks. If any check fails, the URL is rejected.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    LOGO GATE CHECKLIST                       │
+│                                                             │
+│  □ 1. curl -sI "[URL]" returns HTTP 200                    │
+│  □ 2. File size is 2KB–50KB (not a photo)                  │
+│  □ 3. Downloaded image and LOOKED AT IT                     │
+│  □ 4. The image shows the CUSTOMER's brand/name             │
+│       (not a partner, sponsor, or different company)        │
+│  □ 5. Stated out loud: "This logo belongs to [Customer]     │
+│       because [reason]"                                     │
+│                                                             │
+│  ALL FIVE must pass. HTTP 200 alone is NOT enough.          │
+│  If check 4 fails → REJECT and try next candidate.         │
+│  If no candidates pass → ask the user for a logo.          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Check 3 in detail — visual inspection:**
+```bash
+curl -sL -o /tmp/logo_check.png "[LOGO_URL]"
+```
+Then read `/tmp/logo_check.png`. Answer these questions:
+- Does the image contain text? If yes, does the text say the **customer's** company name?
+- Does it look like a professional logo (not a generic icon, badge, or photo)?
+- Could this belong to a different company? (Partner logos on the customer's site are common false positives.)
+
+**Check 5 — say it out loud:** Before proceeding, explicitly state in your output: *"I'm using [URL] as the logo for [Customer] because [the image shows their name / it came from their official press kit / etc.]."* If you can't complete that sentence confidently, don't use the logo.
+
+##### Common Traps
+
+| Trap | Why it happens | What to do instead |
+|------|---------------|-------------------|
+| Filename contains "logo" | Partner/sponsor logos in carousels and footers have "logo" in the filename | Check alt text and container — is it in `<header>` or a partner section? |
+| HTTP 200 = "verified" | 200 only means the file exists, not that it's the right logo | Must also pass visual inspection (checks 3–5) |
+| First working URL accepted | Urgency to make progress skips remaining checks | The gate checklist BLOCKS progress until all 5 pass |
+| `curl` misses JS-rendered logos | WordPress theme customizers, SPAs load logos via JS | Use external sources first (web search, Clearbit, schema.org) |
+| Best-of-bad-options | No confident match → pick the closest thing | Ask the user. Text placeholder > wrong logo |
+
+##### If No Logo Passes the Gate
+
+Tell the user:
+> "I could not confidently identify [Customer]'s logo. The images I found on their site may be partner logos or JS-rendered. Can you provide a logo URL or image file?"
+
+Use a styled text header with the company name as a placeholder. Continue building screens — the logo can be swapped in later without rework.
+
+##### Dark/Light Variants
+
+If the customer has both a light and dark logo version, collect both:
+- **Light/white version** — for dark backgrounds (sidebars, hero sections)
+- **Dark/colored version** — for light backgrounds (cards, forms)
+
+Do NOT use CSS `filter: invert()` — it distorts brand colors.
+
+#### General Brand Research
+
+Visit the company's main website to observe:
    - Primary and secondary colors
    - Typography choices
    - Button and form styles
@@ -169,11 +259,14 @@ You must produce:
    - Tone and voice
 
 **Document brand elements found:**
+
+Before recording, verify: Does the logo/brand you found actually belong to `design_context.customer_company.name`? Check the source page — if the company name on the page doesn't match the customer, you have a competitor's brand.
+
 ```json
 {
   "customer_brand": {
-    "company_name": "string",
-    "website": "string",
+    "company_name": "string (MUST match design_context.customer_company.name)",
+    "website": "string (the CUSTOMER's website, not a competitor's)",
     "brand_colors": {
       "primary": "#hex",
       "secondary": "#hex",
@@ -348,9 +441,78 @@ Map all screens into hierarchy:
     └── Error
 ```
 
+### Step 3.5: Create Screen Manifest (REQUIRED Before Building Screens)
+
+After defining the information architecture (Step 3), create a screen manifest that serves as the **single source of truth** for all filenames and navigation. This prevents broken links when screens are built in parallel by subagents.
+
+#### Step 3.5.1: Define the Screen Manifest
+
+List every screen with its EXACT filename. No agent may invent alternative names.
+
+```json
+{
+  "css_file": "[product-slug].css",
+  "product_slug": "[ProductSlug]",
+  "date": "[YYYY-MM-DD]",
+  "screens": [
+    {
+      "id": "dashboard",
+      "filename": "Screen_Dashboard_[ProductSlug]_[YYYY-MM-DD].html",
+      "title": "Dashboard",
+      "nav_label": "Dashboard",
+      "is_entry_point": true
+    },
+    {
+      "id": "search",
+      "filename": "Screen_SearchDemo_[ProductSlug]_[YYYY-MM-DD].html",
+      "title": "Search Demo",
+      "nav_label": "Search",
+      "is_entry_point": false
+    }
+  ]
+}
+```
+
+#### Step 3.5.2: Define the Sidebar Nav Template
+
+Write the **complete, final sidebar HTML** once. This block is the single source of truth for navigation. Every screen pastes it **verbatim** — the ONLY permitted change is adding `active` to the current screen's nav item.
+
+```html
+<!-- SIDEBAR NAV — paste verbatim into every screen, only change "active" -->
+<nav class="sidebar-nav">
+  <a class="nav-item active" href="Screen_Dashboard_ProductSlug_2026-04-05.html">Dashboard</a>
+  <a class="nav-item" href="Screen_SearchDemo_ProductSlug_2026-04-05.html">Search</a>
+  <a class="nav-item" href="Screen_BenchmarkManager_ProductSlug_2026-04-05.html">Benchmarks</a>
+  <!-- ... one entry per screen in the manifest, using EXACT filenames ... -->
+</nav>
+```
+
+**Rules for the nav template:**
+- Every `href` MUST use the EXACT filename from the manifest — no abbreviations, no alternative names
+- Every screen in the manifest MUST appear in the nav (no omissions)
+- Subagents MUST NOT modify the nav HTML (no reordering, renaming, adding, or removing items)
+- The only change per screen: move `active` to that screen's `<a>` tag
+
+#### Step 3.5.3: Pass Contract to Every Screen Builder
+
+Each screen subagent's prompt MUST include ALL of the following — no exceptions:
+
+1. **The CSS filename** — `<link rel="stylesheet" href="[product-slug].css">`
+2. **The complete screen manifest** — all exact filenames (paste the full list)
+3. **The sidebar nav HTML template** — paste the full `<nav>` block verbatim
+4. **Which nav item is active** — specify which `<a>` tag gets `class="nav-item active"`
+5. **The design system class names** available for use
+
+**Explicit instruction to include in every subagent prompt:**
+> "Use ONLY filenames from the manifest for all href links. Do NOT rename, abbreviate, or invent alternative filenames. Paste the sidebar nav HTML VERBATIM — only add 'active' to your screen's nav item."
+
+**Why this is mandatory:** Without this contract, parallel subagents independently invent filenames (e.g., `Screen_Individuals_` vs `Screen_BenchmarkManager_` for the same screen) and build different navigation panes with different links, causing broken navigation across every screen. This has been the #1 prototype defect.
+
+---
+
 ### Step 4: Build Individual Screens
 
-For each screen in `prd_context.screens_to_build`:
+For each screen in `prd_context.screens_to_build` (using EXACT filenames from the screen manifest):
 
 #### Screen HTML Template
 ```html
@@ -363,11 +525,10 @@ For each screen in `prd_context.screens_to_build`:
     <meta name="persona" content="[Primary Persona]">
     <meta name="flow" content="[User Flow]">
     <title>[Screen Name] - [Product Name] Prototype</title>
+    <link rel="stylesheet" href="[product-slug].css">
     <style>
-        /* Design system styles */
-        /* Screen-specific styles */
-        /* Responsive styles */
-        /* Annotation styles */
+        /* Screen-specific overrides ONLY (< 50 lines) */
+        /* NEVER inline the full design system here */
     </style>
 </head>
 <body>
@@ -427,8 +588,8 @@ For each screen in `prd_context.screens_to_build`:
 Each screen must include:
 
 **Navigation (All Links Work):**
-- Every button and link navigates to the correct screen using `href="Screen_[Name]_[Product]_[Date].html"`
-- Navigation menus link to all main screens
+- Every button and link navigates to the correct screen using EXACT filenames from the screen manifest (see Step 3.5)
+- Navigation menus link to all main screens using the sidebar nav template from the manifest
 - Dashboard cards link to their detail screens
 - "Back" buttons return to the previous screen
 - Form submissions navigate to success/confirmation screens
@@ -787,20 +948,87 @@ Document the prototype in markdown:
 - [Limitation 2]
 
 ## Files Generated
+- `[product-slug].css` - Shared CSS stylesheet
+- `DesignSystem_[Product]_[Date].html` - Design system visual reference
 - `ClickablePrototype_[Product]_[Date].html` - Main interactive prototype
 - `Screen_[Name]_[Product]_[Date].html` - Individual screen files
-- `DesignSystem_[Product]_[Date].html` - Design system reference
 ```
 
 ### Step 8: Save All Artifacts
 
 Save to `./documents/`:
+- `[product-slug].css` (shared CSS — should already exist from Step 1)
+- `DesignSystem_[ProductSlug]_[YYYY-MM-DD].html` (visual reference)
 - `Prototype_[ProductSlug]_[YYYY-MM-DD].md`
 - `Prototype_[ProductSlug]_[YYYY-MM-DD].html`
 - `ClickablePrototype_[ProductSlug]_[YYYY-MM-DD].html`
 - `Screen_[ScreenName]_[ProductSlug]_[YYYY-MM-DD].html` (for each screen)
 
 Verify all files saved successfully.
+
+### Step 8.5: Post-Build Validation (REQUIRED — Run Before Presenting to User)
+
+After all screens are created, run these checks. **Fix any issues before showing the prototype to the user.**
+
+#### 1. CSS Load Verification
+- Verify the shared `.css` file exists at the expected path in `./documents/`
+- Verify every screen file contains `<link rel="stylesheet" href="[product-slug].css">`
+- Verify no screen file contains the full design system inlined in a `<style>` block (screen-specific overrides of < 50 lines are acceptable)
+
+#### 2. Link Audit (Compare Against Manifest)
+- For each screen file, extract all `href` values that reference other screen files
+- Compare each link against the screen manifest from Step 3.5
+- Every referenced filename MUST match an entry in the manifest exactly
+- Every manifest entry MUST have a corresponding file in `./documents/`
+- Flag and fix any mismatches before proceeding
+
+#### 3. Navigation Completeness
+- Every screen's sidebar nav should contain links to ALL screens in the manifest
+- Verify each screen's sidebar matches the nav template (only the `active` class should differ)
+
+#### 4. File Size Check
+- Check file sizes against the budget in `Shared Standards.md`:
+  - Shared CSS: < 20KB
+  - Screen HTML: < 25KB
+  - ClickablePrototype: < 300KB
+- Flag any files exceeding limits for review
+
+#### 5. Logo & Brand Verification (if building for a known company)
+
+**a. Re-run the Logo Gate on the final embedded URL:**
+
+Extract the logo `src` URL from any screen file, then pass it through the full gate again:
+
+```
+□ 1. curl -sI "[URL]" returns HTTP 200
+□ 2. File size is 2KB–50KB
+□ 3. Download and LOOK AT IT: curl -sL -o /tmp/logo_verify.png "[URL]"
+□ 4. The image shows the CUSTOMER's brand (state the customer name and what you see)
+□ 5. State: "This logo belongs to [Customer] because [reason]"
+```
+
+If check 4 fails — the image shows a different company, a partner logo, a generic icon, or you're not sure — **STOP. Replace with a text placeholder and ask the user for the correct logo.**
+
+**b. Logo consistency across screens:**
+- Extract the logo `src` URL from every screen file
+- All screens MUST use the same URL — if any differs, one is wrong
+
+**c. Logo alt text check:**
+- Every logo `<img>` alt text must contain the CUSTOMER company name
+- If the alt text names a different company → wrong logo
+
+**If any check fails:** Replace the logo with a text placeholder across all screens and ask the user: "I could not confidently verify the logo for [Customer]. Can you provide a logo URL or image file?"
+
+#### 6. Quick Smoke Test
+- Open the entry point screen and verify it renders with correct styling (not unstyled HTML)
+- Visually confirm the logo in the header is the CUSTOMER's logo (not a competitor's)
+- Click through at least one complete user flow (3+ screens) to verify navigation works
+- Verify at least one modal opens and closes
+- Verify at least one form shows feedback on submit
+
+**This is the authoritative quality gate for prototypes.** Other quality checklists in this file and in `Shared Standards.md` cover design and functional quality; this step covers structural integrity.
+
+---
 
 ### Step 9: Produce Handoff Summary
 
@@ -1011,6 +1239,14 @@ Don't default to solid colors. Create depth and interest:
 ## Quality Checks
 
 Before completing, verify:
+
+### Structural Integrity (Step 8.5 — MUST PASS)
+- [ ] **Shared `.css` file exists** and all screens link to it via `<link>`
+- [ ] **Screen manifest filenames match** actual files in `./documents/`
+- [ ] **All cross-screen links resolve** (no broken hrefs)
+- [ ] **Sidebar nav is consistent** across all screens (matches nav template)
+- [ ] **File sizes within budget** (see `Shared Standards.md`)
+- [ ] **Logo is the CUSTOMER's** (alt text matches customer name, same URL on all screens, URL domain is not a competitor's)
 
 ### Functional Quality (FULLY INTERACTIVE)
 - [ ] All screens from PRD are implemented

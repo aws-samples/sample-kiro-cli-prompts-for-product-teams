@@ -371,6 +371,16 @@ All inter-agent communications use this envelope structure:
 {
   "payload": {
     "prototype_summary": {
+      "shared_css_path": "string (e.g., documents/smartsearch.css)",
+      "screen_manifest": [
+        {
+          "id": "string",
+          "filename": "string (exact filename)",
+          "title": "string",
+          "nav_label": "string",
+          "is_entry_point": "boolean"
+        }
+      ],
       "screens_created": [
         {
           "screen_name": "string",
@@ -380,7 +390,7 @@ All inter-agent communications use this envelope structure:
       ],
       "user_flows_implemented": ["string"],
       "interactive_features": ["string"],
-      "design_system_path": "string",
+      "design_system_reference_path": "string",
       "clickable_prototype_path": "string"
     },
     "testing_readiness": {
@@ -403,6 +413,7 @@ documents/
 ├── handoffs/
 │   ├── handoff_[session-id]_[source]_to_[target]_[timestamp].json
 │   └── ...
+├── [product-slug].css                                    (shared CSS — create FIRST)
 ├── MarketResearch_[ProductSlug]_[YYYY-MM-DD].json
 ├── AIFraming_[ProductSlug]_[YYYY-MM-DD].md
 ├── AIFraming_[ProductSlug]_[YYYY-MM-DD].html
@@ -410,7 +421,7 @@ documents/
 ├── PRFAQ_[ProductSlug]_[YYYY-MM-DD].html
 ├── PRD_[ProductSlug]_[YYYY-MM-DD].md
 ├── PRD_[ProductSlug]_[YYYY-MM-DD].html
-├── DesignSystem_[ProductSlug]_[YYYY-MM-DD].html
+├── DesignSystem_[ProductSlug]_[YYYY-MM-DD].html          (visual reference page)
 ├── Prototype_[ProductSlug]_[YYYY-MM-DD].md
 ├── Screen_[ScreenName]_[ProductSlug]_[YYYY-MM-DD].html
 ├── ClickablePrototype_[ProductSlug]_[YYYY-MM-DD].html
