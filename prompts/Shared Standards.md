@@ -17,7 +17,8 @@ This document contains standards and conventions that ALL specialized agents mus
 | AI Framing | `AIFraming_TeenFit_[YYYY-MM-DD].md` |
 | PRFAQ | `PRFAQ_TeenFit_[YYYY-MM-DD].md` |
 | PRD | `PRD_TeenFit_[YYYY-MM-DD].md` |
-| Design System | `DesignSystem_TeenFit_[YYYY-MM-DD].html` |
+| Shared CSS | `teenfit.css` (`.css` extension, no date — stable filename) |
+| Design System Reference | `DesignSystem_TeenFit_[YYYY-MM-DD].html` (visual docs only) |
 | Prototype Spec | `Prototype_TeenFit_[YYYY-MM-DD].md` |
 | Individual Screen | `Screen_Dashboard_TeenFit_[YYYY-MM-DD].html` |
 | Clickable Prototype | `ClickablePrototype_TeenFit_[YYYY-MM-DD].html` |
@@ -58,8 +59,12 @@ project_root/
     <meta name="product" content="[Product Name]">
     <meta name="phase" content="[Phase Name]">
     <title>[Document Title] - [Product Name]</title>
+    <!-- For prototype screens: link to shared CSS (REQUIRED) -->
+    <!-- <link rel="stylesheet" href="[product-slug].css"> -->
 </head>
 ```
+
+**Note:** Prototype screen files MUST link to the shared `.css` file via `<link rel="stylesheet">`. Do NOT use `.html` files as stylesheets — browsers reject them due to MIME type mismatch.
 
 ### Typography Scale
 ```css
@@ -201,6 +206,8 @@ Before completing any phase output, verify:
 - [ ] Both markdown and HTML versions created (where applicable)
 - [ ] HTML is valid and renders correctly
 - [ ] All internal links work
+- [ ] For prototype screens: shared `.css` linked (not inlined), file size within budget (see Performance Guidelines)
+- [ ] For prototype phase: post-build validation passed (see Step 8.5 in `Prototype Creation Guide.md`)
 
 ### Handoff Quality
 - [ ] Output structured per Handoff Schema
@@ -626,10 +633,30 @@ body {
 
 ## Performance Guidelines
 
-### HTML File Size
-- Individual screens: < 100KB
-- Clickable prototype: < 500KB
-- Optimize images if included
+### File Size Budget
+
+To prevent generation timeouts and keep files manageable:
+
+| File Type | Target | Max | Notes |
+|-----------|--------|-----|-------|
+| Shared CSS (`.css`) | < 15KB | 20KB | Design tokens, components, layout |
+| Screen HTML | < 15KB | 25KB | With external CSS, no inlined design system |
+| Screen-specific JS | inline, < 3KB | 5KB | Or use shared `[product-slug].js` |
+| Clickable Prototype | < 200KB | 300KB | Single-file, all CSS/JS inline (exempt from external CSS rule) |
+
+**If a screen exceeds 25KB:**
+- Move screen-specific CSS (> 50 lines) into the shared `.css` file
+- Extract complex JavaScript into a shared `[product-slug].js` file
+- Simplify mock data (fewer table rows, shorter text)
+
+**Token budget impact of shared CSS:**
+
+| Approach | Per Screen | 6 Screens Total | Redundant |
+|----------|-----------|-----------------|-----------|
+| Inlined CSS | ~400 lines | ~2,400 lines | ~1,200 lines (50%) |
+| Shared `.css` | ~200 lines | ~1,400 lines | 0 lines |
+
+The shared CSS approach reduces total generation by ~40%, directly translating to fewer timeouts and faster builds.
 
 ### Load Time Targets
 - Dashboard: < 2 seconds

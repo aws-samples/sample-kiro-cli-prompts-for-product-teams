@@ -24,18 +24,23 @@ When the user describes a product idea or asks to start product development, fol
 **Brand assets (REQUIRED for known companies):**
 When building for a recognizable company (Discovery Education, Amazon, Google, etc.):
 
-1. **SEARCH for their logo NOW** - do not skip this step:
-   - Search: "[Company Name] logo png", "[Company Name] press kit", "[Company Name] Wikipedia"
-   - Check: company press page, Wikipedia, LinkedIn, Brandfetch.com
+**⚠️ IMPORTANT: The logo must be for the CUSTOMER company — the company this product is being built FOR. The market research phase contains competitor logos and branding. Do NOT use a competitor's logo. If uncertain which company is the customer, check `customer_company` in the handoff payload or ask the user.**
 
-2. **VERIFY the logo URL works using curl:**
-   ```bash
-   curl -sI "[LOGO_URL]" | head -5
-   ```
-   - Check for `HTTP/2 200` or `HTTP/1.1 200 OK`
-   - **If it shows 404/403/error, TRY ANOTHER URL**
-   - Keep trying until you find a working URL (200 OK)
-   - Do NOT use a URL you haven't verified with curl
+1. **FIND the CUSTOMER's logo** (see full protocol in `Prototype Creation Guide.md` Step 1.1):
+   - **Web image search first:** `"[Customer Name]" logo` — most reliable
+   - **Schema.org / Clearbit / Wikipedia** — check before scraping
+   - **HTML scrape last:** prioritize alt text containing customer name, NOT filenames containing "logo"
+   - **Do NOT trust filenames** — `partner-logo.png` in a carousel is not the site logo
+
+2. **PASS THE LOGO GATE (mandatory — all 5 checks):**
+   - [ ] HTTP 200 (`curl -sI "[URL]" | head -5`)
+   - [ ] File size 2KB–50KB (`curl -sI "[URL]" | grep -i content-length`)
+   - [ ] **Downloaded and LOOKED AT the image** (`curl -sL -o /tmp/logo_check.png "[URL]"` then read it)
+   - [ ] **The image shows the CUSTOMER's brand** (not a partner, sponsor, or different company)
+   - [ ] **Stated out loud:** "This logo belongs to [Customer] because [reason]"
+   
+   **HTTP 200 alone is NOT verification.** You MUST download and visually confirm the image.
+   **If you can't confidently say it's the customer's logo → ask the user.** A text placeholder is always better than the wrong company's logo.
 
 3. **Extract brand colors** - visit their website, use dev tools to get exact hex values
 
@@ -51,9 +56,16 @@ When building for a recognizable company (Discovery Education, Amazon, Google, e
 ## Prototype Structure
 
 **Create MODULAR files, not a single monolithic HTML:**
-- `DesignSystem_[Product]_[YYYY-MM-DD].html` - Shared CSS (create FIRST)
-- `Screen_[Name]_[Product]_[YYYY-MM-DD].html` - One file per screen
+- `[product-slug].css` - Shared CSS file (create FIRST, `.css` extension required)
+- `DesignSystem_[Product]_[YYYY-MM-DD].html` - Visual reference page (documents colors, components, typography)
+- `Screen_[Name]_[Product]_[YYYY-MM-DD].html` - One file per screen (links to `.css` via `<link rel="stylesheet">`)
 - `ScreenIndex_[Product]_[YYYY-MM-DD].html` - Navigation hub (use template at `prompts/ScreenIndex_Template.html`)
+
+**CSS Architecture:**
+- Shared styles MUST use `.css` extension — browsers reject `.html` files loaded via `<link rel="stylesheet">` (MIME type mismatch)
+- Screen files link to shared CSS: `<link rel="stylesheet" href="[product-slug].css">`
+- Screen-specific overrides allowed in `<style>` blocks (< 50 lines)
+- ClickablePrototype is exempt (single-file, all CSS inline is fine)
 
 **ScreenIndex placeholders to replace:**
 `[PRODUCT_NAME]`, `[PRODUCT_SLUG]`, `[CUSTOMER_LOGO]`, `[BRAND_PRIMARY]`, `[BRAND_SECONDARY]`, `[BRAND_ACCENT]`, `[DATE]`, `[PROGRESS_PERCENT]`, `[SCREEN_COUNT]`, `[SCREEN_CARDS]`

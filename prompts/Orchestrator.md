@@ -170,6 +170,7 @@ For each phase, you will:
 3. **Process Agent Output**
    - Validate output structure
    - Verify artifact files were created
+   - For prototype phase: verify post-build validation passed (CSS loads, all links resolve, file sizes within budget)
    - Extract summary for next phase handoff
 
 4. **Update Dashboard**
@@ -245,8 +246,157 @@ Follow: prompts/PRD Creation Guide.md
 ```
 
 ### Prototype Agent
+
+**CRITICAL: Subagent Coordination Contract**
+
+When screens are built by parallel subagents, broken cross-links and inconsistent navigation are the #1 defect. The Orchestrator MUST create a shared contract BEFORE dispatching any screen work. No screen subagent may invent its own filenames or navigation HTML.
+
+#### Phase A: Build Shared Resources (main agent, BEFORE any screen delegation)
+
+1. **Create shared CSS file** (`[product-slug].css`) — write to `./documents/`
+2. **Resolve brand assets** (if building for a known company):
+   - Identify the CUSTOMER company from `customer_company.name` in the session state
+   - Follow the Logo Discovery Protocol in `Prototype Creation Guide.md` Step 1.1
+   - **You MUST pass the Logo Gate** (all 5 checks) before using any logo:
+     1. HTTP 200
+     2. File size 2KB–50KB
+     3. Downloaded and LOOKED AT the image
+     4. Image shows the CUSTOMER's brand (not a partner/sponsor/competitor)
+     5. Stated: "This logo belongs to [Customer] because [reason]"
+   - **If the gate fails for all candidates → ask the user for a logo URL.** Use a text placeholder until they provide one. Do NOT guess.
+   - Extract the customer's brand colors and typography from THEIR website
+   - Record the gate-verified logo URL, brand colors, and fonts — these become part of the shared contract
+   - **Subagents must NOT search for logos themselves.** The resolved brand assets are final.
+3. **Create the screen manifest** — a list of EXACT filenames, one per screen:
+   ```
+   SCREEN MANIFEST (copy verbatim into every subagent prompt):
+   ─────────────────────────────────────────────────────────
+   CSS file: [product-slug].css
+   
+   Screens:
+   1. Screen_Dashboard_[Product]_[Date].html       (entry point)
+   2. Screen_[Name2]_[Product]_[Date].html
+   3. Screen_[Name3]_[Product]_[Date].html
+   ...
+   ─────────────────────────────────────────────────────────
+   ```
+4. **Create the sidebar nav HTML** — the exact `<nav>` block every screen must use:
+   ```html
+   <!-- SIDEBAR NAV — paste verbatim, only change which item gets class="active" -->
+   <nav class="sidebar-nav">
+     <a class="nav-item" href="Screen_Dashboard_[Product]_[Date].html">Dashboard</a>
+     <a class="nav-item" href="Screen_[Name2]_[Product]_[Date].html">[Label2]</a>
+     <a class="nav-item" href="Screen_[Name3]_[Product]_[Date].html">[Label3]</a>
+   </nav>
+   ```
+5. **Compile the brand assets block** (if applicable) — this gets pasted into every subagent prompt:
+   ```
+   BRAND ASSETS (use these exactly — do NOT search for alternatives)
+   ──────────────────────────────────────────────────────────────────
+   Customer: [Company Name]
+   Logo URL: [verified URL that returned HTTP 200]
+   Logo placement: <img src="[verified URL]" alt="[Company Name] logo" class="header-logo">
+   Brand colors: primary [#hex], secondary [#hex], accent [#hex]
+   Fonts: headings [font name], body [font name]
+   ──────────────────────────────────────────────────────────────────
+   ```
+
+#### Phase B: Dispatch Screen Subagents
+
+For EACH screen, create a subagent prompt using this template. The example below shows what a real subagent prompt looks like — adapt it for each screen.
+
+**Example subagent prompt (for the Search Demo screen):**
+
 ```
-Invoke Prototype Agent with:
+You are building ONE screen of a multi-screen prototype.
+
+YOUR FILE
+─────────
+You are creating: Screen_SearchDemo_SmartSearch_2026-04-05.html
+Save it to: ./documents/Screen_SearchDemo_SmartSearch_2026-04-05.html
+
+CSS
+───
+Add this in your <head>:
+  <link rel="stylesheet" href="smartsearch.css">
+Do NOT inline the design system CSS. Only add screen-specific styles in <style> (< 50 lines).
+
+SCREEN MANIFEST (all screens in this prototype)
+────────────────────────────────────────────────
+1. Screen_Dashboard_SmartSearch_2026-04-05.html       (entry point)
+2. Screen_SearchDemo_SmartSearch_2026-04-05.html      ← YOU ARE HERE
+3. Screen_BenchmarkManager_SmartSearch_2026-04-05.html
+4. Screen_ScoringRuns_SmartSearch_2026-04-05.html
+5. Screen_Feedback_SmartSearch_2026-04-05.html
+6. Screen_Settings_SmartSearch_2026-04-05.html
+
+SIDEBAR NAVIGATION — paste this VERBATIM into your screen
+──────────────────────────────────────────────────────────
+<nav class="sidebar-nav">
+  <a class="nav-item" href="Screen_Dashboard_SmartSearch_2026-04-05.html">Dashboard</a>
+  <a class="nav-item active" href="Screen_SearchDemo_SmartSearch_2026-04-05.html">Search Demo</a>
+  <a class="nav-item" href="Screen_BenchmarkManager_SmartSearch_2026-04-05.html">Benchmarks</a>
+  <a class="nav-item" href="Screen_ScoringRuns_SmartSearch_2026-04-05.html">Scoring Runs</a>
+  <a class="nav-item" href="Screen_Feedback_SmartSearch_2026-04-05.html">Feedback</a>
+  <a class="nav-item" href="Screen_Settings_SmartSearch_2026-04-05.html">Settings</a>
+</nav>
+
+Notice: "Search Demo" has class="nav-item active" because that is YOUR screen.
+Copy this nav block exactly. Do NOT change any href, label, or ordering.
+
+BRAND ASSETS (use these exactly — do NOT search for alternatives)
+──────────────────────────────────────────────────────────────────
+Customer: NewsBank
+Logo: <img src="https://verified-url.example.com/newsbank-logo.png" alt="NewsBank logo" class="header-logo">
+Brand colors: primary #1B365D, secondary #4A90D9, accent #F5A623
+Fonts: headings "Merriweather", body "Source Sans Pro"
+
+Do NOT search for logos yourself. Use the exact URL above.
+Do NOT use competitor logos from the market research phase.
+
+RULES
+─────
+- Use ONLY filenames from the manifest above for ALL href links in your screen
+- Do NOT rename, abbreviate, or invent alternative filenames
+- Do NOT modify the sidebar nav (no reordering, renaming, adding, or removing items)
+- The ONLY change to the nav is which item has "active" — it must be YOUR screen
+- Use the logo URL provided above — do NOT search for a different one
+
+SCREEN REQUIREMENTS
+───────────────────
+[paste PRD requirements for this specific screen]
+
+DESIGN SYSTEM CLASSES AVAILABLE
+───────────────────────────────
+[paste list of CSS class names from smartsearch.css]
+```
+
+**Key points:**
+- The subagent is told its EXACT output filename at the top
+- The `active` class is already set on the correct nav item — the subagent just pastes it
+- The full manifest is visible so the subagent knows every valid link target
+- The verified logo URL and brand assets are pre-resolved — subagents don't search for logos themselves
+- The rules section explicitly forbids inventing filenames or modifying the nav
+
+Repeat this template for each screen, changing only:
+- YOUR FILE (the filename and save path)
+- The `active` class position in the sidebar nav
+- SCREEN REQUIREMENTS (the relevant PRD requirements)
+
+Everything else stays identical across all subagent prompts: CSS link, manifest, nav HTML, brand assets, rules.
+
+**Why this is mandatory:** Without this contract, parallel subagents independently invent filenames (e.g., `Screen_Individuals_` vs `Screen_BenchmarkManager_`) and build different navigation panes, causing broken links across every screen.
+
+#### Phase C: Post-Build Validation
+
+After all screens are built, BEFORE presenting to user:
+1. Verify every manifest filename has a corresponding file in `./documents/`
+2. Extract all `href` values from all screen files — every one must match a manifest entry
+3. Verify all screens have identical sidebar nav (only `active` class differs)
+4. Fix any mismatches before proceeding
+
+```
+Additional context for Prototype Agent:
 - PRD summary: {prd_summary}
 - Personas: {personas_list}
 - Screens to build: {screens_list}
@@ -254,9 +404,8 @@ Invoke Prototype Agent with:
 - Customer company: {customer_company} (if specified, agent will research brand)
 - Design system path: {design_system_path} (if exists)
 
-IMPORTANT: If customer_company is specified, the Prototype Agent will
-conduct web research to identify the customer's brand colors, typography,
-and design patterns before creating prototypes.
+If customer_company is specified, conduct web research to identify their
+brand colors, typography, and design patterns before creating prototypes.
 
 Return structured Prototype Summary per Handoff Schema.
 Follow: prompts/Prototype Creation Guide.md
