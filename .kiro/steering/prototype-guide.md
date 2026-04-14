@@ -291,6 +291,14 @@ function simulateChat(userMessage) {
 
 Save to `./documents/`:
 
+**Build order (STRICT — each step depends on the previous):**
+1. Shared CSS file (`[product-slug].css`)
+2. Design System reference page (`DesignSystem_[Product]_[Date].html`) — BEFORE any screens
+3. Design Token Contract — extracted from CSS (theme mode, var names, class inventory)
+4. Screen manifest + sidebar shell template + Content Link Map
+5. Individual screen files (`Screen_[Name]_[Product]_[Date].html`)
+6. Screen Index (`ScreenIndex_[Product]_[Date].html`) — LAST
+
 ### 0. Shared CSS File (create FIRST — REQUIRED)
 ```
 [product-slug].css
@@ -322,7 +330,7 @@ Each screen file:
 - Links to the shared CSS via `<link rel="stylesheet" href="[product-slug].css">`
 - Contains only that screen's HTML and screen-specific overrides (< 50 lines in `<style>`)
 - Uses EXACT filenames from the screen manifest for all navigation links
-- Pastes the sidebar nav template verbatim (only `active` class changes)
+- Pastes the sidebar shell template verbatim (entire `<aside>` block, only `active` class changes)
 - Is fully functional standalone
 
 ### 3. Screen Index (navigation hub)
@@ -371,6 +379,16 @@ A visually striking navigation hub for reviewers. **Use the template at `.kiro/s
 - **Realistic navigation** - Tests actual user flows between pages
 - **Smaller files** - Each file stays manageable
 
+### HARD GATE — Before Building Any Screens
+
+Do NOT create any `Screen_*.html` files until ALL of these exist in `./documents/`:
+- [ ] `[product-slug].css` — shared stylesheet
+- [ ] `DesignSystem_[Product]_[Date].html` — visual reference page
+- [ ] Design Token Contract block — extracted from CSS (theme mode, CSS variables, component classes)
+- [ ] Screen manifest with exact filenames
+- [ ] Sidebar nav HTML template
+- [ ] Brand assets block (if building for a known company)
+
 ### Screen Manifest (REQUIRED — Create Before Building Screens)
 
 After defining screens from the PRD, create a screen manifest that serves as the **single source of truth** for all filenames and navigation. This prevents broken links when screens are built in parallel.
@@ -386,14 +404,23 @@ After defining screens from the PRD, create a screen manifest that serves as the
 }
 ```
 
-**Step 2: Write the sidebar nav HTML template:**
+**Step 2: Write the sidebar shell HTML template:**
 ```html
-<!-- SIDEBAR NAV — paste verbatim into every screen, only change "active" -->
-<nav class="sidebar-nav">
-  <a class="nav-item active" href="Screen_Dashboard_[Product]_[Date].html">Dashboard</a>
-  <a class="nav-item" href="Screen_[Name2]_[Product]_[Date].html">[Label2]</a>
-  <!-- one entry per screen, using EXACT filenames from manifest -->
-</nav>
+<!-- SIDEBAR SHELL — paste verbatim into every screen -->
+<!-- ONLY changes: (1) move "active" to your screen's nav item, (2) fill [VERIFIED-LOGO-URL] and [COMPANY-NAME] -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="[VERIFIED-LOGO-URL]" alt="[COMPANY-NAME] logo">
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" href="Screen_Dashboard_[Product]_[Date].html">Dashboard</a>
+    <a class="nav-item" href="Screen_[Name2]_[Product]_[Date].html">[Label2]</a>
+    <!-- one entry per screen, using EXACT filenames from manifest -->
+  </nav>
+  <div class="sidebar-footer">
+    <span class="sidebar-version">v1.0 Prototype</span>
+  </div>
+</aside>
 ```
 
 **Rules:**
@@ -401,8 +428,11 @@ After defining screens from the PRD, create a screen manifest that serves as the
 - Every screen in the manifest MUST appear in the nav (no omissions)
 - The only change per screen: move `active` to that screen's `<a>` tag
 - Subagents MUST NOT modify the nav HTML (no reordering, renaming, adding, or removing items)
+- Subagents MUST paste the entire `<aside class="sidebar">` shell — not just the `<nav>` block
+- Subagents MUST NOT add inline styles to sidebar elements — all styling comes from the shared CSS
+- For components with descendant CSS selectors, use the exact DOM structure from the Component HTML Patterns
 
-**Step 3: Pass to every screen builder:** Each screen's prompt MUST include the CSS filename, the complete manifest, the sidebar nav template, which nav item is active, and available CSS class names.
+**Step 3: Pass to every screen builder:** Each screen's prompt MUST include the CSS filename, the complete manifest, the sidebar shell template, which nav item is active, available CSS class names, the **Design Token Contract** (all CSS variable names with values, component class inventory, and explicit theme mode — LIGHT or DARK), and the **Content Link Map entries** for that screen (in-content links to other screens — no dead links), the **product context** (PRFAQ problem/solution, value prop, customer — same for all screens), the **persona** this screen serves (name, role, goals, pain points, dashboard widgets from the PRD), and the **user flow context** (previous screen, actions on this screen, next screens — derived from PRD user flows). Subagents must use `var()` for all colors — never hardcoded hex.
 
 **Why this is mandatory:** Without this contract, parallel subagents independently invent filenames (e.g., `Screen_Individuals_` vs `Screen_BenchmarkManager_` for the same screen) and build different navigation panes, causing broken links across every screen.
 
@@ -443,6 +473,8 @@ After all screens are created, run these checks. **Fix any issues before showing
 ### 3. Navigation Completeness
 - Every screen's sidebar nav should contain links to ALL screens in the manifest
 - Verify each screen's sidebar matches the nav template (only the `active` class should differ)
+- Verify each screen's sidebar shell matches the template (entire `<aside>` structure, not just nav items)
+- Verify logo markup is identical across all screens
 
 ### 4. File Size Check
 - Shared CSS: < 20KB
@@ -450,7 +482,26 @@ After all screens are created, run these checks. **Fix any issues before showing
 - Screen-specific JS: inline, < 5KB
 - ClickablePrototype: < 300KB (exempt from external CSS rule)
 
-### 5. Logo & Brand Verification (if building for a known company)
+### 5. Visual Consistency Check (Theme Coherence)
+
+Scan all `Screen_*.html` files for hardcoded colors that conflict with the shared CSS theme:
+
+1. **Determine theme mode** from `[product-slug].css`: light if `--surface-bg` is light, dark if dark
+2. **Grep `<style>` blocks** for hardcoded hex values: `grep -oE '#[0-9a-fA-F]{3,8}' Screen_*.html`
+3. **Flag violations:**
+   - Dark colors (#1a1a2e, #0d0d0d, #111) in a light-mode app's cards/content
+   - Light colors (#fff, #f4f7fb) in a dark-mode app's cards/content
+   - Any hardcoded color with a CSS variable equivalent in the shared CSS
+4. **Count per screen:** var(--) references vs hardcoded hex — flag any screen where hardcoded > var()
+5. **Fix:** Replace hardcoded values with `var()` equivalents. Add missing variables to CSS first if needed.
+
+### 6. Content Link Audit
+
+1. **Grep for dead links:** `grep -rn 'href="#"' Screen_*.html` and `grep -rn 'javascript:void' Screen_*.html` — flag all matches
+2. **Verify Content Link Map entries:** For each entry, confirm the source screen has an element with the correct href
+3. **Fix:** Replace dead links with correct filenames from the Content Link Map
+
+### 7. Logo & Brand Verification (if building for a known company)
 Re-run the Logo Gate on the final embedded URL:
 ```
 □ 1. curl -sI "[URL]" returns HTTP 200
@@ -463,13 +514,30 @@ Re-run the Logo Gate on the final embedded URL:
 - Every logo `<img>` alt text must contain the CUSTOMER company name
 - If any check fails → replace with text placeholder and ask the user
 
-### 6. Quick Smoke Test
+### 8. Quick Smoke Test
 - Open the entry point screen and verify it renders with correct styling
 - Click through at least one complete user flow (3+ screens) to verify navigation
 - Verify at least one modal opens and closes
 - Verify at least one form shows feedback on submit
 
 **This is the authoritative quality gate for prototypes.**
+
+### 9. CSS Layout Check
+
+Scan all `Screen_*.html` files for layout pitfalls:
+
+1. **Height issues:** `grep -n 'height: 100%' Screen_*.html` — flag matches in `<style>` blocks. Replace with explicit px/vh/rem or `min-height: 100vh`.
+2. **Font imports in screens:** `grep -n 'fonts.googleapis' Screen_*.html` — font imports belong in the shared CSS only. Remove from screens.
+3. **Arbitrary z-index:** `grep -oE 'z-index:\s*[0-9]+' Screen_*.html` — valid values are 100, 200, 300, 400, 500. Flag and fix anything else.
+4. **Spacing token ratio:** Count `var(--space` references vs hardcoded `margin/padding...px` values. Flag screens where hardcoded values dominate.
+5. **Touch targets:** Flag buttons/links/inputs with explicit height < 44px.
+
+### 10. Sidebar Structural Consistency
+
+1. **Check for `<aside class="sidebar">`:** Every screen must have this wrapper. Flag any screen that lacks it.
+2. **Logo markup:** Extract `<div class="sidebar-logo">` from every screen. All must use identical structure. Flag bare `<img>` tags, different wrappers, or inline styles on the logo.
+3. **No inline styles on shared-CSS elements:** Grep for `class="sidebar` or `class="nav-item` combined with `style=`. Flag matches.
+4. **Fix:** Replace non-conforming markup with the canonical sidebar shell template.
 
 ## Quality Checklist
 
@@ -496,6 +564,14 @@ Re-run the Logo Gate on the final embedded URL:
 - [ ] Layout has spatial interest
 - [ ] Memorable element is noticeable
 - [ ] Would excite stakeholders
+
+### Interaction Depth
+- [ ] Every interactive element WORKS (not just styled) — chat, forms, modals, tables, dropdowns
+- [ ] Loading/spinner states for async operations
+- [ ] Empty states for screens with no data
+- [ ] Error states with retry options
+- [ ] At least one "delight moment" per screen (staggered animation, smooth transition, satisfying feedback)
+- [ ] Realistic data tells a coherent story (not random placeholder values)
 
 ### Anti-Pattern Check
 - [ ] NO purple-blue gradients on white

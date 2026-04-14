@@ -149,7 +149,108 @@ You must produce:
 - Use a short, stable filename without date suffix: `[product-slug].css` (e.g., `smartsearch.css`)
 - Screen files link to it via: `<link rel="stylesheet" href="[product-slug].css">`
 
-**Separately, create `DesignSystem_[Product]_[Date].html`** — this is a visual reference page that documents colors, components, and typography for human review. It links to the `.css` file for its own styling.
+### Step 2: Create Design System Reference Page (REQUIRED — BEFORE Any Screens)
+
+**Create `DesignSystem_[Product]_[Date].html` BEFORE building any screen files.** This is the visual reference page that documents colors, components, and typography for human review. It links to the `.css` file for its own styling.
+
+The Design System is a **governing specification**, not post-hoc documentation. It must exist before screen files so that:
+- All screen builders (including parallel subagents) reference the same visual contract
+- Theme mode (light or dark) is explicitly decided and documented
+- Component classes and CSS variables are defined once and used everywhere
+
+**The Design System page must include:**
+- Theme declaration (LIGHT or DARK mode)
+- Color palette with all CSS variable names and values
+- Typography scale with font pairings
+- Component library (buttons, cards, forms, navigation) with class names
+- Spacing and layout system
+- Animation tokens
+
+### Step 2.5: Extract Design Token Contract (REQUIRED — BEFORE Any Screens)
+
+After creating the shared CSS and Design System page, extract a **Design Token Contract** from `[product-slug].css`. This contract is pasted into every subagent prompt to prevent theme divergence.
+
+**How to extract:**
+1. Read `[product-slug].css` and collect all `:root` CSS variable names with their values
+2. Collect all class names defined in the CSS (`.card`, `.stat-card`, `.page-content`, `.btn-primary`, etc.)
+3. Determine theme mode: light if `--surface-bg` is a light color, dark if dark
+4. Collect spacing (--space-*), shadow (--shadow-*), radius (--radius-*), animation (--duration-*, --ease-*), z-index (--z-*), and breakpoint (--bp-*) variables
+5. Format into the Design Token Contract template:
+
+```
+DESIGN TOKEN CONTRACT (use these — do NOT hardcode values)
+──────────────────────────────────────────────────────────
+Theme: [THEME_MODE]
+
+CSS Variables (use var() syntax, never raw hex):
+  Surfaces:    [list var names and values]
+  Text:        [list var names and values]
+  Brand:       [list var names and values]
+  Borders:     [list var names and values]
+  Semantic:    [list var names and values]
+
+  Spacing:     [e.g., var(--space-1): 0.25rem | var(--space-2): 0.5rem | ... | var(--space-16): 4rem]
+  Shadows:     [e.g., var(--shadow-sm): 0 1px 3px rgba(0,0,0,0.1) | var(--shadow-md) | var(--shadow-lg) | var(--shadow-xl)]
+  Radius:      [e.g., var(--radius-sm): 4px | var(--radius-md): 8px | var(--radius-lg): 16px | var(--radius-full): 9999px]
+  Animation:   [e.g., var(--duration-fast): 200ms | var(--duration-normal): 300ms | var(--duration-slow): 500ms | var(--ease-default) | var(--ease-bounce)]
+  Z-index:     [e.g., var(--z-dropdown): 100 | var(--z-sticky): 200 | var(--z-modal): 300 | var(--z-toast): 400 | var(--z-tooltip): 500]
+  Breakpoints: [e.g., var(--bp-sm): 640px | var(--bp-md): 768px | var(--bp-lg): 1024px | var(--bp-xl): 1280px]
+
+Component Classes (use these instead of writing custom styles):
+  [list all class names from the CSS]
+
+Component HTML Patterns (use EXACT structure — CSS depends on nesting):
+  Sidebar logo:  <div class="sidebar-logo"><img src="..." alt="..."></div>
+  Stat card:     <div class="stat-card"><div class="stat-value">...</div><div class="stat-label">...</div></div>
+  Data table:    <div class="data-table"><div class="table-header">...</div><div class="table-row">...</div></div>
+  Page layout:   <div class="page-content"><div class="page-header">...</div>...</div>
+
+RULES:
+- Use var(--variable-name) for ALL colors — never hardcode hex values
+- Use the component classes above — do NOT recreate card/button/table styles in <style>
+- Screen-specific <style> overrides must be < 50 lines and use var() for colors
+- This is a [THEME_MODE] mode app — all surfaces and text must match this theme
+- Use spacing tokens (var(--space-*)) for margins and padding — avoid arbitrary px values
+- Use shadow tokens (var(--shadow-*)) for box-shadow — never write raw shadow values
+- Use radius tokens (var(--radius-*)) for border-radius — avoid arbitrary px values
+- Use z-index tokens (var(--z-*)) for stacking — never write arbitrary z-index (e.g., z-index: 9999)
+- Use animation tokens for transition/animation durations and easing
+- For components listed in Component HTML Patterns, use the EXACT DOM structure shown — CSS depends on nesting (e.g., .sidebar-logo img)
+- Do NOT use inline styles on any element whose class is styled by the shared CSS
+```
+
+This contract block is included in every subagent prompt alongside the Screen Manifest and Brand Assets blocks.
+
+### Step 2.7: Persona-Dashboard Analysis (REQUIRED Before Screen Manifest)
+
+Before creating the screen manifest (Step 4.5), analyze PRD personas to decide whether to create one dashboard or multiple persona-specific dashboards.
+
+**Process:**
+1. List each persona's `dashboard_widgets` from the PRD (the widgets, KPIs, and actions they need)
+2. Compare across personas — count how many widgets are shared vs. unique
+3. **Decision rule:**
+   - If personas share **>70%** of dashboard content → one dashboard with role-specific sections (e.g., tabs, collapsible panels)
+   - If personas share **<70%** of dashboard content → create separate dashboard screens per persona (e.g., `Screen_Dashboard_Teacher`, `Screen_Dashboard_Admin`)
+4. Document the decision and reasoning before proceeding to the screen manifest
+
+**Output:** Either one `Screen_Dashboard` entry or multiple persona-specific entries — these feed directly into the screen manifest (Step 4.5).
+
+**Example analysis:**
+```
+Personas: Teacher, Admin, Student
+Teacher widgets: Student progress, Assignment grades, Upcoming deadlines, Class roster
+Admin widgets: System health, User management, License usage, Audit log, Analytics
+Student widgets: My grades, Study progress, Upcoming exams, Flashcard decks
+
+Shared across all 3: 0 widgets (0%)
+Teacher-Admin overlap: 0 widgets (0%)
+Decision: <70% overlap → create 3 separate dashboards
+  - Screen_Dashboard_Teacher_[Product]_[Date].html
+  - Screen_Dashboard_Admin_[Product]_[Date].html
+  - Screen_Dashboard_Student_[Product]_[Date].html
+```
+
+This step ensures that each persona gets a dashboard tailored to their workflow rather than a single dashboard that serves no one well.
 
 ### Step 1.1: Research Customer Brand (If Applicable)
 
@@ -399,7 +500,7 @@ Before building any screens, commit to a **bold, intentional aesthetic direction
 - Customize every component to match your aesthetic
 - Create visual hierarchy through bold contrast
 
-### Step 2: Map User Flows
+### Step 3: Map User Flows
 
 From `prd_context.user_flows`, create flow diagrams:
 
@@ -415,7 +516,7 @@ Flow: [Flow Name]
   [Action]      [Action]       [Action]
 ```
 
-### Step 3: Create Information Architecture
+### Step 4: Create Information Architecture
 
 Map all screens into hierarchy:
 
@@ -441,11 +542,11 @@ Map all screens into hierarchy:
     └── Error
 ```
 
-### Step 3.5: Create Screen Manifest (REQUIRED Before Building Screens)
+### Step 4.5: Create Screen Manifest (REQUIRED Before Building Screens)
 
-After defining the information architecture (Step 3), create a screen manifest that serves as the **single source of truth** for all filenames and navigation. This prevents broken links when screens are built in parallel by subagents.
+After defining the information architecture (Step 4), create a screen manifest that serves as the **single source of truth** for all filenames and navigation. This prevents broken links when screens are built in parallel by subagents.
 
-#### Step 3.5.1: Define the Screen Manifest
+#### Step 4.5.1: Define the Screen Manifest
 
 List every screen with its EXACT filename. No agent may invent alternative names.
 
@@ -473,18 +574,27 @@ List every screen with its EXACT filename. No agent may invent alternative names
 }
 ```
 
-#### Step 3.5.2: Define the Sidebar Nav Template
+#### Step 4.5.2: Define the Sidebar Shell Template
 
-Write the **complete, final sidebar HTML** once. This block is the single source of truth for navigation. Every screen pastes it **verbatim** — the ONLY permitted change is adding `active` to the current screen's nav item.
+Write the **complete, final sidebar shell HTML** once. This block is the single source of truth for the entire sidebar — logo, navigation, and footer. Every screen pastes the ENTIRE shell **verbatim** — the ONLY permitted changes are: (1) adding `active` to the current screen's nav item, and (2) replacing `[VERIFIED-LOGO-URL]` and `[COMPANY-NAME]` with actual values from the brand assets block.
 
 ```html
-<!-- SIDEBAR NAV — paste verbatim into every screen, only change "active" -->
-<nav class="sidebar-nav">
-  <a class="nav-item active" href="Screen_Dashboard_ProductSlug_2026-04-05.html">Dashboard</a>
-  <a class="nav-item" href="Screen_SearchDemo_ProductSlug_2026-04-05.html">Search</a>
-  <a class="nav-item" href="Screen_BenchmarkManager_ProductSlug_2026-04-05.html">Benchmarks</a>
-  <!-- ... one entry per screen in the manifest, using EXACT filenames ... -->
-</nav>
+<!-- SIDEBAR SHELL — paste verbatim into every screen -->
+<!-- ONLY changes: (1) move "active" to your screen's nav item, (2) fill [VERIFIED-LOGO-URL] and [COMPANY-NAME] -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="[VERIFIED-LOGO-URL]" alt="[COMPANY-NAME] logo">
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" href="Screen_Dashboard_ProductSlug_2026-04-05.html">Dashboard</a>
+    <a class="nav-item" href="Screen_SearchDemo_ProductSlug_2026-04-05.html">Search</a>
+    <a class="nav-item" href="Screen_BenchmarkManager_ProductSlug_2026-04-05.html">Benchmarks</a>
+    <!-- ... one entry per screen in the manifest, using EXACT filenames ... -->
+  </nav>
+  <div class="sidebar-footer">
+    <span class="sidebar-version">v1.0 Prototype</span>
+  </div>
+</aside>
 ```
 
 **Rules for the nav template:**
@@ -492,27 +602,70 @@ Write the **complete, final sidebar HTML** once. This block is the single source
 - Every screen in the manifest MUST appear in the nav (no omissions)
 - Subagents MUST NOT modify the nav HTML (no reordering, renaming, adding, or removing items)
 - The only change per screen: move `active` to that screen's `<a>` tag
+- Subagents MUST paste the entire `<aside class="sidebar">` shell — not just the `<nav>` block
+- Subagents MUST NOT add inline styles to any sidebar element (logo, nav items, footer) — all styling comes from the shared CSS
 
-#### Step 3.5.3: Pass Contract to Every Screen Builder
+#### Step 4.5.3: Pass Contract to Every Screen Builder
 
 Each screen subagent's prompt MUST include ALL of the following — no exceptions:
 
 1. **The CSS filename** — `<link rel="stylesheet" href="[product-slug].css">`
 2. **The complete screen manifest** — all exact filenames (paste the full list)
-3. **The sidebar nav HTML template** — paste the full `<nav>` block verbatim
+3. **The sidebar shell HTML template** — paste the full `<aside class="sidebar">` block verbatim (includes logo, nav, and footer)
 4. **Which nav item is active** — specify which `<a>` tag gets `class="nav-item active"`
 5. **The design system class names** available for use
+6. **The Design Token Contract** — all CSS variable names with values, component class inventory, and explicit theme mode (LIGHT/DARK). See Step 2.5 for the contract template. Subagents must use `var()` references for all colors — never hardcoded hex values.
+7. **The Content Link Map entries for this screen** — the specific in-content links (dashboard cards, action buttons, CTAs) that should navigate to other screens, with exact target filenames. Subagents must wire these into their page content. Do NOT use `href="#"` or `javascript:void(0)` for any element that should navigate.
+8. **Product context** — the product name, PRFAQ problem/solution statements, value proposition, and customer definition. Same for all screens. This gives the subagent the "why" behind the prototype.
+9. **The persona this screen serves** — name, role, goals, pain points, and dashboard widgets from the PRD. This tells the subagent who they're building for and what that persona needs.
+10. **User flow context** — what the user did before arriving at this screen, what they do on this screen, and where they go next. Derived from PRD user flows. This ensures the screen connects logically to the rest of the prototype.
 
 **Explicit instruction to include in every subagent prompt:**
-> "Use ONLY filenames from the manifest for all href links. Do NOT rename, abbreviate, or invent alternative filenames. Paste the sidebar nav HTML VERBATIM — only add 'active' to your screen's nav item."
+> "Use ONLY filenames from the manifest for all href links. Do NOT rename, abbreviate, or invent alternative filenames. Paste the sidebar shell HTML VERBATIM (the entire <aside> block) — only add 'active' to your screen's nav item. Use var(--variable-name) for ALL colors — never hardcode hex values. Use component classes from the Design Token Contract instead of writing custom styles. Wire all Content Link Map entries into your page content — do NOT use href='#' or javascript:void(0) for elements that should navigate."
 
 **Why this is mandatory:** Without this contract, parallel subagents independently invent filenames (e.g., `Screen_Individuals_` vs `Screen_BenchmarkManager_` for the same screen) and build different navigation panes with different links, causing broken navigation across every screen. This has been the #1 prototype defect.
 
 ---
 
-### Step 4: Build Individual Screens
+### Step 4.6: Create Content Link Map (REQUIRED Before Building Screens)
+
+After the screen manifest (Step 4.5), create a **Content Link Map** — a list of expected in-content links between screens. This prevents dead links (`href="#"`) in dashboard cards, action buttons, CTAs, and table row actions.
+
+**How to create:**
+1. Read the PRD user flows — every step that crosses a screen boundary becomes an entry
+2. For each screen, list what content-area elements should link to which target screens
+3. Use EXACT filenames from the screen manifest for all targets
+
+**Content Link Map format:**
+```
+CONTENT LINK MAP
+────────────────
+Screen_Dashboard → "View Exam Results" card → Screen_ExamResults_[Product]_[Date].html
+Screen_Dashboard → "Start Study Module" button → Screen_StudyModule_[Product]_[Date].html
+Screen_Dashboard → "Take Mock Exam" card → Screen_MockExam_[Product]_[Date].html
+Screen_ExamResults → "Review Domain" button → Screen_StudyModule_[Product]_[Date].html
+Screen_StudyModule → "Take Practice Quiz" CTA → Screen_DomainQuiz_[Product]_[Date].html
+Screen_DomainQuiz → "Back to Study Module" → Screen_StudyModule_[Product]_[Date].html
+```
+
+Each subagent receives a filtered view showing only their screen's outbound links (see Step 4.5.3 item #7).
+
+**Rules:**
+- Every actionable element (card, button, CTA, table row action) that logically leads to another screen MUST have a Content Link Map entry
+- Target filenames MUST match the screen manifest exactly
+- Do NOT use `href="#"` or `javascript:void(0)` for any element that should navigate to another screen
+
+---
+
+### Step 5: Build Individual Screens
 
 For each screen in `prd_context.screens_to_build` (using EXACT filenames from the screen manifest):
+
+#### Quality Bar
+
+Every screen must feel like a working app, not a wireframe. The validation checks in Step 9.5 ensure structural correctness; this section ensures the prototype is actually good.
+
+Before building each screen, ask: "Would a PM open this in a meeting and demo it with confidence?" If not, the screen needs more interaction depth, realistic data, or visual polish. See Step 6 (Interactivity) and the Design Guidelines for specifics.
 
 #### Screen HTML Template
 ```html
@@ -581,15 +734,51 @@ For each screen in `prd_context.screens_to_build` (using EXACT filenames from th
 - Mobile navigation (hamburger menu)
 - Touch-optimized interactions
 
-### Step 5: Implement Interactivity (CRITICAL - FULLY FUNCTIONAL)
+---
+
+### Step 5.5: CSS Layout & Interactivity Rules
+
+These rules prevent the most common layout and scripting bugs in prototypes. All screen builders (including parallel subagents) must follow them.
+
+#### Height Strategy
+- Chart, graph, and canvas containers MUST have explicit height in `px`, `vh`, or `rem` (e.g., `height: 400px`, `min-height: 50vh`)
+- NEVER use `height: 100%` unless the full parent chain up to `<html>` has explicit heights
+- Use `min-height: 100vh` for full-viewport layouts, not `height: 100%`
+- Dashboard stat cards and widget containers should use `min-height` rather than fixed `height` to allow content to expand
+
+#### Font Loading
+- All `@import url('https://fonts.googleapis.com/...')` statements MUST be in the shared CSS file ONLY
+- Screen files must NOT add their own `<link href="https://fonts.googleapis.com/...">` tags
+- All font imports MUST include `&display=swap` (or `font-display: swap` in `@font-face`)
+- Rationale: Duplicate font loads cause FOIT (Flash of Invisible Text), increase page weight, and can cause inconsistent rendering across screens
+
+#### Z-index Scale
+- Use ONLY the z-index tokens from the Design Token Contract: `var(--z-dropdown)`, `var(--z-sticky)`, `var(--z-modal)`, `var(--z-toast)`, `var(--z-tooltip)`
+- NEVER write arbitrary z-index values (e.g., `z-index: 9999`, `z-index: 10000`)
+- If a new stacking context is needed, add a token to the shared CSS first
+
+#### Touch Targets
+- All interactive elements (buttons, links, inputs, select boxes) MUST be at least 44px tall
+- Clickable cards and icon buttons must have a minimum touch target of 44x44px
+- Use `min-height: 44px` on interactive elements rather than relying on padding alone
+
+#### JavaScript Scoping (for screen-specific scripts)
+- Event listeners MUST be scoped to the screen's container element (e.g., `document.querySelector('.page-content').addEventListener(...)`)
+- NEVER use bare `document.addEventListener` without cleanup — it leaks across screens in the clickable prototype
+- NEVER declare global variables — use `const` or `let` inside an IIFE or scoped block
+- `setTimeout` and `setInterval` IDs must be stored and cleared on screen exit to prevent cross-screen interference
+
+---
+
+### Step 6: Implement Interactivity (CRITICAL - FULLY FUNCTIONAL)
 
 **Every prototype must be FULLY CLICKABLE with all interactions working. No static mockups.**
 
 Each screen must include:
 
 **Navigation (All Links Work):**
-- Every button and link navigates to the correct screen using EXACT filenames from the screen manifest (see Step 3.5)
-- Navigation menus link to all main screens using the sidebar nav template from the manifest
+- Every button and link navigates to the correct screen using EXACT filenames from the screen manifest (see Step 4.5)
+- Navigation menus link to all main screens using the sidebar shell template from the manifest
 - Dashboard cards link to their detail screens
 - "Back" buttons return to the previous screen
 - Form submissions navigate to success/confirmation screens
@@ -696,7 +885,7 @@ function handleFormSubmit(form) {
 - Toast notifications for actions (auto-dismiss after 3-5 seconds)
 - Success/error states are visually distinct
 
-### Step 6: Build Clickable Prototype
+### Step 7: Build Clickable Prototype
 
 Create single comprehensive HTML file combining all screens:
 
@@ -873,7 +1062,7 @@ Create single comprehensive HTML file combining all screens:
 - [ ] ARIA labels on interactive elements
 - [ ] Color contrast meets WCAG AA
 
-### Step 7: Create Prototype Specification
+### Step 8: Create Prototype Specification
 
 Document the prototype in markdown:
 
@@ -954,7 +1143,7 @@ Document the prototype in markdown:
 - `Screen_[Name]_[Product]_[Date].html` - Individual screen files
 ```
 
-### Step 8: Save All Artifacts
+### Step 9: Save All Artifacts
 
 Save to `./documents/`:
 - `[product-slug].css` (shared CSS — should already exist from Step 1)
@@ -966,7 +1155,7 @@ Save to `./documents/`:
 
 Verify all files saved successfully.
 
-### Step 8.5: Post-Build Validation (REQUIRED — Run Before Presenting to User)
+### Step 9.5: Post-Build Validation (REQUIRED — Run Before Presenting to User)
 
 After all screens are created, run these checks. **Fix any issues before showing the prototype to the user.**
 
@@ -977,7 +1166,7 @@ After all screens are created, run these checks. **Fix any issues before showing
 
 #### 2. Link Audit (Compare Against Manifest)
 - For each screen file, extract all `href` values that reference other screen files
-- Compare each link against the screen manifest from Step 3.5
+- Compare each link against the screen manifest from Step 4.5
 - Every referenced filename MUST match an entry in the manifest exactly
 - Every manifest entry MUST have a corresponding file in `./documents/`
 - Flag and fix any mismatches before proceeding
@@ -1028,9 +1217,123 @@ If check 4 fails — the image shows a different company, a partner logo, a gene
 
 **This is the authoritative quality gate for prototypes.** Other quality checklists in this file and in `Shared Standards.md` cover design and functional quality; this step covers structural integrity.
 
+#### 7. Visual Consistency Check (Theme Coherence)
+
+Scan all `Screen_*.html` files for hardcoded colors in `<style>` blocks that conflict with the shared CSS theme:
+
+**a. Extract theme mode from `[product-slug].css`:**
+- If `--surface-bg` is a light color (#F4F7FB, #FFFFFF, etc.) → app is **LIGHT** mode
+- If `--surface-bg` is a dark color (#1a1a2e, #0d1117, etc.) → app is **DARK** mode
+
+**b. Grep each screen's `<style>` block for hardcoded hex values:**
+```bash
+grep -oE '#[0-9a-fA-F]{3,8}' documents/Screen_*.html
+```
+
+**c. Flag violations:**
+- LIGHT mode app with dark backgrounds (#1a1a2e, #0d0d0d, #111, etc.) in cards/content areas
+- DARK mode app with light backgrounds (#fff, #f4f7fb, etc.) in cards/content areas
+- Any hardcoded color that has a CSS variable equivalent in the shared CSS
+
+**d. Count var() vs hardcoded hex references per screen:**
+```bash
+# var() references (should be high):
+grep -c 'var(--' documents/Screen_[Name].html
+
+# Hardcoded hex in <style> blocks only (should be low):
+# Extract <style> block, then count hex values
+```
+- Flag any screen where hardcoded hex count > var() count
+
+**e. Fix violations:** Replace hardcoded values with their `var()` equivalents from the shared CSS. If no equivalent variable exists, add the variable to `[product-slug].css` first, then reference it.
+
+#### 8. Content Link Audit
+
+Verify that in-content links (dashboard cards, action buttons, CTAs, table row actions) connect to the correct screens:
+
+**a. Scan for dead links:**
+```bash
+grep -rn 'href="#"' documents/Screen_*.html
+grep -rn 'javascript:void' documents/Screen_*.html
+```
+Flag any matches — these are elements that should navigate but don't.
+
+**b. Verify Content Link Map entries:**
+For each entry in the Content Link Map, verify the source screen contains an `<a>` or `<button>` element with the correct `href` to the target screen filename.
+
+**c. Flag missing links:**
+Any Content Link Map entry with no matching element in the source screen is a missing in-content link. Add it.
+
+**d. Fix dead links:** Replace `href="#"` and `javascript:void(0)` with the correct target filename from the Content Link Map or screen manifest.
+
+#### 9. CSS Layout Check
+
+Scan all `Screen_*.html` files for common layout pitfalls:
+
+**a. Height issues:**
+```bash
+grep -n 'height: 100%' documents/Screen_*.html
+```
+Flag any match inside a `<style>` block as a potential layout bug. Verify the parent chain has explicit heights; if not, replace with `min-height: 100vh` or an explicit px/vh/rem value.
+
+**b. Chart/graph containers without explicit height:**
+Search for elements with class names containing "chart", "graph", "canvas", or "visualization" and verify they have an explicit `height` or `min-height` in px, vh, or rem. Flag any that rely on `height: 100%` or have no height set.
+
+**c. Font imports in screen files:**
+```bash
+grep -n 'fonts.googleapis' documents/Screen_*.html
+```
+Flag any match. Font imports must only appear in the shared CSS file (`[product-slug].css`), not in individual screen files. Remove duplicates from screens.
+
+**d. Arbitrary z-index values:**
+```bash
+grep -oE 'z-index:\s*[0-9]+' documents/Screen_*.html
+```
+Valid values are 100, 200, 300, 400, 500 (matching the z-index scale tokens). Flag any other value (especially 9999, 10000, 999). Replace with the appropriate token from the Design Token Contract.
+
+**e. Token usage ratio (spacing):**
+```bash
+# Spacing token references (should be high):
+grep -c 'var(--space' documents/Screen_*.html
+
+# Hardcoded margin/padding px values (should be low):
+grep -oE '(margin|padding)[^;]*[0-9]+px' documents/Screen_*.html | wc -l
+```
+Flag any screen where hardcoded spacing values significantly outnumber token references.
+
+**f. Touch target check:**
+Look for buttons, links, and inputs with explicit height < 44px (e.g., `height: 32px`, `height: 28px`). Flag for review.
+
+#### 10. Sidebar Structural Consistency
+
+Verify that every screen's sidebar markup matches the sidebar shell template:
+
+**a. Check for sidebar shell wrapper:**
+```bash
+grep -c '<aside class="sidebar">' documents/Screen_*.html
+```
+Every screen must have this wrapper. Flag any screen that returns 0.
+
+**b. Logo markup consistency:**
+Extract the `<div class="sidebar-logo">` block from every screen. All must use identical structure:
+```html
+<div class="sidebar-logo"><img src="[URL]" alt="[ALT]"></div>
+```
+Flag any screen with: bare `<img>` tags (no wrapper), different class names, `<h1>` or `<span>` wrappers, or inline styles on the logo `<img>`.
+
+**c. No inline styles on shared-CSS elements:**
+```bash
+grep -n 'class="sidebar' documents/Screen_*.html | grep 'style='
+grep -n 'class="nav-item' documents/Screen_*.html | grep 'style='
+grep -n 'class="stat-card' documents/Screen_*.html | grep 'style='
+```
+Flag any matches. Elements styled by the shared CSS must not have inline style overrides.
+
+**d. Fix violations:** Replace non-conforming sidebar markup with the exact sidebar shell template. Remove inline styles on elements covered by shared CSS.
+
 ---
 
-### Step 9: Produce Handoff Summary
+### Step 10: Produce Handoff Summary
 
 Generate structured JSON summary per Output Contract.
 
@@ -1240,7 +1543,7 @@ Don't default to solid colors. Create depth and interest:
 
 Before completing, verify:
 
-### Structural Integrity (Step 8.5 — MUST PASS)
+### Structural Integrity (Step 9.5 — MUST PASS)
 - [ ] **Shared `.css` file exists** and all screens link to it via `<link>`
 - [ ] **Screen manifest filenames match** actual files in `./documents/`
 - [ ] **All cross-screen links resolve** (no broken hrefs)

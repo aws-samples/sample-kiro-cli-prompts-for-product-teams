@@ -9,6 +9,18 @@
 # macOS
 .DS_Store
 
+# Development artifacts
+docs/superpowers/
+.claude/settings.local.json
+.claude/plans/
+.kiro/logs/
+
+# One-off scripts and outputs
+2026-01-28-product-tool-chest-1pager.md
+package.json
+package-lock.json
+node_modules/
+
 # Generated documents (user output)
 documents/*.html
 documents/*.json

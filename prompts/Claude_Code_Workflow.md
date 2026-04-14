@@ -107,6 +107,8 @@ After gathering initial information, tell the user:
 - [ ] At least 3 competitors with real pricing
 - [ ] Pain points are specific, not generic
 - [ ] No placeholder text (TBD, TODO, [insert])
+- [ ] Every data claim has a source citation link
+- [ ] Sources section at bottom of document with numbered references
 - [ ] File saved successfully
 
 > **Full Approval Mode:** STOP here. Present summary and wait for user approval before proceeding.
@@ -202,15 +204,16 @@ After gathering initial information, tell the user:
 **Load:** `prompts/Prototype Creation Guide.md`
 
 **Create from PRD (modular structure required):**
-1. **Shared CSS file first** - `[product-slug].css` with design tokens and components (`.css` extension required)
-2. **Design System reference page** - `DesignSystem_*.html` for visual documentation
-3. **Screen manifest** - exact filenames + sidebar nav template before building screens
-4. User flow mapping and information architecture
-5. **Individual screen HTML files** (NOT one monolithic file, each links to shared `.css`)
-6. Clickable prototype with navigation
-7. Form validation and interactions
-8. **Post-build validation** - verify CSS loads, all links resolve, file sizes within budget
-9. Project Dashboard (navigation hub)
+1. **Shared CSS file first** - `[product-slug].css` with design tokens and components (`.css` extension REQUIRED — browsers reject `.html` loaded as stylesheets)
+2. **Design System reference page** - `DesignSystem_*.html` (BEFORE any screens — governing spec, not post-hoc docs)
+3. **Design Token Contract** - extract CSS variable names, component classes, and theme mode (LIGHT/DARK) from the shared CSS for subagent prompts
+4. **Screen manifest** - exact filenames + sidebar shell template before building screens
+5. User flow mapping and information architecture
+6. **Individual screen HTML files** (NOT one monolithic file, each links to shared `.css`, uses `var()` for all colors)
+7. Clickable prototype with navigation
+8. Form validation and interactions
+9. **Post-build validation** - verify CSS loads, all links resolve, file sizes within budget
+10. Project Dashboard (navigation hub)
 
 > **Critical: Connect All Screens Together**
 >
@@ -235,12 +238,33 @@ After gathering initial information, tell the user:
 **Checkpoint:**
 - [ ] Shared `.css` file created FIRST (NOT `.html` for stylesheets)
 - [ ] Screen manifest created with exact filenames before building screens
+- [ ] Design Token Contract extracted (theme mode, CSS variables, component classes)
+- [ ] Content Link Map created (in-content links between screens)
+- [ ] No dead links (`href="#"`, `javascript:void`) in screen content
+- [ ] No `height: 100%` in screen styles without explicit parent chain
+- [ ] No font imports in screen files (fonts in shared CSS only)
+- [ ] Sidebar shell template created (full `<aside>` with logo, nav, footer — not just `<nav>`)
+- [ ] Product context (PRFAQ problem/solution) included in every subagent prompt
+- [ ] Persona assigned to each screen (name, role, goals, pain points)
+- [ ] User flow context included (previous step, current actions, next screens)
+- [ ] Component HTML Patterns documented in Design Token Contract
+- [ ] Sidebar markup consistent across all screens (identical `<aside>` structure)
+- [ ] No inline styles on elements styled by shared CSS
+- [ ] Z-index values use scale tokens only (no arbitrary values)
+- [ ] Interactive elements at least 44px tall
+- [ ] Screen-specific styles use `var()` for colors (no hardcoded hex)
 - [ ] Modular structure (separate files per screen, each links to shared `.css`)
 - [ ] All PRD screens implemented
 - [ ] **All buttons and links navigate to correct screens**
 - [ ] **User flows completable end-to-end**
 - [ ] Forms have validation
 - [ ] Responsive on mobile/tablet/desktop
+- [ ] Chat interfaces mocked with typing indicator and delayed responses (if applicable)
+- [ ] Modals open/close via button, X, backdrop, and Escape key
+- [ ] Data tables sort/filter/paginate (if applicable)
+- [ ] At least one animation or transition per screen
+- [ ] Loading/empty/error states present where applicable
+- [ ] Screens feel like working apps, not wireframes
 - [ ] Realistic data (no Lorem ipsum)
 - [ ] Follows design standards (no AI slop)
 - [ ] Post-build validation passed (see Prototype Creation Guide)

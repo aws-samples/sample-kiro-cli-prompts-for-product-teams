@@ -290,7 +290,10 @@ All inter-agent communications use this envelope structure:
         {
           "name": "string",
           "role": "string",
-          "primary_need": "string"
+          "primary_need": "string",
+          "goals": ["string"],
+          "pain_points": ["string"],
+          "dashboard_widgets": ["string (e.g., 'Student progress charts', 'Admin user table')"]
         }
       ],
       "core_requirements": [
@@ -330,7 +333,10 @@ All inter-agent communications use this envelope structure:
         {
           "name": "string",
           "role": "string",
-          "primary_workflow": "string"
+          "primary_workflow": "string",
+          "goals": ["string"],
+          "pain_points": ["string"],
+          "dashboard_widgets": ["string"]
         }
       ],
       "core_requirements": ["string"],
@@ -391,6 +397,19 @@ All inter-agent communications use this envelope structure:
       "user_flows_implemented": ["string"],
       "interactive_features": ["string"],
       "design_system_reference_path": "string",
+      "theme_mode": "LIGHT | DARK",
+      "design_token_contract": {
+        "css_variables": [
+          {"name": "string (e.g., --surface-bg)", "value": "string (e.g., #F4F7FB)", "category": "surfaces | text | brand | borders | semantic"}
+        ],
+        "component_classes": ["string (e.g., .card, .stat-card, .page-content, .btn-primary)"]
+      },
+      "brand_assets_verified": {
+        "logo_url": "string | null",
+        "logo_gate_passed": "boolean",
+        "brand_colors": {"primary": "string (#hex)", "secondary": "string (#hex)", "accent": "string (#hex)"},
+        "brand_fonts": {"display": "string", "body": "string"}
+      },
       "clickable_prototype_path": "string"
     },
     "testing_readiness": {
