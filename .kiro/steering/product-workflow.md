@@ -180,6 +180,9 @@ Before proceeding, verify:
 - [ ] **If building for a known company:** brand colors extracted as hex values
 - [ ] **If building for a known company:** typography identified
 - [ ] Brand assets documented in a "Brand Guidelines" section of the research doc
+- [ ] Every data claim (TAM/SAM/SOM, competitor pricing, trends) has a source citation link
+- [ ] Sources section exists at bottom with numbered references
+- [ ] Competitor entries link to their websites
 
 **FAIL if:** Missing sources, fewer than 3 competitors, or generic pain points. Fix and re-validate.
 
@@ -274,9 +277,9 @@ Apply design standards from `#steering/design-standards.md`.
 **Build sequence:**
 1. **Shared CSS file first** — `[product-slug].css` with design tokens and components (`.css` extension REQUIRED — browsers reject `.html` via `<link rel="stylesheet">` due to MIME type mismatch)
 2. **Design System reference page** — `DesignSystem_[ProductName]_[YYYY-MM-DD].html` (visual documentation only, links to `.css`)
-3. **Screen manifest** — exact filenames + sidebar nav template BEFORE building any screens
+3. **Screen manifest** — exact filenames + sidebar shell template BEFORE building any screens
 4. **Brand assets** — Logo Gate (all 5 checks), brand colors, fonts — resolved ONCE, passed to all screen builders
-5. **Individual screen files** — each links to shared `.css`, uses manifest filenames, pastes sidebar nav verbatim
+5. **Individual screen files** — each links to shared `.css`, uses manifest filenames, pastes sidebar shell verbatim
 6. **ScreenIndex** — navigation hub (use template at `.kiro/steering/templates/ScreenIndex_Template.html`)
 7. **Post-build validation** — verify CSS loads, all links resolve against manifest, file sizes within budget, logo is correct
 
@@ -293,10 +296,19 @@ Before marking complete, verify:
 - [ ] Shared `.css` file exists (NOT `.html` for stylesheets)
 - [ ] Every screen links to shared CSS via `<link rel="stylesheet" href="[product-slug].css">`
 - [ ] Screen manifest created with exact filenames before building screens
+- [ ] Design System reference page exists (created BEFORE any screens)
+- [ ] Design Token Contract extracted from CSS (theme mode, color/spacing/shadow/radius/animation/z-index/breakpoint vars, class inventory)
+- [ ] Product context (PRFAQ summary) passed to every screen subagent
+- [ ] Each screen has assigned persona with goals, pain points, and dashboard widgets
+- [ ] User flow context documents previous/current/next screen for each screen
 - [ ] ScreenIndex file exists with links to all screens
 - [ ] Individual Screen_*.html files exist (NOT one monolithic file)
 - [ ] Navigation between screens uses relative links that work
 - [ ] Sidebar nav is consistent across all screens (only `active` class differs)
+- [ ] Sidebar uses full shell template: `<aside class="sidebar">` wrapping logo, nav, and footer
+- [ ] Logo markup identical across all screens: `<div class="sidebar-logo"><img ...></div>`
+- [ ] Component HTML Patterns documented in Design Token Contract
+- [ ] No inline styles on elements covered by shared CSS (sidebar, stat cards, data tables)
 
 **Functionality (FULLY INTERACTIVE):**
 - [ ] All PRD screens implemented (cross-reference requirements)
@@ -314,6 +326,10 @@ Before marking complete, verify:
 - [ ] NO purple-blue gradients on white backgrounds
 - [ ] Distinctive aesthetic direction documented and applied
 - [ ] Realistic data (no "Lorem ipsum", "Test User", or placeholder content)
+- [ ] At least one animation/transition per screen (staggered entrance, hover effect, loading skeleton)
+- [ ] Loading, empty, and error states present where applicable
+- [ ] Every interactive element fully functional (not just styled)
+- [ ] Screen feels like a working app, not a wireframe
 
 **Brand/Product Fidelity (REQUIRED for known companies):**
 - [ ] If modifying existing product: existing UI faithfully recreated
@@ -328,10 +344,15 @@ Before marking complete, verify:
 **Post-Build Validation (REQUIRED — see `#steering/prototype-guide.md` Step 8.5):**
 - [ ] CSS loads correctly on all screens (no unstyled HTML)
 - [ ] All cross-screen links resolve against manifest
-- [ ] Sidebar nav consistent across all screens
+- [ ] Sidebar shell consistent (full `<aside>` structure matches template, not just nav items)
+- [ ] No inline styles on shared-CSS elements
 - [ ] File sizes within budget (CSS < 20KB, Screen < 25KB)
+- [ ] **Visual consistency:** var(--) color references > hardcoded hex in each screen's `<style>` block
+- [ ] **No theme violations:** dark colors (#1a1a2e, #0d0d0d) not in light-mode app; light colors (#fff, #f4f7fb) not in dark-mode app
 - [ ] Logo re-verified via Logo Gate on final embedded URL
 - [ ] Smoke test: click through at least one complete flow
+- [ ] **CSS layout check:** No `height: 100%` without explicit parent chain; no font imports in screen files; z-index values match scale tokens; spacing uses token variables
+- [ ] **Touch targets:** All interactive elements at least 44px tall
 
 **After each screen file is created:**
 ```bash

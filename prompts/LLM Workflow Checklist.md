@@ -307,8 +307,12 @@ Before advancing to next phase, verify:
    - **Supporting Screens:** Error states, loading states, empty states, confirmation screens
    - **Mobile Screens:** Responsive versions and mobile-specific navigation
    - **Modal/Overlay Screens:** Dialogs, pop-ups, and overlay interactions
-4. **Create individual HTML files for each screen:**
-   - Save as: `Screen_[ScreenName]_[ProductName]_[YYYY-MM-DD].html`
+4. **Create individual HTML files for each screen in this order:**
+   - **Shared CSS file first** (`[product-slug].css`, `.css` extension REQUIRED)
+   - **Design System reference page** (`DesignSystem_[Product]_[Date].html`) — BEFORE any screens
+   - **Design Token Contract** — extract CSS variable names, component classes, and theme mode (LIGHT/DARK) from the shared CSS
+   - **Screen manifest** — exact filenames for all screens + sidebar nav HTML template
+   - Save screens as: `Screen_[ScreenName]_[ProductName]_[YYYY-MM-DD].html`
    - Include wireframes, specifications, and interactive demonstrations
    - Add realistic data relevant to the product context
    - Include design annotations and interaction specifications
@@ -344,6 +348,12 @@ Before advancing to next phase, verify:
    - Data consistency across all screens
    - Performance optimization for smooth interactions
 5. **Save as:** `ClickablePrototype_[ProductName]_[YYYY-MM-DD].html`
+6. **Post-build validation (REQUIRED):**
+   - Verify CSS loads on all screens
+   - All cross-screen links resolve against manifest
+   - Visual consistency: var(--) refs > hardcoded hex in each screen's <style> block
+   - No theme violations (dark colors in light-mode app or vice versa)
+   - Logo re-verified via Logo Gate on final URL
 
 ### Step 11: Save and Request Prototype Approval - FLEXIBLE
 **Output Generated:** Complete prototype specification + Individual HTML screens + Interactive clickable prototype + Final Dashboard

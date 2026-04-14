@@ -51,7 +51,8 @@ You must produce:
         "name": "string",
         "role": "string",
         "primary_need": "string",
-        "key_workflow": "string"
+        "key_workflow": "string",
+        "dashboard_widgets": ["string (e.g., 'Student progress charts', 'Admin user table')"]
       }
     ],
     "core_requirements": [
@@ -112,6 +113,7 @@ Build 2-4 detailed personas:
 - **Day in the Life**: Typical workflow narrative
 - **Success Criteria**: How they measure success
 - **Quote**: Representative voice of this persona
+- **Primary Dashboard Widgets/KPIs**: What this persona needs to see on their dashboard — list 3-5 key widgets, metrics, or actions (e.g., "Student progress charts," "Upcoming deadlines," "Admin user management table"). This data is used by the Prototype Agent to decide whether personas need separate dashboards.
 
 **Persona Types to Consider:**
 - Primary user (daily interaction)

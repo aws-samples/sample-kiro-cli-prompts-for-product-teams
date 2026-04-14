@@ -308,6 +308,41 @@ Compile all research into a **Market Research Brief**:
 }
 ```
 
+## Source Citations in HTML Output (REQUIRED)
+
+When generating the Market Research HTML file (`MarketResearch_[Product]_[Date].html`), every data claim must include a clickable source citation:
+
+**Citation format:** Superscript numbers linking to a Sources section at the bottom:
+
+```html
+<!-- Inline citation -->
+The global K-12 edtech market is valued at $18.2B<sup><a href="https://source-url">[1]</a></sup>
+
+<!-- Competitor reference -->
+<td>Quizlet</td><td>$7.99/mo<sup><a href="https://quizlet.com/pricing">[3]</a></sup></td>
+
+<!-- Sources section at bottom of document -->
+<h2>Sources</h2>
+<ol>
+  <li><a href="https://source-url" target="_blank">Report Title - Publisher, Date</a></li>
+  <li><a href="https://source-url" target="_blank">Article Title - Publication, Date</a></li>
+</ol>
+```
+
+**What needs citations:**
+- Every TAM/SAM/SOM figure — link to the report, article, or database
+- Every competitor entry — link to the competitor's website or product page
+- Competitor pricing — link to the pricing page
+- Customer pain points — link to the forum, review site, or article
+- Market trends — link to the analyst report or news article
+- Growth rates and statistics — link to the data source
+
+**Requirements:**
+- Sources section at bottom of document with numbered references
+- All citation links open in new tab (`target="_blank"`)
+- Each `research_sources` entry in the JSON output must also appear as an inline citation in the HTML
+- No unsourced data claims — if you can't find a source, say "estimated" and explain the basis
+
 ## Web Research Best Practices
 
 1. **Source Credibility**: Prioritize industry reports, reputable news sources, and official company information
