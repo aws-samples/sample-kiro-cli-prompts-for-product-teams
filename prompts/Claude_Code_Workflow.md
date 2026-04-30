@@ -18,7 +18,7 @@
 ## Workflow Overview
 
 ```
-Discovery → Market Research → [AI Framing] → PRFAQ → PRD → Prototype
+Discovery → Market Research → [AI Framing] → PRFAQ → PRD → Threat Model → Prototype
                                (optional)
 ```
 
@@ -28,7 +28,8 @@ Discovery → Market Research → [AI Framing] → PRFAQ → PRD → Prototype
 | 1b | AI Framing (ML products only) | `AI Framing Agent.md` |
 | 2 | PRFAQ | `PRFAQ Guide.md` |
 | 3 | PRD | `PRD Creation Guide.md` |
-| 4 | Prototype | `Prototype Creation Guide.md` |
+| 4 | Threat Model | `Threat Modeling Guide.md` |
+| 5 | Prototype | `Prototype Creation Guide.md` |
 
 **All outputs:** Standalone HTML files saved to `./documents/`
 
@@ -46,7 +47,7 @@ Discovery → Market Research → [AI Framing] → PRFAQ → PRD → Prototype
 
 ### Inform user about workflow mode:
 After gathering initial information, tell the user:
-> "I'll work through 4 phases: Market Research → PRFAQ → PRD → Prototype. By default, I'll pause after each phase for your feedback. If you'd prefer I work through everything continuously, just say 'switch to streamlined' at any time."
+> "I'll work through 5 phases: Market Research → PRFAQ → PRD → Threat Model → Prototype. By default, I'll pause after each phase for your feedback. If you'd prefer I work through everything continuously, just say 'switch to streamlined' at any time."
 
 ### Determine if AI/ML product:
 **AI/ML indicators:** ML models, predictions, NLP, computer vision, recommendations, automated decisions, pattern recognition, generative AI.
@@ -199,7 +200,39 @@ After gathering initial information, tell the user:
 
 ---
 
-### Phase 4: Prototype
+### Phase 4: Threat Model
+
+**Load:** `prompts/Threat Modeling Guide.md`
+
+**Create from PRD:**
+1. System snapshot — assets, actors, entry points, trust boundaries (four tables + diagram)
+2. STRIDE threat table — walk all six categories against entry points/assets
+3. Mitigations table — each threat mapped to an AWS-native service
+4. Risk matrix — Likelihood × Impact, plus residual risk after mitigation
+5. Open Items — threats with High/High residual risk flagged for architecture review
+6. References — AWS Security Maturity Model + AWS Security Blog links
+
+**Save:**
+- `documents/ThreatModel_[Product]_[YYYY-MM-DD].html`
+
+**Checkpoint:**
+- [ ] System snapshot: ≥3 assets, ≥3 actors, ≥3 entry points, ≥1 trust boundary
+- [ ] All 6 STRIDE categories represented (even if "none identified")
+- [ ] Every threat has an AWS-mapped mitigation
+- [ ] Risk matrix includes residual risk per threat
+- [ ] Open items section present (lists High/High residual risks or states "None")
+- [ ] Diagram embedded showing data flow and trust boundaries
+- [ ] Both AWS reference URLs linked
+- [ ] No placeholder text (TBD, TODO, [insert])
+- [ ] File saved successfully
+
+> **Full Approval Mode:** STOP here. Present summary and wait for user approval before proceeding.
+
+> **Note:** The threat model is reference-only. It is NOT an input to the Prototype phase. It is intended for deeper use during later architecture work.
+
+---
+
+### Phase 5: Prototype
 
 **Load:** `prompts/Prototype Creation Guide.md`
 
@@ -302,10 +335,11 @@ documents/
 ├── AIFraming_[Product]_[Date].html           (Phase 1b - AI/ML only)
 ├── PRFAQ_[Product]_[Date].html               (Phase 2)
 ├── PRD_[Product]_[Date].html                 (Phase 3)
-├── DesignSystem_[Product]_[Date].html        (visual reference page)
-├── ScreenIndex_[Product]_[Date].html         (screen navigation)
+├── ThreatModel_[Product]_[Date].html         (Phase 4)
+├── DesignSystem_[Product]_[Date].html        (visual reference page, Phase 5)
+├── ScreenIndex_[Product]_[Date].html         (screen navigation, Phase 5)
 ├── Screen_Dashboard_[Product]_[Date].html
-├── Screen_[Name]_[Product]_[Date].html       (one per screen)
+├── Screen_[Name]_[Product]_[Date].html       (one per screen, Phase 5)
 └── ClickablePrototype_[Product]_[Date].html
 ```
 
@@ -441,6 +475,14 @@ When the user provides additional context (CSV files, company docs, team info):
 - Acceptance criteria for each story
 - Testing plan included
 - Tech stack compliance
+
+### Threat Model Validation:
+- System snapshot documents assets, actors, entry points, trust boundaries
+- All 6 STRIDE categories appear in threats table
+- Every threat has an AWS-mapped mitigation
+- Risk matrix includes residual risk per threat
+- Open Items section present
+- Both AWS reference URLs linked
 
 ### Prototype Validation:
 - Shared `.css` file created first (not `.html` for stylesheets)
