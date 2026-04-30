@@ -321,7 +321,81 @@ All inter-agent communications use this envelope structure:
 }
 ```
 
-### 10. Orchestrator → Prototype Agent
+### 10. Orchestrator → Threat Model Agent
+
+The Threat Model agent consumes PRD output only. No new structured fields are invented beyond what the PRD agent produces; the agent reads the PRD's technical stack, personas, and requirements directly from the PRD document.
+
+```json
+{
+  "payload": {
+    "prd_context": {
+      "product_name": "string",
+      "product_slug": "string",
+      "product_overview": "string",
+      "personas": [
+        {
+          "name": "string",
+          "role": "string",
+          "primary_need": "string"
+        }
+      ],
+      "core_requirements": [
+        {
+          "id": "string",
+          "requirement": "string",
+          "priority": "P0 | P1 | P2"
+        }
+      ],
+      "screens_identified": ["string"],
+      "technical_stack": {
+        "compute": ["string"],
+        "database": ["string"],
+        "storage": ["string"],
+        "api": ["string"],
+        "auth": ["string"],
+        "ai_services": ["string"]
+      },
+      "data_sensitivity": "public | internal | confidential | regulated"
+    },
+    "full_prd_path": "documents/PRD_[Product]_[Date].md"
+  }
+}
+```
+
+### 11. Threat Model Agent → Orchestrator
+
+Reference-only output. The Orchestrator uses this summary to update the Project Dashboard; no downstream agent consumes it.
+
+```json
+{
+  "payload": {
+    "threat_model_summary": {
+      "system_snapshot": {
+        "asset_count": "number",
+        "actor_count": "number",
+        "entry_point_count": "number",
+        "trust_boundary_count": "number"
+      },
+      "threat_counts_by_stride": {
+        "spoofing": "number",
+        "tampering": "number",
+        "repudiation": "number",
+        "information_disclosure": "number",
+        "denial_of_service": "number",
+        "elevation_of_privilege": "number"
+      },
+      "total_threats": "number",
+      "high_high_residual_risks": ["string (threat IDs flagged for architecture review)"],
+      "aws_services_recommended": ["string"]
+    },
+    "threat_model_path": "documents/ThreatModel_[Product]_[Date].html"
+  }
+}
+```
+
+### 12. Orchestrator → Prototype Agent
+
+**Note:** The Threat Model phase (between PRD and Prototype) does not feed into the Prototype agent. The Prototype agent receives the PRD handoff payload unchanged.
 
 ```json
 {
@@ -371,7 +445,7 @@ All inter-agent communications use this envelope structure:
 }
 ```
 
-### 11. Prototype Agent → Orchestrator (Final)
+### 13. Prototype Agent → Orchestrator (Final)
 
 ```json
 {
