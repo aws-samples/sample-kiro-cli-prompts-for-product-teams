@@ -514,6 +514,7 @@ documents/
 ├── PRFAQ_[ProductSlug]_[YYYY-MM-DD].html
 ├── PRD_[ProductSlug]_[YYYY-MM-DD].md
 ├── PRD_[ProductSlug]_[YYYY-MM-DD].html
+├── ThreatModel_[ProductSlug]_[YYYY-MM-DD].html           (Phase 4 threat model — reference-only)
 ├── DesignSystem_[ProductSlug]_[YYYY-MM-DD].html          (visual reference page)
 ├── Prototype_[ProductSlug]_[YYYY-MM-DD].md
 ├── Screen_[ScreenName]_[ProductSlug]_[YYYY-MM-DD].html

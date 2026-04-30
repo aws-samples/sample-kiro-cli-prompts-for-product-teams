@@ -37,9 +37,7 @@ You will receive a handoff payload containing:
     },
     "data_sensitivity": "public | internal | confidential | regulated"
   },
-  "artifacts": {
-    "prd_path": "string (path to PRD HTML/MD)"
-  }
+  "full_prd_path": "documents/PRD_[ProductSlug]_[YYYY-MM-DD].md"
 }
 ```
 
@@ -75,9 +73,7 @@ You must produce:
     "high_high_residual_risks": ["string (threat IDs flagged for architecture review)"],
     "aws_services_recommended": ["string (unique list of AWS services proposed as mitigations)"]
   },
-  "artifacts": {
-    "html_path": "documents/ThreatModel_[ProductSlug]_[YYYY-MM-DD].html"
-  }
+  "threat_model_path": "documents/ThreatModel_[ProductSlug]_[YYYY-MM-DD].html"
 }
 ```
 

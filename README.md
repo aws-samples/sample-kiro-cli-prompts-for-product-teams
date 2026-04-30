@@ -93,7 +93,6 @@ Interactive HTML prototype with:
 **Output:**
 ```
 documents/
-├── ThreatModel_[Product]_[Date].html     (STRIDE Threat Model)
 ├── DesignSystem_[Product]_[Date].html    (shared CSS)
 ├── ScreenIndex_[Product]_[Date].html     (navigation hub)
 ├── Screen_Dashboard_[Product]_[Date].html

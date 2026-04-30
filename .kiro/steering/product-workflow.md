@@ -266,7 +266,7 @@ Before proceeding, verify:
 
 **FAIL if:** Missing EARS format, vague requirements, or non-AWS services without justification. Fix and re-validate.
 
-> **Full Approval Mode:** STOP here. Present PRD summary and ask: "Ready to proceed to Prototype, or would you like changes?" Wait for user response.
+> **Full Approval Mode:** STOP here. Present PRD summary and ask: "Ready to proceed to Threat Model, or would you like changes?" Wait for user response.
 
 ### Phase 4: Threat Model
 
@@ -291,6 +291,8 @@ Before proceeding, verify:
 **After saving:** Run the validation agent before proceeding to Prototype.
 
 **Note:** Threat model is reference-only. Not consumed by the Prototype phase.
+
+> **Full Approval Mode:** STOP here. Present Threat Model summary and ask: "Ready to proceed to Prototype, or would you like changes?" Wait for user response.
 
 ---
 
