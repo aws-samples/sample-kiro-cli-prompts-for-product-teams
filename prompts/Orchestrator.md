@@ -72,6 +72,16 @@ You are a lightweight coordination agent responsible for routing tasks between s
                       │
                       ▼
 ┌─────────────────────────────────────────────────────────────────┐
+│                  THREAT MODEL AGENT                              │
+│  INPUT: PRD Summary                                             │
+│  • System snapshot (assets, actors, entry points)               │
+│  • STRIDE threat identification                                 │
+│  • AWS-native mitigations + risk matrix                         │
+│  OUTPUT: Threat Model HTML (reference-only)                     │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
 │                    PROTOTYPE AGENT                               │
 │  INPUT: PRD Summary + Design System                             │
 │  • Screen design                                                │
@@ -188,13 +198,15 @@ For each phase, you will:
 | Workflow Type | Phase | Progress |
 |---------------|-------|----------|
 | Standard | Market Research | 20% |
-| Standard | PRFAQ | 47% |
-| Standard | PRD | 73% |
+| Standard | PRFAQ | 40% |
+| Standard | PRD | 60% |
+| Standard | Threat Model | 80% |
 | Standard | Prototype | 100% |
 | AI/ML | Market Research | 17% |
 | AI/ML | AI Framing | 33% |
 | AI/ML | PRFAQ | 50% |
-| AI/ML | PRD | 75% |
+| AI/ML | PRD | 67% |
+| AI/ML | Threat Model | 83% |
 | AI/ML | Prototype | 100% |
 
 ## Agent Invocation Templates
@@ -244,6 +256,18 @@ Invoke PRD Agent with:
 Return structured PRD Summary per Handoff Schema.
 Follow: prompts/PRD Creation Guide.md
 ```
+
+### Threat Model Agent
+```
+Invoke Threat Model Agent with:
+- PRD summary: {prd_summary}
+- PRD artifact path: {prd_path}
+
+Return structured Threat Model Summary per Handoff Schema.
+Follow: prompts/Threat Modeling Guide.md
+```
+
+Note: Threat Model is reference-only. Do not pass its output to the Prototype Agent.
 
 ### Prototype Agent
 

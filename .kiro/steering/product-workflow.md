@@ -66,10 +66,10 @@ When a user mentions building a product, you MUST:
 ## Workflow Overview
 
 ```
-Discovery → Market Research → [VALIDATE] → PRFAQ → [VALIDATE] → PRD → [VALIDATE] → Prototype → [VALIDATE]
+Discovery → Market Research → [VALIDATE] → PRFAQ → [VALIDATE] → PRD → [VALIDATE] → Threat Model → [VALIDATE] → Prototype → [VALIDATE]
 ```
 
-**Four main phases:** Market Research, PRFAQ, PRD, Prototype
+**Five main phases:** Market Research, PRFAQ, PRD, Threat Model, Prototype
 **Optional phase:** AI Framing (only for AI/ML products, runs between Market Research and PRFAQ)
 
 ## Validation Agent Protocol
@@ -266,9 +266,37 @@ Before proceeding, verify:
 
 **FAIL if:** Missing EARS format, vague requirements, or non-AWS services without justification. Fix and re-validate.
 
-> **Full Approval Mode:** STOP here. Present PRD summary and ask: "Ready to proceed to Prototype, or would you like changes?" Wait for user response.
+> **Full Approval Mode:** STOP here. Present PRD summary and ask: "Ready to proceed to Threat Model, or would you like changes?" Wait for user response.
 
-### Phase 4: Prototype
+### Phase 4: Threat Model
+
+**This phase is mandatory and runs after PRD.**
+
+**Load:** #steering/threat-modeling-guide.md
+
+**Step 1: Extract from PRD** — build the system snapshot:
+- Assets (PII, app data, credentials, logs)
+- Actors (personas + threat actors)
+- Entry points (screens, APIs, admin, integrations)
+- Trust boundaries (Internet→App, App→Data, User→Admin, App→Third-party)
+
+**Step 2: STRIDE walk** — for each entry point/asset, evaluate all 6 categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege). Every category must appear in the output.
+
+**Step 3: AWS mitigations** — map each threat to an AWS-native service (Cognito, KMS, CloudTrail, WAF, Shield, IAM, etc.).
+
+**Step 4: Risk matrix** — score Likelihood × Impact, then residual after mitigation. Flag High/High residual as open items for architecture review.
+
+**Save:** `documents/ThreatModel_[Product]_[YYYY-MM-DD].html`
+
+**After saving:** Run the validation agent before proceeding to Prototype.
+
+**Note:** Threat model is reference-only. Not consumed by the Prototype phase.
+
+> **Full Approval Mode:** STOP here. Present Threat Model summary and ask: "Ready to proceed to Prototype, or would you like changes?" Wait for user response.
+
+---
+
+### Phase 5: Prototype
 Reference `#steering/prototype-guide.md` for detailed instructions.
 Apply design standards from `#steering/design-standards.md`.
 
@@ -392,7 +420,7 @@ Save to: `./documents/ProjectDashboard_[ProductName]_[YYYY-MM-DD].html`
 
 ### Dashboard Contents
 - Project name and description
-- Progress bar showing current phase (Market Research → PRFAQ → PRD → Prototype)
+- Progress bar showing current phase (Market Research → PRFAQ → PRD → Threat Model → Prototype)
 - Links to all generated documents (clickable file:// links)
 - Status indicators (completed/validated/in-progress/pending) for each phase
 - **Validation status for each phase** (passed/failed/pending)
@@ -455,6 +483,7 @@ Before completing any phase:
 | Market Research | Sources cited, 3+ competitors, fetched pages | Search snippets only, generic pain points |
 | PRFAQ | Compelling headline, specific solution, skeptical FAQs | Generic headline, softball questions |
 | PRD | EARS format, AWS/Anthropic only, acceptance criteria | Vague requirements, wrong tech stack |
+| Threat Model | Full STRIDE coverage (all 6 categories), AWS mitigations mapped, risk matrix with residual scores | Missing STRIDE categories, generic mitigations, no residual risk scoring |
 | Prototype | Modular files with shared `.css`, screen manifest, **fully interactive** (chat mocked, forms work, dropdowns/modals functional), working nav, Logo Gate passed, post-build validation passed, distinctive design, realistic data | Monolithic file, `.html` used as stylesheet, dead ends, static interactions, wrong company logo, generic aesthetics |
 
 **Remember:** Validation is not optional. Every phase must pass validation before proceeding. If you find yourself wanting to skip validation to save time, that's a sign the work needs improvement.
