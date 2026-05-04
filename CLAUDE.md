@@ -11,7 +11,8 @@ When the user describes a product idea or asks to start product development, fol
 2. **AI Framing** (optional) - For AI/ML products only
 3. **PRFAQ** - Amazon-style Working Backwards documentation
 4. **PRD** - Detailed requirements with EARS syntax
-5. **Prototype** - Interactive HTML with modular screens
+5. **Threat Model** - Lightweight STRIDE-based threat analysis mapped to AWS mitigations (reference-only)
+6. **Prototype** - Interactive HTML with modular screens
 
 **Key rules:**
 - All outputs are **HTML files** saved to `./documents/`
@@ -99,6 +100,7 @@ Load these as needed during each phase:
 - `prompts/AI Framing Agent.md` (AI/ML products only)
 - `prompts/PRFAQ Guide.md`
 - `prompts/PRD Creation Guide.md`
+- `prompts/Threat Modeling Guide.md`
 - `prompts/Prototype Creation Guide.md`
 
 ## Sample Outputs
