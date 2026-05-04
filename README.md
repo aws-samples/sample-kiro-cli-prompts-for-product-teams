@@ -14,21 +14,20 @@ Discovery → Market Research → PRFAQ → PRD → Threat Model → Prototype
 
 Each phase produces professional deliverables as styled HTML documents that can be viewed in a browser and shared with stakeholders.
 
-## Quick Start (Kiro)
+## Quick Start
 
-1. **Copy steering files** to your project:
-   ```bash
-   cp -r .kiro/steering/* your-project/.kiro/steering/
-   cp .kiro/hooks.json your-project/.kiro/
-   ```
+Launch `kiro-cli` from the project root — steering files auto-load from `.kiro/steering/`:
 
-2. **Open your project in Kiro** and describe your product idea
+```bash
+# Launch kiro-cli - steering files auto-load from .kiro/steering/
+kiro-cli chat --trust-all-tools --model "claude-opus-4.6-1m" "I want to build a new product."
+```
 
-3. **The workflow runs automatically:**
-   - Market research with web search
-   - PRFAQ (Press Release / FAQ) using Working Backwards methodology
-   - PRD with detailed requirements
-   - Interactive HTML prototype with modular screens
+The workflow runs automatically:
+- Market research with web search
+- PRFAQ (Press Release / FAQ) using Working Backwards methodology
+- PRD with detailed requirements
+- Interactive HTML prototype with modular screens
 
 All outputs are **standalone HTML files** that open directly in any browser - no build step or server required. Share them with stakeholders by simply sending the files.
 
