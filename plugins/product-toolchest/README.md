@@ -35,4 +35,23 @@ Or invoke a single phase by its skill (e.g. ask Claude to "do market research on
 ## Notes
 
 - No executable code ships with the plugin. Chart.js is downloaded at build time into the gitignored `documents/lib/` during the Prototype phase.
-- The plugin's guides mirror the repo's `prompts/*.md`; the repo root remains the editable source. When those change, bump `version` in `.claude-plugin/plugin.json` and the plugin's bundled copies.
+
+## Keeping the plugin in sync (maintainers)
+
+The repo root is the editable source of truth; this plugin bundles a **generated** mirror so it travels self-contained. The mapping:
+
+| Source | Bundled as | How |
+|--------|-----------|-----|
+| `prompts/*` | `prompts/*` | verbatim copy |
+| `.claude/skills/*` | `skills/*` | copy + guide refs rewritten to `${CLAUDE_PLUGIN_ROOT}` |
+| `.claude/agents/*` | `agents/*` | copy + guide/brand/lens refs rewritten |
+| `.kiro/hooks.json` (manual lenses) | `prompts/Review_Lenses.md` | generated |
+| *(hand-authored)* | `prompts/Brand_And_Logo_Rules.md` | owned by the plugin — extracted from `CLAUDE.md`, not generated |
+
+After editing any source file, regenerate and commit:
+
+```bash
+./scripts/sync-plugin.sh          # regenerate the bundled plugin in place
+```
+
+CI (`.github/workflows/plugin-sync.yml`) runs `./scripts/sync-plugin.sh --check` on every PR that touches the source or the plugin, and **fails if the two have drifted** — so a forgotten re-sync is caught before merge. If a release warrants it, bump `version` in `.claude-plugin/plugin.json`.
