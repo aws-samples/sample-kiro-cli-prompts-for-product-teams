@@ -1,0 +1,21 @@
+{
+  "name": "aws-samples-product-toolchest",
+  "interface": {
+    "displayName": "Product Team's Tool Chest"
+  },
+  "plugins": [
+    {
+      "name": "product-toolchest",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

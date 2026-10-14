@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "product-toolchest",
+  "version": "1.0.0",
+  "description": "Turn your AI coding assistant into a product-development partner — deep market research, PRFAQ, PRD, and interactive HTML prototypes. Skills with bundled guides, portable across Agent Plugins clients.",
+  "author": {
+    "name": "AWS Samples",
+    "url": "https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams"
+  },
+  "homepage": "https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams",
+  "repository": "https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams",
+  "license": "MIT-0",
+  "keywords": [
+    "product",
+    "product management",
+    "market research",
+    "competitive analysis",
+    "prfaq",
+    "working backwards",
+    "prd",
+    "product requirements",
+    "ears",
+    "prototype",
+    "clickable prototype",
+    "ai framing",
+    "aws"
+  ]
+}
