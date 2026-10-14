@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard - [ProductName]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-display: 'Fraunces', serif;
+            --font-body: 'DM Sans', sans-serif;
+
+            --color-ink: #0a0a0a;
+            --color-paper: #faf9f6;
+            --color-accent: #e63946;
+            --color-success: #2d6a4f;
+            --color-warning: #e9c46a;
+            --color-muted: #6b705c;
+            --color-border: #d4d1c7;
+
+            --shadow-soft: 0 4px 20px rgba(10, 10, 10, 0.08);
+            --shadow-lifted: 0 12px 40px rgba(10, 10, 10, 0.12);
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration: 0.4s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-paper);
+            color: var(--color-ink);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Subtle grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .dashboard {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        /* Header with editorial flair */
+        .header {
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            width: 120px;
+            height: 4px;
+            background: var(--color-accent);
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: var(--color-muted);
+            max-width: 500px;
+        }
+
+        /* Progress indicator - editorial style */
+        .progress-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-top: 32px;
+            padding: 24px 0;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            line-height: 1;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-muted);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--color-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-ink);
+            border-radius: 3px;
+            transition: width 0.8s var(--ease-out);
+        }
+
+        /* Phase sections */
+        .phase {
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s var(--ease-out) forwards;
+        }
+
+        .phase:nth-child(1) { animation-delay: 0.1s; }
+        .phase:nth-child(2) { animation-delay: 0.2s; }
+        .phase:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .phase-number {
+            font-family: var(--font-display);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .phase-title {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .phase-description {
+            color: var(--color-muted);
+            font-size: 0.9375rem;
+            margin-left: auto;
+        }
+
+        /* Document cards */
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .document-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            padding: 28px;
+            transition: all var(--duration) var(--ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .document-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--color-border);
+            transition: background var(--duration) var(--ease-out);
+        }
+
+        .document-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lifted);
+        }
+
+        .document-card:hover::before {
+            background: var(--color-accent);
+        }
+
+        .document-card.available::before {
+            background: var(--color-success);
+        }
+
+        .document-card.pending::before {
+            background: var(--color-warning);
+        }
+
+        .document-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .document-description {
+            font-size: 0.9375rem;
+            color: var(--color-muted);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.25s var(--ease-out);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--color-ink);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent);
+            transform: translateX(4px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-ink);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-ink);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn::after {
+            content: '→';
+            transition: transform 0.25s var(--ease-out);
+        }
+
+        .btn:hover::after {
+            transform: translateX(4px);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-family: var(--font-body);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .status-complete {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .status-pending {
+            background: var(--color-warning);
+            color: var(--color-ink);
+        }
+
+        .status-not-started {
+            background: var(--color-border);
+            color: var(--color-muted);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer p {
+            font-size: 0.875rem;
+            color: var(--color-muted);
+        }
+
+        .footer-brand {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--color-ink);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 40px 24px;
+            }
+
+            .phase-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .phase-description {
+                margin-left: 0;
+            }
+
+            .progress-section {
+                flex-wrap: wrap;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!--
+      ============================================================================
+      DATA-DRIVEN DASHBOARD — edit the CONFIG below, never hand-edit the HTML rows.
+      ============================================================================
+      To update after a phase: change a card's `status` (and fill in its `href`s)
+      in the CONFIG object below, then regenerate this file WHOLESALE. The progress
+      bar, status badges, and links all derive from CONFIG — so a status change can
+      never produce an orphaned <div> or unbalanced tag.
+
+      status values: "completed" | "in-progress" | "pending"
+      An href of null renders the action button as disabled.
+    -->
+    <script>
+        const CONFIG = {
+            product: "[ProductName]",
+            lastUpdated: "[LastUpdated]",
+            phases: [
+                {
+                    number: "01", title: "Market Research",
+                    description: "Competitive analysis & market validation",
+                    cards: [
+                        { title: "Research Brief", status: "pending",
+                          description: "Market sizing, competitor analysis, customer pain points, and pricing benchmarks.",
+                          actions: [ { label: "View Research", href: null, primary: true } ] }
+                    ]
+                },
+                {
+                    number: "02", title: "PRFAQ",
+                    description: "Working Backwards methodology",
+                    cards: [
+                        { title: "Press Release & FAQ", status: "pending",
+                          description: "Customer-focused narrative defining the product vision and value proposition.",
+                          actions: [ { label: "View PRFAQ", href: null, primary: true } ] }
+                    ]
+                },
+                {
+                    number: "03", title: "Requirements",
+                    description: "Product specifications",
+                    cards: [
+                        { title: "PRD Document", status: "pending",
+                          description: "Detailed requirements including features, personas, success metrics, and acceptance criteria.",
+                          actions: [ { label: "View PRD", href: null, primary: true } ] }
+                    ]
+                },
+                {
+                    number: "04", title: "Prototype",
+                    description: "Interactive validation",
+                    cards: [
+                        { title: "Clickable Prototype", status: "pending",
+                          description: "Fully interactive prototype demonstrating all user workflows and features.",
+                          actions: [ { label: "Launch Prototype", href: null, primary: true },
+                                     { label: "Specs", href: null, primary: false } ] },
+                        { title: "Design System", status: "pending",
+                          description: "Visual guidelines, component library, and styling specifications.",
+                          actions: [ { label: "View System", href: null, primary: true } ] },
+                        { title: "Screen Library", status: "pending",
+                          description: "Individual screen designs and detailed specifications.",
+                          // Each screen: { name, path }. Leave [] until screens exist.
+                          screens: [] }
+                    ]
+                }
+            ]
+        };
+
+        // --- Render (DOM-built with textContent — structurally unbreakable, no XSS) ---
+        const STATUS = {
+            "completed":   { cardClass: "available", badgeClass: "complete",     badgeText: "Complete" },
+            "in-progress": { cardClass: "pending",   badgeClass: "pending",      badgeText: "In Progress" },
+            "pending":     { cardClass: "pending",   badgeClass: "not-started",  badgeText: "Pending" }
+        };
+
+        function el(tag, opts = {}) {
+            const n = document.createElement(tag);
+            if (opts.class) n.className = opts.class;
+            if (opts.text != null) n.textContent = opts.text;
+            if (opts.href != null) n.setAttribute("href", opts.href);
+            return n;
+        }
+
+        function renderAction(a) {
+            const btn = el("a", { class: "btn " + (a.primary ? "btn-primary" : "btn-secondary"), text: a.label });
+            if (a.href) { btn.setAttribute("href", a.href); }
+            else { btn.setAttribute("aria-disabled", "true"); btn.style.opacity = "0.4"; btn.style.pointerEvents = "none"; }
+            return btn;
+        }
+
+        function renderCard(card) {
+            const meta = STATUS[card.status] || STATUS.pending;
+            const wrap = el("div", { class: "document-card " + meta.cardClass });
+
+            const title = el("div", { class: "document-title", text: card.title });
+            const badge = el("span", { class: "status-badge status-" + meta.badgeClass, text: meta.badgeText });
+            title.appendChild(badge);
+            wrap.appendChild(title);
+
+            wrap.appendChild(el("div", { class: "document-description", text: card.description }));
+
+            const actions = el("div", { class: "document-actions" });
+            if (Array.isArray(card.screens)) {
+                const browse = el("button", { class: "btn btn-primary", text: "Browse Screens" });
+                if (card.screens.length === 0) { browse.disabled = true; }
+                browse.addEventListener("click", () => showScreens(card.screens));
+                actions.appendChild(browse);
+            } else {
+                (card.actions || []).forEach(a => actions.appendChild(renderAction(a)));
+            }
+            wrap.appendChild(actions);
+            return wrap;
+        }
+
+        function renderPhase(phase) {
+            const section = el("section", { class: "phase" });
+            const header = el("div", { class: "phase-header" });
+            header.appendChild(el("span", { class: "phase-number", text: "Phase " + phase.number }));
+            header.appendChild(el("h2", { class: "phase-title", text: phase.title }));
+            header.appendChild(el("span", { class: "phase-description", text: phase.description }));
+            section.appendChild(header);
+
+            const grid = el("div", { class: "document-grid" });
+            phase.cards.forEach(c => grid.appendChild(renderCard(c)));
+            section.appendChild(grid);
+            return section;
+        }
+
+        function progressPercent() {
+            const total = CONFIG.phases.length;
+            const done = CONFIG.phases.filter(p => p.cards.every(c => c.status === "completed")).length;
+            return total ? Math.round((done / total) * 100) : 0;
+        }
+
+        function showScreens(screens) {
+            if (!screens || screens.length === 0) { alert("No individual screens available yet."); return; }
+            const popup = window.open("", "screens", "width=450,height=600");
+            const doc = popup.document;
+            doc.title = "Screen Library";
+            doc.body.style.cssText = "font-family:'DM Sans',sans-serif;padding:40px;background:#faf9f6;color:#0a0a0a;";
+            const h = doc.createElement("h2");
+            h.style.cssText = "font-family:'Fraunces',serif;font-size:1.75rem;margin-bottom:24px;";
+            h.textContent = "Screen Library";
+            doc.body.appendChild(h);
+            screens.forEach(s => {
+                const link = doc.createElement("a");
+                link.href = s.path;
+                link.textContent = s.name + " →";
+                link.style.cssText = "display:block;padding:12px 0;border-bottom:1px solid #d4d1c7;color:#0a0a0a;text-decoration:none;";
+                doc.body.appendChild(link);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("product-name").textContent = CONFIG.product;
+            document.getElementById("last-updated").textContent = "Last updated: " + CONFIG.lastUpdated;
+            const pct = progressPercent();
+            document.getElementById("progress-label").textContent = pct + "%";
+            document.getElementById("progress-fill").style.width = pct + "%";
+            const main = document.getElementById("phases");
+            CONFIG.phases.forEach(p => main.appendChild(renderPhase(p)));
+        });
+    </script>
+
+    <div class="dashboard">
+        <header class="header">
+            <h1 id="product-name">[ProductName]</h1>
+            <p>Product Development Dashboard — Track progress from concept to clickable prototype</p>
+
+            <div class="progress-section">
+                <div>
+                    <div class="progress-label" id="progress-label">0%</div>
+                    <div class="progress-text">Complete</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <main id="phases"></main>
+
+        <footer class="footer">
+            <p id="last-updated">Last updated: [LastUpdated]</p>
+            <p class="footer-brand">Product Team's Toolchest</p>
+        </footer>
+    </div>
+</body>
+</html>

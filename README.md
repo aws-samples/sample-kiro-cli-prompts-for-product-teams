@@ -14,6 +14,23 @@ Discovery → Deep Market Research → PRFAQ → PRD → Prototype
 
 Each phase produces professional deliverables as styled HTML documents that can be viewed in a browser and shared with stakeholders.
 
+## Install (use the skills anywhere)
+
+Want the toolchest skills in **every project on your machine** instead of copying files per-project? There are three install paths — see **[INSTALL.md](INSTALL.md)** for the full guide:
+
+1. **One-command global install** — installs the skills into each agent's global config dir (Kiro, Claude Code, Codex, Cursor) so they work in every project:
+   ```bash
+   ./install.sh            # detects your agents; --dry-run / --uninstall supported
+   ```
+2. **Claude Code plugin + marketplace** — official plugin with managed updates:
+   ```
+   /plugin marketplace add aws-samples/sample-kiro-cli-prompts-for-product-teams
+   /plugin install product-toolchest@aws-samples-product-toolchest
+   ```
+3. **Per-project copy** — the original mode (Quick Start below), for evaluating or pinning a project to a version.
+
+The global install and the plugin both ship **self-contained** skills (the guides travel with them, resolved against the agent's config dir or `${CLAUDE_PLUGIN_ROOT}`), so they work with zero project files. See `plugins/product-toolchest/` for the plugin.
+
 ## Quick Start (Kiro)
 
 1. **Copy steering files** to your project:
