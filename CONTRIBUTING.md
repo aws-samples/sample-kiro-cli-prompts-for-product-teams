@@ -48,6 +48,7 @@ This toolkit runs in multiple AI assistants, so the same guidance exists in seve
 2. **`.kiro/steering/*.md`** — Kiro mirrors of the same guidance. Reconcile any numeric values, phase names, file-naming rules, and checklists with the prompts.
 3. **`.claude/agents/*.md` and `.claude/skills/*/SKILL.md`** — thin shims that *reference* the prompts. Keep them thin: point at the guide, don't copy prose into them (copied prose is where drift starts).
 4. **`CLAUDE.md` and `.cursorrules`** — the always-loaded summaries for Claude Code and Cursor. These intentionally duplicate key rules (dashboard protocol, Logo Gate, build order); if you change one of those rules, update both files in the same PR.
+5. **The portable plugin (`plugin.json` + `skills/`)** — the cross-editor Agent Plugin at the repo root. Each skill's `references/*.md` are copies of the corresponding `prompts/*.md` guide (plus `skills/product-research/references/Brand_And_Logo_Rules.md`, extracted from `CLAUDE.md`). When you change a guide in `prompts/`, refresh the matching copy under `skills/<name>/references/`. Keep each `SKILL.md` thin — role, non-negotiables, and a reference table that points at the bundled guides via skill-relative paths (no `prompts/` paths, no client-specific variables).
 
 Additional invariants:
 

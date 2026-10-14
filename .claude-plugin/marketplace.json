@@ -11,8 +11,8 @@
   "plugins": [
     {
       "name": "product-toolchest",
-      "source": "./plugins/product-toolchest",
-      "description": "Deep market research, PRFAQ, PRD, and interactive HTML prototypes — self-contained skills, subagents, and a /product-build command."
+      "source": "./",
+      "description": "Deep market research, PRFAQ, PRD, and interactive HTML prototypes — skills with bundled guides."
     }
   ]
 }
