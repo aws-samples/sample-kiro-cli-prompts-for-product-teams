@@ -18,7 +18,7 @@ Each editor installs from this repo using its own native command — no scripts,
 - **Kiro** — IDE: Powers panel (⚡) → *Add Custom Power* → *Import power from GitHub* → paste the repo URL.
   CLI: `git clone` the repo, then `kiro-cli powers install ./sample-kiro-cli-prompts-for-product-teams` (or `/powers install <path>` inside a chat).
 - **Cursor** (IDE): Customize → Plugins → add the Agent Plugin from the repo.
-- **Grok Build**: Plugins panel → install from this git repo.
+- **Grok Build**: auto-reads Claude Code marketplaces — once the repo is added as a Claude Code marketplace (above), Grok Build picks up the plugin with zero extra configuration.
 
 > Because the plugin lives at the **repo root** (`plugin.json` + `skills/`), the bare repo URL / `owner/repo` reference is all each tool needs.
 

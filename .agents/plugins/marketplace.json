@@ -7,8 +7,9 @@
     {
       "name": "product-toolchest",
       "source": {
-        "source": "local",
-        "path": "./"
+        "source": "url",
+        "url": "https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams.git",
+        "ref": "main"
       },
       "policy": {
         "installation": "AVAILABLE",
