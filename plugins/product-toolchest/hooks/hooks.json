@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(perl -ne 'print \"$1\" if /\"file_path\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)+)\"/'); t=\"/tmp/__pmpm_hk.$$\"; jschk(){ if command -v osascript >/dev/null 2>&1; then osascript -l JavaScript -e 'function run(a){ObjC.import(\"Foundation\");var s=$.NSString.stringWithContentsOfFileEncodingError(a[0],$.NSUTF8StringEncoding,null);try{new Function(s.js);return \"OK\"}catch(e){return \"FAIL: \"+e.message}}' \"$1\"; elif command -v node >/dev/null 2>&1; then node --check \"$1\" >/dev/null 2>&1 && echo OK || { printf 'FAIL: '; node --check \"$1\" 2>&1 | head -1; }; else echo SKIP; fi; }; case \"$f\" in *Screen_*.html) perl -0777 -ne 'while(/<script\\b([^>]*)>(.*?)<\\/script>/gis){next if $1=~/\\bsrc\\s*=/i; next if $2=~/^\\s*$/; print $2,\"\\0\"}' \"$f\" | while IFS= read -r -d '' body; do printf '%s' \"$body\" > \"$t.js\"; r=$(jschk \"$t.js\"); case \"$r\" in OK) ;; SKIP) echo \"\u26a0 syntax gate SKIPPED in $f: no JS parser (osascript/node) on this machine\" ;; *) echo \"SYNTAX GATE FAIL in $f: $r\" ;; esac; done; rm -f \"$t.js\" ;; *PRD_*.html) if command -v xmllint >/dev/null 2>&1; then xmllint --noout \"$f\" 2>\"$t.err\" || echo \"SVG/XML not well-formed in $f: $(head -1 \"$t.err\")\"; rm -f \"$t.err\"; elif command -v python3 >/dev/null 2>&1; then python3 -c 'import sys,xml.dom.minidom as m; m.parse(sys.argv[1])' \"$f\" 2>\"$t.err\" || echo \"SVG/XML not well-formed in $f: $(head -1 \"$t.err\")\"; rm -f \"$t.err\"; fi; n=$(perl -0777 -pe 's{<defs\\b.*?</defs>}{}gis' \"$f\" | grep -coE '<(rect|circle|line|path|text|polygon|polyline|ellipse|image|use)\\b'); [ \"$n\" = \"0\" ] && echo \"SVG WARNING in $f: 0 shapes outside <defs> \u2014 diagram may be blank\" ;; esac; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

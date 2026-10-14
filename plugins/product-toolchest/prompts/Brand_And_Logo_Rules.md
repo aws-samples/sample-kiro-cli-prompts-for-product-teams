@@ -1,6 +1,6 @@
 # Brand & Logo Rules
 
-Self-contained brand-source and logo-verification rules — bundled so the toolchest works anywhere, with no project `CLAUDE.md` or `.kiro/steering/product-workflow.md` present. The full Logo Gate protocol also lives in `Prototype_Creation_Guide.md` Step 1.1.
+Self-contained brand-source and logo-verification rules. The full Logo Gate protocol also lives in `Prototype_Creation_Guide.md` Step 1.1.
 
 ## Which company's logo?
 

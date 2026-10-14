@@ -40,22 +40,22 @@ GitHub provides additional document on [forking a repository](https://help.githu
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
 
-## Editing the workflow content (layering rule)
+## Editing the workflow content
 
-This toolkit runs in multiple AI assistants, so the same guidance exists in several layers. **`prompts/*.md` is the single source of truth.** When you change workflow behavior, update the layers in this order and keep them consistent:
+The toolkit ships as a single plugin, and **`plugins/product-toolchest/` is the single source of truth** — there are no parallel per-project copies to keep in sync. Edit the plugin files directly:
 
-1. **`prompts/*.md`** — the authoritative guides. Make the change here first.
-2. **`.kiro/steering/*.md`** — Kiro mirrors of the same guidance. Reconcile any numeric values, phase names, file-naming rules, and checklists with the prompts.
-3. **`.claude/agents/*.md` and `.claude/skills/*/SKILL.md`** — thin shims that *reference* the prompts. Keep them thin: point at the guide, don't copy prose into them (copied prose is where drift starts).
-4. **`CLAUDE.md` and `.cursorrules`** — the always-loaded summaries for Claude Code and Cursor. These intentionally duplicate key rules (dashboard protocol, Logo Gate, build order); if you change one of those rules, update both files in the same PR.
+1. **`plugins/product-toolchest/prompts/*.md`** — the authoritative workflow guides. Make workflow-behavior changes here first.
+2. **`plugins/product-toolchest/skills/*/SKILL.md` and `plugins/product-toolchest/agents/*.md`** — thin shims that *reference* the guides. Keep them thin: point at the guide via `${CLAUDE_PLUGIN_ROOT}/prompts/…`, don't copy prose into them (copied prose is where drift starts).
+3. **`plugins/product-toolchest/prompts/Review_Lenses.md`** — the on-demand review-lens definitions used by `product-reviewer`.
+4. **`plugins/product-toolchest/hooks/hooks.json`** — the advisory validation gate (JS syntax on `Screen_*.html`, SVG check on `PRD_*.html`).
 
 Additional invariants:
 
-* The templates duplicated at `prompts/ProjectDashboard_Template.html` / `prompts/ScreenIndex_Template.html` and `.kiro/steering/templates/` **must stay byte-identical** — `diff` them before committing.
-* Specific values that have drifted before and must match everywhere: research dimension names (6 of them), source-count gates (120+/150+), the 5 Logo Gate checks, the `[Type]_[Product]_[YYYY-MM-DD].html` naming convention, the ScreenIndex placeholder list, and the Design Token Contract categories.
-* Hook counts and agent/skill rosters are enumerated in `README.md`, `CLAUDE.md`, and `Getting_Started_Guide.html` — update the counts when you add or remove a hook, agent, or skill.
+* The two HTML templates (`plugins/product-toolchest/prompts/ProjectDashboard_Template.html`, `plugins/product-toolchest/prompts/ScreenIndex_Template.html`) are referenced by the prototype guides — keep their placeholder names in sync with the guides that fill them.
+* Specific values that have drifted before and must match across the guides: research dimension names (6 of them), source-count gates (120+/150+), the 5 Logo Gate checks, the `[Type]_[Product]_[YYYY-MM-DD].html` naming convention, the ScreenIndex placeholder list, and the Design Token Contract categories.
+* Hook counts and the agent/skill rosters are enumerated in `README.md` and `plugins/product-toolchest/README.md` — update both when you add or remove a hook, agent, or skill.
 
-A quick way to check for drift after an edit: `grep -rn "<the value you changed>" prompts/ .kiro/ .claude/ CLAUDE.md .cursorrules README.md Getting_Started_Guide.html`.
+A quick way to check for drift after an edit: `grep -rn "<the value you changed>" plugins/product-toolchest/ README.md`.
 
 
 ## Finding contributions to work on

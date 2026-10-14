@@ -1,6 +1,6 @@
 # Review Lenses
 
-Self-contained definitions for the on-demand review lenses the `product-reviewer` runs — bundled so the agent needs no project `.kiro/hooks.json`. Run ONE lens at a time, named in the prompt. Each produces findings with specific `file:element` references and concrete fixes; do not fix unless asked.
+Self-contained definitions for the on-demand review lenses the `product-reviewer` runs. Run ONE lens at a time, named in the prompt. Each produces findings with specific `file:element` references and concrete fixes; do not fix unless asked.
 
 ## Customer Interview Simulator
 

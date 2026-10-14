@@ -16,11 +16,11 @@ fitness app for teenagers, taken through the full idea-to-prototype pipeline.
 - **ClickablePrototype_TeenFit.html** — Single-file interactive prototype with all screens and inline CSS/JS. The sanctioned single-file exception to the modular standard.
 - **Prototype_TeenFit.html** — An earlier-generation single-file prototype, kept for comparison with the current modular approach.
 
-(There is no ScreenIndex sample yet; see `prompts/ScreenIndex_Template.html` for that artifact's template.)
+(There is no ScreenIndex sample yet; see `plugins/product-toolchest/prompts/ScreenIndex_Template.html` for that artifact's template.)
 
 ## Architecture
 
-The screens model the modular prototype standard from the project `CLAUDE.md`:
+The screens model the modular prototype standard from the toolchest's prototype guide (`plugins/product-toolchest/prompts/Prototype_Creation_Guide.md`):
 
 - **teenfit.css** holds the shared design tokens and shared component classes (the `[product-slug].css` file that is built FIRST, before any screens).
 - **Each `Screen_*.html`** links it via `<link rel="stylesheet" href="teenfit.css">` and keeps screen-specific styles (layouts, one-off components, sanctioned overrides) in its own local `<style>` block, always using `var()` tokens for colors/spacing.

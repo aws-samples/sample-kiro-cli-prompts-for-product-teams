@@ -5,7 +5,8 @@ TEENFIT SHARED DESIGN SYSTEM CSS
 
 Shared tokens and component classes for all Screen_*_TeenFit.html files.
 
-This models the [product-slug].css standard from CLAUDE.md: tokens + shared
+This models the [product-slug].css standard from the toolchest's prototype
+guide: tokens + shared
 components live here; screen-specific styles stay in each screen's <style>
 block (< 50 lines target for new builds, using var() for colors).
 
