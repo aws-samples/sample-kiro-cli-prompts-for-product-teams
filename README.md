@@ -16,7 +16,7 @@ No curl? Use wget:
 wget -qO- https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases/latest/download/install.sh | sh
 ```
 
-> **Before the first release:** this one-liner works only once a `v*` release has been published on the [Releases page](https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases). Until then the installer stops with "no GitHub release ... has been published yet". Use the manual copy steps in [Quick Start](#quick-start-kiro) or [Claude Code / Cursor Mode](#claude-code--cursor-mode) instead.
+> **Before the first CLI release:** the one-liner works only once a release built by `.github/workflows/release.yml` has been published on the [Releases page](https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases). Older releases, such as `v1.0.0`, have no `checksums.txt`, so the installer refuses them. Until a CLI release exists, use the manual copy steps in [Quick Start](#quick-start-kiro) or [Claude Code / Cursor Mode](#claude-code--cursor-mode).
 
 Then, in any project folder:
 

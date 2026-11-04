@@ -95,6 +95,7 @@ jobs:
             --repo "$REPO" \
             --verify-tag \
             --generate-notes \
+            --latest \
             --title "product-team-ai-kit $TAG" \
             "dist/product-team-ai-kit-$TAG.tar.gz" \
             dist/install.sh \

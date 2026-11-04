@@ -98,4 +98,6 @@ curl -fsSL https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-te
 
 Actions are pinned by SHA, and `contents: read` is the default everywhere. Concurrency is grouped per tag.
 
-**Cutting a release** (maintainers): bump `VERSION`, merge to `main`, then `git tag v0.1.0 && git push origin v0.1.0`. No tag or release exists yet; until one does, the one-liner fails with "no GitHub release ... has been published yet".
+**Cutting a release** (maintainers): bump `VERSION`, merge to `main`, then `git tag vX.Y.Z && git push origin vX.Y.Z`. The release job passes `--latest`, so each CLI release becomes what `releases/latest` resolves to.
+
+**Existing `v1.0.0`.** The repo already has a `v1.0.0` release (2026-10-14, no assets; its notes say v1 will be sunset in v2 in favour of the plugin format). Today `releases/latest` resolves to it, and the installer refuses it because there is no `checksums.txt`. The first CLI release should therefore be numbered above `v1.0.0` (for example `v2.0.0`, matching that note). Shipping `v0.1.0` would sort below it, and `self-update` from `0.1.0` would treat `v1.0.0` as an upgrade. `VERSION` is `0.1.0` in this PR only as a placeholder for the maintainers' decision.
