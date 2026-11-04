@@ -237,8 +237,9 @@ do_install() {
     [ -z "$_top" ] || die "unexpected archive layout (more than one top-level entry)"
     _top=$_d
   done
-  [ -n "$_top" ] && [ -f "$_top/bin/$NAME" ] && [ -f "$_top/VERSION" ] && [ -f "$_top/kit/agents.map" ] ||
+  if [ -z "$_top" ] || [ ! -f "$_top/bin/$NAME" ] || [ ! -f "$_top/VERSION" ] || [ ! -f "$_top/kit/agents.map" ]; then
     die "archive does not contain a $NAME kit"
+  fi
   chmod 755 "$_top/bin/$NAME"
 
   [ ! -L "$DATA_ROOT" ] || die "refusing to install into symlinked $DATA_ROOT"
