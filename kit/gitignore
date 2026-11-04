@@ -1,0 +1,7 @@
+# Product Team's Tool Chest: generated deliverables and build-time downloads
+documents/*.html
+documents/*.json
+documents/*.md
+documents/handoffs/
+documents/lib/
+.claude/settings.local.json

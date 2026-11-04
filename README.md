@@ -2,6 +2,66 @@
 
 A comprehensive toolkit that transforms AI coding assistants into your personal product development partner. Go from idea to interactive prototype with specialized support for AI/ML products.
 
+## Install
+
+Install the `product-team-ai-kit` command once (macOS or Linux, no sudo, no runtime needed):
+
+```bash
+curl -fsSL https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases/latest/download/install.sh | sh
+```
+
+No curl? Use wget:
+
+```bash
+wget -qO- https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases/latest/download/install.sh | sh
+```
+
+> **Before the first release:** this one-liner works only once a `v*` release has been published on the [Releases page](https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases). Until then the installer stops with "no GitHub release ... has been published yet". Use the manual copy steps in [Quick Start](#quick-start-kiro) or [Claude Code / Cursor Mode](#claude-code--cursor-mode) instead.
+
+Then, in any project folder:
+
+```bash
+mkdir my-product && cd my-product
+product-team-ai-kit --agent claude          # or kiro, cursor, codex, copilot, gemini, windsurf
+product-team-ai-kit --agent claude,kiro     # several at once
+product-team-ai-kit --list                  # agents and the files each one writes
+product-team-ai-kit --agent cursor --dry-run
+```
+
+| `--agent` | Harness | What it writes in your project |
+|---|---|---|
+| `claude` | Claude Code | `CLAUDE.md` (managed block), `.claude/agents/` (7 subagents), `.claude/skills/` (6 skills), `.claude/settings.json`, `prompts/` |
+| `kiro` | Kiro IDE / CLI | `.kiro/steering/` (12 steering files + templates), `.kiro/hooks.json` |
+| `cursor` | Cursor | `.cursor/rules/product-team-ai-kit.mdc` (always-apply rule), `prompts/` |
+| `codex` | OpenAI Codex | `AGENTS.md` (managed block), `.agents/skills/` (6 skills), `prompts/` |
+| `copilot` | GitHub Copilot | `.github/copilot-instructions.md` (managed block), `prompts/` |
+| `gemini` | Gemini CLI | `GEMINI.md` (managed block), `prompts/` |
+| `windsurf` | Windsurf / Devin Local | `AGENTS.md` (managed block), `.agents/skills/` (6 skills), `prompts/` |
+
+Every agent also gets a managed block in `.gitignore` (generated `documents/` output) and a `.product-team-ai-kit.json` manifest of what was written. Add `--include-samples` for the TeenFit sample outputs.
+
+It is safe to re-run: existing files are never overwritten without `--force`. In shared files such as `CLAUDE.md`, `AGENTS.md` and `.gitignore`, only the delimited `product-team-ai-kit` block is touched, and a second run with nothing new is a no-op. Other options: `--dir <path>`, `--version`, `--help`, `product-team-ai-kit self-update` (upgrades only if a newer release exists) and `product-team-ai-kit uninstall`.
+
+**What the installer does.** Please [read `install.sh`](install.sh) before piping it to a shell. It resolves the latest release tag, downloads `product-team-ai-kit-<tag>.tar.gz` and `checksums.txt` from that GitHub Release over HTTPS, and **verifies the SHA-256**. A mismatch or a missing `checksums.txt` aborts the install. It unpacks to `~/.local/share/product-team-ai-kit/<tag>` (or `$XDG_DATA_HOME`), links `~/.local/bin/product-team-ai-kit` (or `$PTAK_BIN_DIR`), and prints the line to add to your PATH if needed. It does not edit your shell files unless you set `PTAK_MODIFY_PATH=1`. Remove everything with `sh install.sh --uninstall` or `product-team-ai-kit uninstall`.
+
+**Pin a version:**
+
+```bash
+curl -fsSL https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams/releases/download/v0.1.0/install.sh | PTAK_VERSION=v0.1.0 sh
+```
+
+**Verify a release by hand** (needs the [GitHub CLI](https://cli.github.com/) for the provenance check):
+
+```bash
+gh release download v0.1.0 -R aws-samples/sample-kiro-cli-prompts-for-product-teams
+sha256sum -c checksums.txt            # macOS: shasum -a 256 -c checksums.txt
+gh attestation verify product-team-ai-kit-v0.1.0.tar.gz -R aws-samples/sample-kiro-cli-prompts-for-product-teams
+```
+
+**Windows:** run the installer and the command inside WSL or Git Bash. Native PowerShell/cmd is not supported.
+
+Prefer installing into the editor itself? See the Agent Plugin route proposed in PR #9. The two complement each other: the plugin is user-scoped and loads skills on demand, while `product-team-ai-kit` writes always-on files that you commit with each project. Design notes: [docs/product-team-ai-kit-design.md](docs/product-team-ai-kit-design.md).
+
 ## Overview
 
 This toolkit provides **steering files for [Kiro](https://kiro.dev)** that guide an AI assistant through a complete product development workflow:

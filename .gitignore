@@ -30,3 +30,6 @@ documents/handoffs/
 
 # Build-time fetched libraries (downloaded during Prototype phase, never committed)
 documents/lib/
+
+# product-team-ai-kit release build output (scripts/build-release.sh)
+dist/

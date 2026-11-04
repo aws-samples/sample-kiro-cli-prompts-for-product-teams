@@ -57,6 +57,38 @@ Additional invariants:
 
 A quick way to check for drift after an edit: `grep -rn "<the value you changed>" prompts/ .kiro/ .claude/ CLAUDE.md .cursorrules README.md Getting_Started_Guide.html`.
 
+### Keeping the `product-team-ai-kit` CLI in sync
+
+The CLI (`bin/product-team-ai-kit`) copies the layers above into users' projects. What each agent receives is listed in one place, `kit/agents.map`. Nothing there is generated, so the layering rule above is still the only rule for content. Some changes also need a map edit:
+
+* **Adding a guide or template to `prompts/`** (for example a new phase): add an `@guides|file|prompts/<name>|prompts/<name>` line to `kit/agents.map`.
+* **Adding a Kiro steering file, Claude agent or Claude skill:** no map change is needed. Those directories are copied whole.
+* **Adding a new top-level file a harness needs:** add an entry under that agent in `kit/agents.map`, and add the path to the `git archive` list in `scripts/build-release.sh`.
+
+Before opening a PR, run:
+
+```bash
+sh scripts/check.sh            # content consistency: map entries, prompts/ listed, templates identical, references resolve
+sh tests/run.sh                # CLI + installer tests (commit first: release tests build from HEAD)
+shellcheck install.sh bin/product-team-ai-kit scripts/*.sh tests/run.sh
+```
+
+CI (`.github/workflows/cli.yml`) runs all three on ubuntu and macOS under `dash` and `bash`. It fails when a harness layer drifts in a way `scripts/check.sh` can detect: a missing or unlisted guide, differing template copies, broken `prompts/` references, invalid skill or steering front matter, or `CLAUDE.md`/`.cursorrules` disagreeing on the shared invariants above.
+
+## Cutting a release
+
+Releases are published by `.github/workflows/release.yml` when a `vX.Y.Z` tag is pushed. The workflow refuses tags that are not `vMAJOR.MINOR.PATCH`, tags whose commit is not on `main`, and tags that do not match the `VERSION` file. It runs the full test suite before it builds and publishes `product-team-ai-kit-vX.Y.Z.tar.gz`, `install.sh` and `checksums.txt`.
+
+1. Bump `VERSION` (e.g. `0.1.0`) in a PR and merge it to `main`.
+2. Tag the merge commit on `main` and push the tag:
+
+   ```bash
+   git checkout main && git pull
+   git tag v0.1.0 && git push origin v0.1.0
+   ```
+
+3. Watch the `release` workflow. The installer's default "latest" picks up the new release as soon as it is published.
+
 
 ## Finding contributions to work on
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
