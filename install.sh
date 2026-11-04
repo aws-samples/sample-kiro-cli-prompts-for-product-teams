@@ -205,10 +205,9 @@ do_install() {
     esac
     _label=ref-$(printf '%s' "$PTAK_REF" | tr '/' '-')
     _archive=$TMP/kit.tar.gz
-    say "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    say "!! DEVELOPMENT INSTALL: git ref '$PTAK_REF' is NOT a release and is    !!"
-    say "!! NOT checksum-verified. Use only to test a branch you trust.        !!"
-    say "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    warn "!!! DEVELOPMENT INSTALL !!!"
+    warn "git ref '$PTAK_REF' is NOT a release and is NOT checksum-verified."
+    warn "Use this only to test a branch you trust. Normal installs: unset PTAK_REF and PTAK_INSECURE_SKIP_VERIFY."
     fetch "https://codeload.github.com/$REPO/tar.gz/$PTAK_REF" "$_archive" ||
       die "cannot download ref $PTAK_REF"
   else
