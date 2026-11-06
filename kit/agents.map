@@ -1,0 +1,84 @@
+# product-team-ai-kit agent registry: the single list of what each agent harness gets.
+#
+# Format (one entry per line, "|"-separated so paths may contain spaces):
+#   <who>|<mode>|<source>|<target>
+#
+#   who     an agent name (what users pass to --agent), or a @group shared by agents
+#   mode    about       one-line description shown by --list (source = text, target = -)
+#           use         include every entry of group <source> (target = -)
+#           file        copy one file
+#           dir         copy every file under a directory (recursively, .gitkeep skipped)
+#           block-md    write <source> into a managed <!-- --> block inside <target>
+#           block-hash  write <source> into a managed # block inside <target>
+#           mdc         write a Cursor .mdc rule: kit/cursor-rule-header.mdc + <source>
+#   source  path relative to the repo root (the installed content dir)
+#   target  path relative to the project dir (--dir)
+#
+# Sources are the repo's existing, reviewed harness layers: nothing is rewritten.
+# `sh scripts/check.sh` fails CI if a source is missing, a target is unsafe, two
+# entries fight over one target, or a guide in prompts/ is not listed in @guides.
+
+# ---- shared groups ---------------------------------------------------------
+@guides|file|prompts/Claude_Code_Workflow.md|prompts/Claude_Code_Workflow.md
+@guides|file|prompts/Orchestrator.md|prompts/Orchestrator.md
+@guides|file|prompts/Shared_Standards.md|prompts/Shared_Standards.md
+@guides|file|prompts/Handoff_Schema.md|prompts/Handoff_Schema.md
+@guides|file|prompts/Document_Summarizer.md|prompts/Document_Summarizer.md
+@guides|file|prompts/LLM_Workflow_Checklist.md|prompts/LLM_Workflow_Checklist.md
+@guides|file|prompts/Deep_Research_Agent.md|prompts/Deep_Research_Agent.md
+@guides|file|prompts/AI_Framing_Agent.md|prompts/AI_Framing_Agent.md
+@guides|file|prompts/AI_Framing_Template.md|prompts/AI_Framing_Template.md
+@guides|file|prompts/PRFAQ_Guide.md|prompts/PRFAQ_Guide.md
+@guides|file|prompts/PRD_Creation_Guide.md|prompts/PRD_Creation_Guide.md
+@guides|file|prompts/Prototype_Spec_Guide.md|prompts/Prototype_Spec_Guide.md
+@guides|file|prompts/Prototype_Creation_Guide.md|prompts/Prototype_Creation_Guide.md
+@guides|file|prompts/ProjectDashboard_Template.html|prompts/ProjectDashboard_Template.html
+@guides|file|prompts/ScreenIndex_Template.html|prompts/ScreenIndex_Template.html
+
+@gitignore|block-hash|kit/gitignore|.gitignore
+
+# Only with --include-samples.
+@samples|dir|samples|samples
+@samples|file|prompts/Sample_ClickablePrototype_AnyCompanyLearning.html|prompts/Sample_ClickablePrototype_AnyCompanyLearning.html
+@samples|file|prompts/Sample_Screen_Dashboard.html|prompts/Sample_Screen_Dashboard.html
+
+# ---- agents ----------------------------------------------------------------
+claude|about|Claude Code: CLAUDE.md block, .claude/ subagents + skills + validation hooks, prompts/|-
+claude|block-md|CLAUDE.md|CLAUDE.md
+claude|dir|.claude/agents|.claude/agents
+claude|dir|.claude/skills|.claude/skills
+claude|file|.claude/settings.json|.claude/settings.json
+claude|use|@guides|-
+claude|use|@gitignore|-
+
+kiro|about|Kiro (IDE and CLI): .kiro/steering (always/manual/fileMatch), templates, hooks|-
+kiro|dir|.kiro/steering|.kiro/steering
+kiro|file|.kiro/hooks.json|.kiro/hooks.json
+kiro|use|@gitignore|-
+
+cursor|about|Cursor: always-apply project rule in .cursor/rules/, prompts/|-
+cursor|mdc|.cursorrules|.cursor/rules/product-team-ai-kit.mdc
+cursor|use|@guides|-
+cursor|use|@gitignore|-
+
+codex|about|OpenAI Codex: AGENTS.md block, repo skills in .agents/skills/, prompts/|-
+codex|block-md|.cursorrules|AGENTS.md
+codex|dir|.claude/skills|.agents/skills
+codex|use|@guides|-
+codex|use|@gitignore|-
+
+copilot|about|GitHub Copilot: .github/copilot-instructions.md block, prompts/|-
+copilot|block-md|.cursorrules|.github/copilot-instructions.md
+copilot|use|@guides|-
+copilot|use|@gitignore|-
+
+gemini|about|Gemini CLI: GEMINI.md block, prompts/|-
+gemini|block-md|.cursorrules|GEMINI.md
+gemini|use|@guides|-
+gemini|use|@gitignore|-
+
+windsurf|about|Windsurf / Devin Local: AGENTS.md block, skills in .agents/skills/, prompts/|-
+windsurf|block-md|.cursorrules|AGENTS.md
+windsurf|dir|.claude/skills|.agents/skills
+windsurf|use|@guides|-
+windsurf|use|@gitignore|-

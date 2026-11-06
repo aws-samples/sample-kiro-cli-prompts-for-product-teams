@@ -1,0 +1,630 @@
+#!/bin/sh
+# product-team-ai-kit: configure a project folder for an AI agent harness with
+# the Product Team's Tool Chest workflow (research -> PRFAQ -> PRD -> prototype).
+#
+# POSIX sh, no runtime dependencies. Works offline: every file it writes comes
+# from the content directory it was installed with. Only `self-update` touches
+# the network.
+#
+# Source: https://github.com/aws-samples/sample-kiro-cli-prompts-for-product-teams
+# License: MIT-0
+set -eu
+
+PROG=product-team-ai-kit
+REPO=aws-samples/sample-kiro-cli-prompts-for-product-teams
+MANIFEST=.product-team-ai-kit.json
+MD_BEGIN='<!-- BEGIN product-team-ai-kit (managed block: re-run product-team-ai-kit to update; edits inside are overwritten) -->'
+MD_END='<!-- END product-team-ai-kit -->'
+HASH_BEGIN='# BEGIN product-team-ai-kit (managed block: re-run product-team-ai-kit to update; edits inside are overwritten)'
+HASH_END='# END product-team-ai-kit'
+MD_BEGIN_PREFIX='<!-- BEGIN product-team-ai-kit'
+MD_END_PREFIX='<!-- END product-team-ai-kit'
+HASH_BEGIN_PREFIX='# BEGIN product-team-ai-kit'
+HASH_END_PREFIX='# END product-team-ai-kit'
+
+# Exit codes
+EX_ERR=1       # internal error / broken install
+EX_USAGE=2     # bad flag, unknown agent
+EX_CONFLICT=3  # an existing file would be overwritten (use --force)
+EX_DIR=4       # target dir missing/unwritable, unsafe path, symlink escape
+EX_TOOL=5      # a required tool is missing
+
+LC_ALL=C
+export LC_ALL
+
+die() {
+  _code=$1
+  shift
+  printf '%s: error: %s\n' "$PROG" "$*" >&2
+  exit "$_code"
+}
+
+say() { printf '%s\n' "$*"; }
+
+usage() {
+  cat <<'EOF'
+Usage: product-team-ai-kit --agent <name>[,<name>...] [options]
+       product-team-ai-kit --list [--agent <name>]
+       product-team-ai-kit self-update | uninstall | --version | --help
+
+Configure the current project folder for one or more AI agent harnesses with
+the Product Team's Tool Chest workflow files.
+
+Options:
+  -a, --agent <names>   Agent(s) to configure. Repeatable or comma-separated
+                        (e.g. --agent claude,kiro). See --list.
+      --list            List supported agents and the files each one writes.
+  -n, --dry-run         Print the plan; write nothing.
+  -f, --force           Overwrite files that differ from the kit's version.
+      --dir <path>      Project directory to configure (default: .).
+      --include-samples Also copy the TeenFit sample outputs (samples/).
+  -V, --version         Print the version.
+  -h, --help            Show this help.
+
+Commands:
+  self-update           Upgrade to the latest GitHub release if it is newer.
+  uninstall             Remove the installed kit and its command link.
+
+Safe by default: existing files are never overwritten without --force. Shared
+files (CLAUDE.md, AGENTS.md, GEMINI.md, .gitignore, ...) get a delimited
+managed block; only that block is updated on re-run. A manifest of what was
+written is kept in .product-team-ai-kit.json. Re-running is a no-op.
+
+Exit codes: 0 ok, 2 usage/unknown agent, 3 conflict (use --force),
+            4 target dir or path problem, 5 missing tool, 1 other error.
+EOF
+}
+
+# ---------------------------------------------------------------------------
+# Locate the installed content directory (the dir above bin/), following the
+# command link without relying on non-portable `readlink -f`.
+resolve_kit_root() {
+  _p=$0
+  case $_p in
+    */*) ;;
+    *) _p=$(command -v -- "$_p" 2>/dev/null) || die "$EX_ERR" "cannot locate $PROG on PATH" ;;
+  esac
+  _n=0
+  while [ -L "$_p" ]; do
+    _n=$((_n + 1))
+    [ "$_n" -le 40 ] || die "$EX_ERR" "too many symlink levels resolving $0"
+    _l=$(readlink "$_p")
+    case $_l in
+      /*) _p=$_l ;;
+      *) _p=$(dirname "$_p")/$_l ;;
+    esac
+  done
+  _d=$(cd -P "$(dirname "$_p")" && pwd -P) || die "$EX_ERR" "cannot resolve $0"
+  KIT_ROOT=$(cd -P "$_d/.." && pwd -P) || die "$EX_ERR" "cannot resolve kit root"
+  MAP=$KIT_ROOT/kit/agents.map
+  [ -f "$MAP" ] || die "$EX_ERR" "broken install: $MAP not found (re-run the installer)"
+  [ -f "$KIT_ROOT/VERSION" ] || die "$EX_ERR" "broken install: VERSION not found"
+  VERSION=$(sed -n '1p' "$KIT_ROOT/VERSION")
+}
+
+sha256_of() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    die "$EX_TOOL" "need sha256sum or shasum"
+  fi
+}
+
+# A kit-relative or project-relative path we are willing to touch.
+# Rejects absolute paths, '.'/'..' components, and unusual characters.
+check_rel() {
+  _r=$1
+  case $_r in
+    '' | /* | */ ) return 1 ;;
+  esac
+  case "/$_r/" in
+    */../* | */./* | *//*) return 1 ;;
+  esac
+  case $_r in
+    *[!A-Za-z0-9._/\ -]*) return 1 ;;
+  esac
+  return 0
+}
+
+# Fail if any existing component of DIR/<rel> is a symlink (so writes cannot
+# be redirected outside --dir), or if the path is unsafe.
+check_target() {
+  _t=$1
+  check_rel "$_t" || die "$EX_DIR" "unsafe target path rejected: $_t"
+  _walk=$TARGET_DIR
+  _rest=$_t
+  while [ -n "$_rest" ]; do
+    case $_rest in
+      */*) _c=${_rest%%/*}; _rest=${_rest#*/} ;;
+      *) _c=$_rest; _rest= ;;
+    esac
+    _walk=$_walk/$_c
+    if [ -L "$_walk" ]; then
+      die "$EX_DIR" "refusing to write through symlink: ${_walk#"$TARGET_DIR"/}"
+    fi
+  done
+}
+
+# ---------------------------------------------------------------------------
+# Agent registry (kit/agents.map)
+
+map_entries() {
+  # Print "who|mode|src|tgt" for every non-comment line.
+  awk -F'|' 'NF && $0 !~ /^[[:space:]]*#/ {
+      if (NF != 4) { printf "malformed line %d in agents.map\n", NR > "/dev/stderr"; exit 1 }
+      print
+    }' "$MAP"
+}
+
+known_agents() {
+  map_entries | awk -F'|' '$2 == "about" && $1 !~ /^@/ {print $1}'
+}
+
+is_known_agent() {
+  known_agents | grep -qx -- "$1"
+}
+
+add_agents() {
+  _rest=$1
+  [ -n "$_rest" ] || die "$EX_USAGE" "--agent needs a value"
+  while :; do
+    case $_rest in
+      *,*) _a=${_rest%%,*}; _rest=${_rest#*,} ;;
+      *) _a=$_rest; _rest= ;;
+    esac
+    if [ -n "$_a" ]; then
+      case $_a in
+        *[!a-z0-9-]*) die "$EX_USAGE" "invalid agent name: $_a (see --list)" ;;
+      esac
+      if ! printf '%s\n' "$AGENTS" | grep -qx -- "$_a"; then
+        AGENTS="${AGENTS:+$AGENTS
+}$_a"
+      fi
+    fi
+    [ -n "$_rest" ] || break
+  done
+}
+
+# Expand the entries of one agent (or @group) into plan lines "mode|src|tgt".
+expand_who() {
+  _who=$1
+  map_entries | while IFS='|' read -r w m s t; do
+    [ "$w" = "$_who" ] || continue
+    case $m in
+      about) ;;
+      use)
+        case $s in @*) ;; *) die "$EX_ERR" "agents.map: 'use' needs a @group, got $s" ;; esac
+        map_entries | while IFS='|' read -r gw gm gs gt; do
+          [ "$gw" = "$s" ] || continue
+          expand_one "$gm" "$gs" "$gt"
+        done
+        ;;
+      *) expand_one "$m" "$s" "$t" ;;
+    esac
+  done
+}
+
+expand_one() {
+  _m=$1 _s=$2 _t=$3
+  check_rel "$_s" || die "$EX_ERR" "agents.map: unsafe source path: $_s"
+  case $_m in
+    file | mdc | block-md | block-hash)
+      [ -f "$KIT_ROOT/$_s" ] || die "$EX_ERR" "broken install: missing $_s"
+      printf '%s|%s|%s\n' "$_m" "$_s" "$_t"
+      ;;
+    dir)
+      [ -d "$KIT_ROOT/$_s" ] || die "$EX_ERR" "broken install: missing directory $_s"
+      (cd "$KIT_ROOT/$_s" && find . -type f ! -name .gitkeep) | sort | while IFS= read -r f; do
+        f=${f#./}
+        printf 'file|%s|%s\n' "$_s/$f" "$_t/$f"
+      done
+      ;;
+    *) die "$EX_ERR" "agents.map: unknown mode $_m" ;;
+  esac
+}
+
+build_plan() {
+  _out=$1
+  : > "$_out.raw"
+  while IFS= read -r _a; do
+    [ -n "$_a" ] || continue
+    expand_who "$_a" >> "$_out.raw"
+  done <<EOF
+$AGENTS
+EOF
+  if [ "$SAMPLES" = 1 ]; then
+    expand_who @samples >> "$_out.raw"
+  fi
+  # De-duplicate by target; two different sources for one target is a bug.
+  awk -F'|' '{
+      if ($3 in seen) {
+        if (seen[$3] != $1 "|" $2) { printf "agents.map: conflicting entries for %s\n", $3 > "/dev/stderr"; bad = 1 }
+        next
+      }
+      seen[$3] = $1 "|" $2
+      print
+    } END { exit bad }' "$_out.raw" > "$_out" || die "$EX_ERR" "inconsistent agent registry"
+}
+
+# ---------------------------------------------------------------------------
+# Manifest (.product-team-ai-kit.json): a fixed, line-oriented JSON layout we
+# both write and parse, so no JSON tool is needed.
+
+read_manifest() {
+  _mf=$TARGET_DIR/$MANIFEST
+  : > "$WORK/old.files"
+  OLD_AGENTS=
+  [ -e "$_mf" ] || return 0
+  [ ! -L "$_mf" ] || die "$EX_DIR" "refusing to read symlinked $MANIFEST"
+  if ! grep -q '"tool": "product-team-ai-kit"' "$_mf"; then
+    [ "$FORCE" = 1 ] || die "$EX_CONFLICT" "$MANIFEST exists but was not written by $PROG (use --force to replace it)"
+    return 0
+  fi
+  OLD_AGENTS=$(sed -n 's/^  "agents": \[\(.*\)\],\{0,1\}$/\1/p' "$_mf" | tr -d '" ' | tr ',' '\n')
+  sed -n 's/^    {"path": "\([^"]*\)", "mode": "\([^"]*\)", "sha256": "\([0-9a-f]*\)"},\{0,1\}$/\1|\2|\3/p' "$_mf" > "$WORK/old.files"
+}
+
+recorded_sha() {
+  awk -F'|' -v p="$1" '$1 == p {print $3; exit}' "$WORK/old.files"
+}
+
+write_manifest() {
+  _new=$WORK/manifest.json
+  _agents=$(printf '%s\n%s\n' "$OLD_AGENTS" "$AGENTS" | awk 'NF && !s[$0]++' | sort)
+  # Keep entries for files this run did not touch; replace the rest.
+  awk -F'|' 'NR == FNR {cur[$1] = 1; print; next} !($1 in cur) {print}' \
+    "$WORK/new.files" "$WORK/old.files" | sort -t'|' -k1,1 > "$WORK/all.files"
+  {
+    printf '{\n'
+    printf '  "tool": "product-team-ai-kit",\n'
+    printf '  "version": "%s",\n' "$VERSION"
+    printf '  "agents": ['
+    printf '%s\n' "$_agents" | awk 'NF {printf "%s\"%s\"", (n++ ? ", " : ""), $0}'
+    printf '],\n'
+    printf '  "files": [\n'
+    awk -F'|' '{lines[NR] = sprintf("    {\"path\": \"%s\", \"mode\": \"%s\", \"sha256\": \"%s\"}", $1, $2, $3)}
+      END {for (i = 1; i <= NR; i++) print lines[i] (i < NR ? "," : "")}' "$WORK/all.files"
+    printf '  ]\n'
+    printf '}\n'
+  } > "$_new"
+  _mf=$TARGET_DIR/$MANIFEST
+  if [ -f "$_mf" ] && cmp -s "$_new" "$_mf"; then
+    MANIFEST_STATUS=unchanged
+  else
+    MANIFEST_STATUS=written
+    [ "$DRY" = 1 ] || put_file "$_new" "$MANIFEST"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Managed blocks
+
+block_markers() {
+  case $1 in
+    block-md) B=$MD_BEGIN E=$MD_END BP=$MD_BEGIN_PREFIX EP=$MD_END_PREFIX ;;
+    block-hash) B=$HASH_BEGIN E=$HASH_END BP=$HASH_BEGIN_PREFIX EP=$HASH_END_PREFIX ;;
+  esac
+}
+
+# Count marker lines and check order. Prints "begins ends ordered".
+block_scan() {
+  awk -v bp="$BP" -v ep="$EP" '
+    index($0, bp) == 1 {b++; if (!fb) fb = NR}
+    index($0, ep) == 1 {e++; if (!fe) fe = NR}
+    END {print b + 0, e + 0, (fb && fe && fb < fe) ? 1 : 0}' "$1"
+}
+
+# Replace the managed block in $1 with block file $2; write to $3.
+block_replace() {
+  awk -v bp="$BP" -v ep="$EP" -v nb="$2" '
+    index($0, bp) == 1 {while ((getline l < nb) > 0) print l; skip = 1; next}
+    skip && index($0, ep) == 1 {skip = 0; next}
+    !skip {print}' "$1" > "$3"
+}
+
+# ---------------------------------------------------------------------------
+# Plan evaluation and application
+
+put_file() {
+  # put_file <content-file> <project-relative target>
+  _src=$1 _rel=$2
+  check_target "$_rel"
+  _abs=$TARGET_DIR/$_rel
+  _parent=$(dirname "$_abs")
+  mkdir -p "$_parent" || die "$EX_DIR" "cannot create directory for $_rel"
+  check_target "$_rel"
+  _tmp=$_abs.ptak-tmp.$$
+  cp "$_src" "$_tmp" || die "$EX_DIR" "cannot write $_rel"
+  mv -f "$_tmp" "$_abs" || { rm -f "$_tmp"; die "$EX_DIR" "cannot write $_rel"; }
+}
+
+evaluate_plan() {
+  : > "$WORK/results"
+  : > "$WORK/new.files"
+  _i=0
+  while IFS='|' read -r m s t; do
+    _i=$((_i + 1))
+    check_target "$t"
+    abs=$TARGET_DIR/$t
+    if [ -e "$abs" ] && [ ! -f "$abs" ]; then
+      printf 'conflict|%s|%s|-|not a regular file\n' "$m" "$t" >> "$WORK/results"
+      continue
+    fi
+    case $m in
+      file | mdc)
+        if [ "$m" = mdc ]; then
+          want=$WORK/stage.$_i
+          cat "$KIT_ROOT/kit/cursor-rule-header.mdc" "$KIT_ROOT/$s" > "$want"
+        else
+          want=$KIT_ROOT/$s
+        fi
+        sum=$(sha256_of "$want")
+        printf '%s|%s|%s\n' "$t" "$m" "$sum" >> "$WORK/new.files"
+        if [ ! -e "$abs" ]; then
+          st=create
+        elif cmp -s "$want" "$abs"; then
+          st=unchanged
+        elif [ "$(recorded_sha "$t")" = "$(sha256_of "$abs")" ]; then
+          st=update          # we wrote it and nobody edited it since
+        elif [ "$FORCE" = 1 ]; then
+          st=overwrite
+        else
+          st=conflict
+        fi
+        printf '%s|%s|%s|%s|\n' "$st" "$m" "$t" "$want" >> "$WORK/results"
+        ;;
+      block-md | block-hash)
+        block_markers "$m"
+        nb=$WORK/block.$_i
+        { printf '%s\n' "$B"; cat "$KIT_ROOT/$s"; printf '%s\n' "$E"; } > "$nb"
+        printf '%s|%s|%s\n' "$t" "$m" "$(sha256_of "$nb")" >> "$WORK/new.files"
+        want=$WORK/stage.$_i
+        if [ ! -e "$abs" ]; then
+          cp "$nb" "$want"
+          st=create
+        else
+          read -r nbeg nend nord <<EOF
+$(block_scan "$abs")
+EOF
+          if [ "$nbeg" = 0 ] && [ "$nend" = 0 ]; then
+            {
+              cat "$abs"
+              if [ -s "$abs" ]; then
+                [ -z "$(tail -c 1 "$abs")" ] || printf '\n'
+                printf '\n'
+              fi
+              cat "$nb"
+            } > "$want"
+            st=append
+          elif [ "$nbeg" = 1 ] && [ "$nend" = 1 ] && [ "$nord" = 1 ]; then
+            block_replace "$abs" "$nb" "$want"
+            if cmp -s "$want" "$abs"; then st=unchanged; else st=update; fi
+          else
+            printf 'conflict|%s|%s|-|malformed managed block (%s begin, %s end markers); fix it by hand\n' \
+              "$m" "$t" "$nbeg" "$nend" >> "$WORK/results"
+            continue
+          fi
+        fi
+        printf '%s|%s|%s|%s|\n' "$st" "$m" "$t" "$want" >> "$WORK/results"
+        ;;
+    esac
+  done < "$WORK/plan"
+}
+
+label() {
+  case $1 in
+    block-md | block-hash) printf ' (managed block)' ;;
+  esac
+}
+
+report_and_apply() {
+  n_create=0 n_update=0 n_over=0 n_same=0 n_append=0 n_conf=0
+  _verb=
+  if [ "$DRY" = 1 ]; then _verb='would '; fi
+  while IFS='|' read -r st m t want note; do
+    case $st in
+      unchanged) n_same=$((n_same + 1)); continue ;;
+      conflict) n_conf=$((n_conf + 1)) ;;
+      create) n_create=$((n_create + 1)) ;;
+      update) n_update=$((n_update + 1)) ;;
+      overwrite) n_over=$((n_over + 1)) ;;
+      append) n_append=$((n_append + 1)) ;;
+    esac
+    if [ "$st" = conflict ]; then
+      printf '  %-10s %s%s%s\n' CONFLICT "$t" "$(label "$m")" "${note:+: $note}"
+    else
+      printf '  %-10s %s%s\n' "$_verb$st" "$t" "$(label "$m")"
+    fi
+  done < "$WORK/results"
+
+  if [ "$n_conf" -gt 0 ]; then
+    say ""
+    say "$n_conf file(s) already exist with different content. Nothing was written."
+    say "Review them, then re-run with --force to replace them with the kit's version."
+    exit "$EX_CONFLICT"
+  fi
+
+  if [ "$DRY" != 1 ]; then
+    while IFS='|' read -r st m t want note; do
+      [ "$st" = unchanged ] || put_file "$want" "$t"
+    done < "$WORK/results"
+  fi
+  write_manifest
+  [ "$MANIFEST_STATUS" = unchanged ] || printf '  %-10s %s\n' "${_verb}write" "$MANIFEST"
+
+  _changed=$((n_create + n_update + n_over + n_append))
+  say ""
+  if [ "$_changed" = 0 ] && [ "$MANIFEST_STATUS" = unchanged ]; then
+    say "Already up to date ($n_same files unchanged)."
+  else
+    _pre=
+    if [ "$DRY" = 1 ]; then _pre='Dry run, nothing written: '; fi
+    say "$_pre$n_create created, $n_append appended, $n_update updated, $n_over overwritten, $n_same unchanged."
+  fi
+}
+
+cmd_install() {
+  [ -n "$AGENTS" ] || { usage >&2; die "$EX_USAGE" "no agent given (try --agent claude, or --list)"; }
+  while IFS= read -r _a; do
+    [ -n "$_a" ] || continue
+    is_known_agent "$_a" || die "$EX_USAGE" "unknown agent: $_a (supported: $(known_agents | tr '\n' ' '))"
+  done <<EOF
+$AGENTS
+EOF
+  [ -e "$DIR" ] || die "$EX_DIR" "directory does not exist: $DIR"
+  [ -d "$DIR" ] || die "$EX_DIR" "not a directory: $DIR"
+  TARGET_DIR=$(cd -P "$DIR" && pwd -P) || die "$EX_DIR" "cannot enter $DIR"
+  [ "$DRY" = 1 ] || [ -w "$TARGET_DIR" ] || die "$EX_DIR" "directory is not writable: $TARGET_DIR"
+  sha256_of "$MAP" >/dev/null
+
+  WORK=$(mktemp -d "${TMPDIR:-/tmp}/ptak.XXXXXX") || die "$EX_ERR" "mktemp failed"
+  trap 'rm -rf "$WORK"' EXIT
+  trap 'exit 1' HUP INT TERM
+
+  read_manifest
+  build_plan "$WORK/plan"
+  _extra=
+  if [ "$SAMPLES" = 1 ]; then _extra=' (+samples)'; fi
+  say "$PROG $VERSION: configuring $TARGET_DIR for: $(printf '%s\n' "$AGENTS" | paste -sd ' ' -)$_extra"
+  evaluate_plan
+  report_and_apply
+}
+
+cmd_list() {
+  _sel=$AGENTS
+  [ -n "$_sel" ] || _sel=$(known_agents)
+  say "Supported agents (product-team-ai-kit $VERSION):"
+  while IFS= read -r _a; do
+    [ -n "$_a" ] || continue
+    is_known_agent "$_a" || die "$EX_USAGE" "unknown agent: $_a"
+    _about=$(map_entries | awk -F'|' -v a="$_a" '$1 == a && $2 == "about" {print $3; exit}')
+    say ""
+    say "  $_a  -  $_about"
+    _files=$(expand_who "$_a")
+    printf '%s\n' "$_files" | awk -F'|' 'NF && !seen[$3]++ {
+        if ($3 ~ /^prompts\//) { np++; next }
+        printf "      %s%s\n", $3, ($1 ~ /^block/ ? "  (managed block)" : "")
+      } END { if (np) printf "      prompts/  (%d workflow guides and templates)\n", np }'
+  done <<EOF
+$_sel
+EOF
+  say ""
+  say "With --include-samples: samples/ (TeenFit example outputs) and prompts/Sample_*.html."
+  say "Every run also writes $MANIFEST."
+}
+
+# ---------------------------------------------------------------------------
+# self-update / uninstall delegate to the installer shipped with this kit.
+
+fetch() {
+  case $1 in
+    https://*) ;;
+    file://*) cp "${1#file://}" "$2"; return ;;
+    *) die "$EX_ERR" "refusing non-HTTPS URL: $1" ;;
+  esac
+  if command -v curl >/dev/null 2>&1; then
+    curl --proto '=https' --proto-redir '=https' --tlsv1.2 -fsSL -o "$2" "$1"
+  elif command -v wget >/dev/null 2>&1; then
+    wget --https-only -q -O "$2" "$1"
+  else
+    die "$EX_TOOL" "need curl or wget"
+  fi
+}
+
+latest_tag() {
+  if [ -n "${PTAK_BASE_URL:-}" ]; then
+    fetch "$PTAK_BASE_URL/latest" "$WORK/latest" || die "$EX_ERR" "cannot read $PTAK_BASE_URL/latest"
+    sed -n '1p' "$WORK/latest"
+    return
+  fi
+  _u=https://github.com/$REPO/releases/latest
+  if command -v curl >/dev/null 2>&1; then
+    _loc=$(curl --proto '=https' --tlsv1.2 -fsS -o /dev/null -w '%{redirect_url}' "$_u")
+  elif command -v wget >/dev/null 2>&1; then
+    _loc=$(wget --https-only --max-redirect=0 -S -O /dev/null "$_u" 2>&1 | sed -n 's/^ *[Ll]ocation: *//p' | tr -d '\r' | sed -n '1p')
+  else
+    die "$EX_TOOL" "need curl or wget"
+  fi
+  case $_loc in
+    */releases/tag/*) printf '%s\n' "${_loc##*/releases/tag/}" ;;
+    *) die "$EX_ERR" "no GitHub release has been published for $REPO yet" ;;
+  esac
+}
+
+version_gt() {
+  # version_gt vA.B.C vX.Y.Z -> true if the first is newer
+  awk -v a="${1#v}" -v b="${2#v}" 'BEGIN {
+      split(a, x, "."); split(b, y, ".")
+      for (i = 1; i <= 3; i++) { if (x[i] + 0 > y[i] + 0) exit 0; if (x[i] + 0 < y[i] + 0) exit 1 }
+      exit 1 }'
+}
+
+cmd_self_update() {
+  WORK=$(mktemp -d "${TMPDIR:-/tmp}/ptak.XXXXXX") || die "$EX_ERR" "mktemp failed"
+  trap 'rm -rf "$WORK"' EXIT
+  trap 'exit 1' HUP INT TERM
+  _latest=$(latest_tag)
+  printf '%s\n' "$_latest" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || die "$EX_ERR" "unexpected release tag: $_latest"
+  if ! version_gt "$_latest" "v$VERSION"; then
+    say "$PROG v$VERSION is up to date (latest release: $_latest)."
+    return 0
+  fi
+  say "Upgrading $PROG v$VERSION -> $_latest"
+  if [ -n "${PTAK_BASE_URL:-}" ]; then _base=$PTAK_BASE_URL/$_latest; else _base=https://github.com/$REPO/releases/download/$_latest; fi
+  fetch "$_base/checksums.txt" "$WORK/checksums.txt" || die "$EX_ERR" "checksums.txt missing for $_latest; refusing to update"
+  fetch "$_base/install.sh" "$WORK/install.sh" || die "$EX_ERR" "cannot download install.sh for $_latest"
+  _want=$(awk '$2 == "install.sh" || $2 == "*install.sh" {print $1}' "$WORK/checksums.txt")
+  [ -n "$_want" ] || die "$EX_ERR" "install.sh is not listed in checksums.txt; refusing to update"
+  [ "$_want" = "$(sha256_of "$WORK/install.sh")" ] || die "$EX_ERR" "install.sh checksum mismatch; refusing to update"
+  PTAK_VERSION=$_latest sh "$WORK/install.sh"
+}
+
+cmd_uninstall() {
+  [ -f "$KIT_ROOT/install.sh" ] || die "$EX_ERR" "broken install: install.sh not found"
+  sh "$KIT_ROOT/install.sh" --uninstall
+}
+
+main() {
+  AGENTS='' DRY=0 FORCE=0 DIR=. SAMPLES=0 CMD=install
+  case ${1:-} in
+    self-update) CMD=self-update; shift ;;
+    uninstall) CMD=uninstall; shift ;;
+    help) CMD=help; shift ;;
+  esac
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -a | --agent)
+        [ $# -ge 2 ] || die "$EX_USAGE" "$1 needs a value"
+        add_agents "$2"; shift 2 ;;
+      --agent=*) add_agents "${1#--agent=}"; shift ;;
+      --list) if [ "$CMD" = install ]; then CMD=list; fi; shift ;;
+      -n | --dry-run) DRY=1; shift ;;
+      -f | --force) FORCE=1; shift ;;
+      --dir)
+        [ $# -ge 2 ] || die "$EX_USAGE" "--dir needs a value"
+        DIR=$2; shift 2 ;;
+      --dir=*) DIR=${1#--dir=}; shift ;;
+      --include-samples) SAMPLES=1; shift ;;
+      -V | --version) CMD=version; shift ;;
+      -h | --help) CMD=help; shift ;;
+      *) die "$EX_USAGE" "unknown option: $1 (see --help)" ;;
+    esac
+  done
+  [ -n "$DIR" ] || die "$EX_USAGE" "--dir needs a value"
+
+  case $CMD in
+    help) usage; return 0 ;;
+  esac
+  resolve_kit_root
+  case $CMD in
+    version) say "$PROG $VERSION" ;;
+    list) cmd_list ;;
+    install) cmd_install ;;
+    self-update) cmd_self_update ;;
+    uninstall) cmd_uninstall ;;
+  esac
+}
+
+main "$@"
